@@ -1,0 +1,6 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="scripts(pageScripts)">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://kit.fontawesome.com/33d7a97148.js" crossorigin="anonymous"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <th:block th:replace="${pageScripts}"></th:block>
+</div>
