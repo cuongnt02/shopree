@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.ntc.shopree.app-mergeDebugResources-35:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.13\\transforms\\de26df6b0db7244c0299ef4f3e068a49\\transformed\\material3\\res\\values-v30\\values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}
