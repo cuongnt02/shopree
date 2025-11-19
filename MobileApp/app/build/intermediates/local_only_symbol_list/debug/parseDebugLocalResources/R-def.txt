@@ -1,0 +1,31 @@
+R_DEF: Internal format may change without notice
+local
+array com_google_android_gms_fonts_certs
+array com_google_android_gms_fonts_certs_dev
+array com_google_android_gms_fonts_certs_prod
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+font robotoblack
+font robotoblackitalic
+font robotobold
+font robotobolditalic
+font robotoextrabold
+font robotoextrabolditalic
+font robotoextralight
+font robotoextralightitalic
+font robotoitalic
+font robotolight
+font robotolightitalic
+font robotomedium
+font robotomediumitalic
+font robotoregular
+font robotosemibold
+font robotosemibolditalic
+font robotothin
+font robotothinitalic
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme.MobileApp
+xml backup_rules
+xml data_extraction_rules
