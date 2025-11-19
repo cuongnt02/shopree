@@ -1,0 +1,138 @@
+[
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotothin.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotothin.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotolight.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotolight.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoextrabold.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoextrabold.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotobold.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotobold.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotobolditalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotobolditalic.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoextralight.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoextralight.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xxxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoregular.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoregular.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-mdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\xml\\backup_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoblack.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoblack.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotothinitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotothinitalic.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotolightitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotolightitalic.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-hdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotosemibold.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotosemibold.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotomediumitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotomediumitalic.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-hdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotomedium.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotomedium.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-mdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoitalic.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-xhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoextrabolditalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoextrabolditalic.ttf"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-debug-37:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.13\\com.ntc.shopree.app-main-39:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoblackitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoblackitalic.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotoextralightitalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotoextralightitalic.ttf"
+    },
+    {
+        "merged": "com.ntc.shopree.app-debug-37:/font_robotosemibolditalic.ttf.flat",
+        "source": "com.ntc.shopree.app-main-39:/font/robotosemibolditalic.ttf"
+    }
+]
