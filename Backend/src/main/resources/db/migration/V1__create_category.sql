@@ -1,14 +1,8 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE category
 (
-    id        UUID NOT NULL,
-    name      VARCHAR(150),
-    slug      VARCHAR(150),
-    parent_id UUID,
-    CONSTRAINT pk_category PRIMARY KEY (id)
+    id        uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name      varchar(150),
+    slug      varchar(150) UNIQUE,
+    parent_id uuid REFERENCES category (id) ON DELETE SET NULL
 );
-
-ALTER TABLE category
-    ADD CONSTRAINT uc_category_slug UNIQUE (slug);
-
-ALTER TABLE category
-    ADD CONSTRAINT FK_CATEGORY_ON_PARENT FOREIGN KEY (parent_id) REFERENCES category (id) ON DELETE SET NULL;
