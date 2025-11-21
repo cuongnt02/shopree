@@ -1,18 +1,9 @@
 
-// TODO: Find out why the build only success with the classpath, not deps
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.flywaydb:flyway-database-postgresql:11.17.0")
-        classpath 'org.postgresql:postgresql:42.7.1'
-    }
-}
 
 plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.9.25'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id "org.jetbrains.kotlin.plugin.jpa" version "1.9.25"
 	id 'org.springframework.boot' version '3.5.7'
 	id 'io.spring.dependency-management' version '1.1.7'
     id 'org.flywaydb.flyway' version '11.17.0'
@@ -38,7 +29,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.flywaydb:flyway-core:11.17.0'
     runtimeOnly 'org.flywaydb:flyway-database-postgresql'
@@ -52,22 +42,11 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-
-
-flyway {
-    url = System.getenv('DATABASE_URL')
-    user = System.getenv('DATABASE_USERNAME')
-    password = System.getenv('DATABASE_PASSWORD')
-    cleanDisabled = false
-    schemas = ['shopree']
-    table = 'flyway_schema_history'
-    baselineOnMigrate = true
-}
-
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll '-Xjsr305=strict'
 	}
+
 }
 
 tasks.named('test') {

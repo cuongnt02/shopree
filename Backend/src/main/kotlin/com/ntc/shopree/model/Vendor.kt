@@ -22,11 +22,6 @@ import java.util.UUID
 @Entity
 @Table(name = "vendor", indexes = [Index(name = "idx_vendor_status", columnList = "status")])
 class Vendor (
-
-    @field:Id
-    @field:GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID,
-
     @field:OneToOne
     @field:JoinColumn(name = "owner_user_id")
     @field:OnDelete(action = OnDeleteAction.SET_NULL)
@@ -58,6 +53,10 @@ class Vendor (
 
     var updatedAt: Instant = Instant.now(),
 ) {
+    @field:Id
+    @field:GeneratedValue(strategy = GenerationType.UUID)
+    var id: UUID? = null
+
     enum class Status {
         PENDING, APPROVED, REJECTED, SUSPENDED
     }

@@ -18,10 +18,6 @@ import java.util.UUID
 @Entity
 @Table(name = "user", indexes = [Index(name = "idx_user_email", columnList = "email")])
 class User (
-    @field:Id
-    @field:GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID,
-
     @field:Column(length = 255, unique = true, nullable = false)
     var email: String,
 
@@ -48,6 +44,11 @@ class User (
 
     var updatedAt: Instant = Instant.now(),
 ) {
+
+    @field:Id
+    @field:GeneratedValue(strategy = GenerationType.UUID)
+    var id: UUID? = null
+
     enum class Role {
         BUYER, VENDOR_USER, ADMIN
     }
