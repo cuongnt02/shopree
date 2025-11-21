@@ -1,17 +1,13 @@
 CREATE TABLE "user"
 (
-    id            UUID         NOT NULL,
-    email         VARCHAR(255) NOT NULL,
-    phone         VARCHAR(30),
-    password_hash VARCHAR(255) NOT NULL,
-    name          VARCHAR(255),
-    role          VARCHAR(30)  NOT NULL,
-    metadata      JSONB,
-    verified      BOOLEAN      NOT NULL,
-    created_at    TIMESTAMP WITHOUT TIME ZONE,
-    updated_at    TIMESTAMP WITHOUT TIME ZONE,
-    CONSTRAINT pk_user PRIMARY KEY (id)
+    id            uuid PRIMARY KEY             DEFAULT uuid_generate_v4(),
+    email         varchar(255) UNIQUE NOT NULL,
+    phone         varchar(30),
+    password_hash varchar(255)        NOT NULL,
+    name          varchar(255),
+    role          varchar(30)         NOT NULL DEFAULT 'buyer', -- buyer | vendor_user | admin
+    metadata      jsonb                        DEFAULT '{}'::jsonb,
+    verified      boolean                      DEFAULT false,
+    created_at    timestamptz                  DEFAULT now(),
+    updated_at    timestamptz                  DEFAULT now()
 );
-
-ALTER TABLE "user"
-    ADD CONSTRAINT uc_user_email UNIQUE (email);

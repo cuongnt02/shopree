@@ -16,12 +16,6 @@ import java.util.UUID
 
 @Entity
 class Product (
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID,
-
-
     @ManyToOne
     @JoinColumn(name = "vendor_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -40,7 +34,7 @@ class Product (
     var category: Category? = null,
 
     @field:Column(length = 1024)
-    mainImage: String? = null,
+    var mainImage: String? = null,
 
     var tags: MutableList<String>? = null,
 
@@ -51,6 +45,10 @@ class Product (
     var updatedAt: Instant = Instant.now(),
 
 ) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    var id: UUID? = null
+
     enum class Status {
         DRAFT, PUBLISHED, DISABLED, PENDING_APPROVAL
     }
