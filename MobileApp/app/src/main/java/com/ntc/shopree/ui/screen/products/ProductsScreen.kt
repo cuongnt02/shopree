@@ -2,6 +2,7 @@ package com.ntc.shopree.ui.screen.products
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -13,7 +14,7 @@ import com.ntc.shopree.ui.viewmodels.ProductsViewModel
 @Composable
 fun ProductsScreen(appContainer: AppContainer) {
     val productsViewModel: ProductsViewModel = viewModel(factory = appContainer.productsViewModelFactory)
-    val state by productsViewModel.uiState.collectAsStateWithLifecycle()
+    val state by productsViewModel.uiState.collectAsState()
     when (state) {
         is ProductsUiState.Loading -> {
             // TODO: Show loading indicator
