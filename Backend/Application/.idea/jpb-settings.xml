@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DatabaseMigrationSettings" lastSelectedDirectory="$PROJECT_DIR$/src/main/resources/db/migration" />
+  <component name="JpaLiquibaseChangesConfig">
+    <exclude-change idName="spatial_ref_sys" tagName="dropTable" />
+    <exclude-change idName="idx_user_email" tagName="createIndex" />
+    <exclude-change idName="category" tagName="createTable" />
+    <exclude-change idName="user" tagName="createTable" />
+    <exclude-change idName="vendor" tagName="createTable" />
+    <exclude-change idName="vendor#slug" tagName="addUniqueConstraint" />
+    <exclude-change idName="vendor#owner_user_id" tagName="addUniqueConstraint" />
+    <exclude-change idName="user#email" tagName="addUniqueConstraint" />
+    <exclude-change idName="category#slug" tagName="addUniqueConstraint" />
+    <exclude-change idName="idx_vendor_status" tagName="createIndex" />
+    <exclude-change idName="FK_VENDOR_ON_OWNER_USER" tagName="addForeignKeyConstraint" />
+    <exclude-change idName="FK_CATEGORY_ON_PARENT" tagName="addForeignKeyConstraint" />
+  </component>
+</project>

@@ -1,6 +1,6 @@
 package com.ntc.shopree.domain.repository.impl
 
-import com.ntc.shopree.data.remote.CategoryService
+import com.ntc.shopree.data.remote.service.CategoryService
 import com.ntc.shopree.data.remote.dto.toCategory
 import com.ntc.shopree.domain.models.Category
 import com.ntc.shopree.domain.repository.CategoryRepository
