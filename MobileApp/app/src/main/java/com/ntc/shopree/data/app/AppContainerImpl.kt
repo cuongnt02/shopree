@@ -2,8 +2,8 @@ package com.ntc.shopree.data.app
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
-import com.ntc.shopree.data.remote.CategoryService
-import com.ntc.shopree.data.remote.impl.CategoryServiceImpl
+import com.ntc.shopree.data.remote.service.CategoryService
+import com.ntc.shopree.data.remote.service.impl.CategoryServiceImpl
 import com.ntc.shopree.domain.repository.CategoryRepository
 import com.ntc.shopree.domain.repository.impl.CategoryRepositoryImpl
 import com.ntc.shopree.domain.usecase.GetCategoriesUseCase
