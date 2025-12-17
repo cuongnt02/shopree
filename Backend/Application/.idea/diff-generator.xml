@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DiffGenerationConfig">
+    <option name="snapshotDb" value="false" />
+    <option name="snapshotDbValue" value="c95a3882-6176-4946-a102-18a9b80b1803" />
+    <option name="snapshotModelValue" value="Backend.main:entityManagerFactory" />
+    <option name="sourceDbValue" value="c95a3882-6176-4946-a102-18a9b80b1803" />
+    <option name="sourceModelValue" value="Backend.main:entityManagerFactory" />
+    <option name="targetDbValue" value="c95a3882-6176-4946-a102-18a9b80b1803__shopree_shopree" />
+  </component>
+</project>
