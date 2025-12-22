@@ -3,10 +3,15 @@ package com.ntc.shopree.data.app
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.ntc.shopree.data.remote.service.CategoryService
+import com.ntc.shopree.data.remote.service.ProductService
 import com.ntc.shopree.data.remote.service.impl.CategoryServiceImpl
+import com.ntc.shopree.data.remote.service.impl.ProductServiceImpl
 import com.ntc.shopree.domain.repository.CategoryRepository
+import com.ntc.shopree.domain.repository.ProductRepository
 import com.ntc.shopree.domain.repository.impl.CategoryRepositoryImpl
+import com.ntc.shopree.domain.repository.impl.ProductRepositoryImpl
 import com.ntc.shopree.domain.usecase.GetCategoriesUseCase
+import com.ntc.shopree.domain.usecase.GetProductsUseCase
 import com.ntc.shopree.ui.viewmodels.ProductsViewModelFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -39,12 +44,20 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
         CategoryServiceImpl(httpClient)
     }
 
+    private val productService: ProductService by lazy {
+        ProductServiceImpl()
+    }
+
     override val categoryRepository: CategoryRepository by lazy {
         CategoryRepositoryImpl(categoryService)
+    }
+    override val productRepository: ProductRepository by lazy {
+        ProductRepositoryImpl(productService)
     }
 
     override val productsViewModelFactory: ViewModelProvider.Factory by lazy {
         val getCategoriesUseCase = GetCategoriesUseCase(categoryRepository)
-        ProductsViewModelFactory(getCategoriesUseCase)
+        val getProductsUseCase = GetProductsUseCase(productRepository)
+        ProductsViewModelFactory(getCategoriesUseCase, getProductsUseCase)
     }
 }
