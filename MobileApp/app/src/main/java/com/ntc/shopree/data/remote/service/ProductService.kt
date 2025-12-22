@@ -3,6 +3,6 @@ import com.ntc.shopree.domain.models.Product
 
 
 interface ProductService {
-    fun getProducts(): List<Product>
+    suspend fun getProducts(): List<Product>
 }
 
