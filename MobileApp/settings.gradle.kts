@@ -20,4 +20,17 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MobileApp"
-include(":app")
+include(
+    ":app",
+    ":core:model",
+    ":core:ui",
+    ":core:network",
+    ":core:database",
+    ":core:datastore",
+    ":feature:auth",
+    ":feature:catalog",
+    ":feature:cart",
+    ":feature:checkout",
+    ":feature:orders",
+    ":feature:vendor"
+)
