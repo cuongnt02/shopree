@@ -11,20 +11,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ntc.shopree.core.ui.icons.Icons
-import com.ntc.shopree.core.ui.theme.ColorGrey200
 
 @Composable
 fun BottomNavigation() {
-    BottomAppBar(modifier = Modifier.clip(shape = CircleShape), containerColor = ColorGrey200) {
+    BottomAppBar(
+        modifier = Modifier.clip(shape = CircleShape),
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
+    ) {
         Row(modifier = Modifier.fillMaxWidth().padding(start = 7.dp, end = 7.dp),horizontalArrangement = Arrangement.SpaceBetween) {
             BottomNavigationItem(icon = Icons.Outlined.Home)
             BottomNavigationItem(icon = Icons.Outlined.Heart)
@@ -36,7 +38,12 @@ fun BottomNavigation() {
 
 @Composable
 fun BottomNavigationItem(icon: ImageVector, selectedIcon: ImageVector? = null) {
-    Box(modifier = Modifier.size(60.dp).clip(shape = CircleShape).background(Color.White)) {
+    Box(
+        modifier = Modifier
+            .size(60.dp)
+            .clip(shape = CircleShape)
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(43.dp).align(Alignment.Center))
     }
 }

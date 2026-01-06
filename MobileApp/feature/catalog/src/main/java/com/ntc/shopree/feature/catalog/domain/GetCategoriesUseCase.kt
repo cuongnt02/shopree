@@ -4,7 +4,8 @@ import com.ntc.shopree.core.model.Category
 import javax.inject.Inject
 
 class GetCategoriesUseCase @Inject constructor(
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+
 ) {
     suspend operator fun invoke(): Result<List<Category>> {
         return try {

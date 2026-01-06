@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,14 +25,13 @@ import com.ntc.shopree.core.ui.theme.ColorPrimary500
 fun PrimaryButton(
     onclick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Button(
-        onClick = onclick, modifier =modifier.background(brush = Brush.verticalGradient(colorStops = arrayOf(
-            0.0f to ColorGrey200,
-            0.3f to ColorPrimary400
-        )), shape = CircleShape
-        ), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+        onClick = onclick, modifier =modifier.background(MaterialTheme.colorScheme.primary, shape = CircleShape
+        ), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        enabled = enabled
     ) {
             content()
         }

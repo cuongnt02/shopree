@@ -23,7 +23,7 @@ fun ProductsScreen() {
     val productsViewModel: ProductsViewModel = hiltViewModel()
     val state: ProductsUiState by productsViewModel.uiState.collectAsState()
 
-    Row {
+    Column {
         ProfileSection()
         SearchSection()
         CategorySection(state = state)
@@ -52,7 +52,7 @@ fun CategorySection(state: ProductsUiState) {
 fun ProductSection(state: ProductsUiState) {
     when (state) {
         is ProductsUiState.Loading -> {
-            // TODO: Show loading indicator
+            CircularProgressIndicator()
         }
         is ProductsUiState.Success -> {
             val products = state.products
@@ -60,6 +60,8 @@ fun ProductSection(state: ProductsUiState) {
         }
         is ProductsUiState.Error -> {
             // TODO: Show error message
+            val message = state.message
+
         }
     }
 }

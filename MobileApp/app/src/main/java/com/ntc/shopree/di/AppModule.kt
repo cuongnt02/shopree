@@ -23,4 +23,9 @@ object AppModule {
     @Singleton
     @Named("baseUrl")
     fun provideBaseUrl(): String = BuildConfig.BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("apiHost")
+    fun provideApiHost(): String = BuildConfig.API_HOST
 }

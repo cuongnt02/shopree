@@ -7,7 +7,7 @@ import com.ntc.shopree.feature.catalog.ui.ProductsScreen
 
 fun EntryProviderScope<NavKey>.authEntryBuilder(backStack: NavBackStack<NavKey>) {
     entry<LoginScreen> {
-        LoginScreen(onLogin = {
+        LoginScreen(onLoggedIn = {
             backStack.add(ProductsScreen)
         })
     }

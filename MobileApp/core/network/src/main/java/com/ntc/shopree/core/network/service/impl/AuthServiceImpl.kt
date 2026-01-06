@@ -1,5 +1,6 @@
 package com.ntc.shopree.core.network.service.impl
 
+import android.util.Log
 import com.ntc.shopree.core.network.dto.LoginRequest
 import com.ntc.shopree.core.network.dto.LoginResponse
 import com.ntc.shopree.core.network.service.AuthService
@@ -18,7 +19,7 @@ class AuthServiceImpl @Inject constructor(
     @Named("baseUrl") private val baseUrl: String
 ) : AuthService {
     override suspend fun loginWithEmailAndPassword(email: String, password: String): LoginResponse {
-        return client.post {
+        val response = client.post {
             url("$baseUrl/api/v1/auth/login")
             contentType(ContentType.Application.Json)
             setBody(
@@ -26,7 +27,8 @@ class AuthServiceImpl @Inject constructor(
                     email = email, password = password
                 )
             )
-        }.body()
+        }
+        return response.body()
     }
 }
 

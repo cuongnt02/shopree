@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -15,6 +18,10 @@ android {
     defaultConfig {
         minSdk = 24
     }
+
+    lint {
+        disable += "UnsafeOptInUsageError"
+    }
 }
 kotlin {
     compilerOptions {
@@ -25,6 +32,9 @@ kotlin {
 dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }
 
 

@@ -1,6 +1,5 @@
 package com.ntc.shopree.feature.auth.domain
 
-import com.ntc.shopree.feature.auth.domain.FirebaseRepository
 import javax.inject.Inject
 
 class CheckCurrentUserUseCase @Inject constructor(

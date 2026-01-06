@@ -6,4 +6,5 @@ interface FirebaseRepository {
     suspend fun currentUser(): FirebaseUser?
 
     suspend fun getTokenId(): String?
+
 }
