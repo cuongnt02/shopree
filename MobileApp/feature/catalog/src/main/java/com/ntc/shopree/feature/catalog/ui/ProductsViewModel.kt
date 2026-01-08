@@ -35,8 +35,7 @@ class ProductsViewModel @Inject constructor(
     val uiState: StateFlow<ProductsUiState> = _uiState
 
     init {
-        loadCategories()
-        // TODO: use initialLoad()
+        initialLoad()
     }
 
     private fun initialLoad() {

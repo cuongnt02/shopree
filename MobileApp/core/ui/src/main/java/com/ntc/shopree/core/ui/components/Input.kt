@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ntc.shopree.core.ui.theme.ColorGrey100
 import com.ntc.shopree.core.ui.theme.ColorGrey200
 import com.ntc.shopree.core.ui.theme.ColorGrey500
+import com.ntc.shopree.core.ui.theme.ColorGrey700
 
 @Composable
 fun TextInput(
@@ -31,11 +32,12 @@ fun TextInput(
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = ColorGrey200,
             unfocusedBorderColor = ColorGrey100,
-            unfocusedTextColor = ColorGrey200,
+            unfocusedTextColor = ColorGrey700,
             focusedContainerColor = ColorGrey200,
             focusedBorderColor = ColorGrey500,
-            focusedTextColor = ColorGrey200,
+            focusedTextColor = ColorGrey700,
             cursorColor = ColorGrey500,
+
         ),
         shape = CircleShape,
         placeholder = { Text(text = placeholder ?: "") },
