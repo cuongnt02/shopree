@@ -11,6 +11,16 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getProducts(): List<Product> {
         return productService.getProducts()
     }
+
+    override suspend fun findProductsByName(name: String): List<Product> {
+        return productService.getProductsByName(name)
+    }
+
+    override suspend fun getProduct(slug: String): Product {
+        return productService.getProduct(slug)
+    }
+
+
 }
 
 

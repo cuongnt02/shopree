@@ -29,8 +29,9 @@ import com.ntc.shopree.core.ui.theme.ColorGrey100
 import com.ntc.shopree.core.ui.theme.ColorGrey200
 
 @Composable
-fun ProductCard(image: @Composable () -> Unit, name: String, price: String) {
+fun ProductCard(image: @Composable () -> Unit, name: String, price: String, onClick: () -> Unit) {
     return Card(
+        onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = ColorGrey200),
         modifier = Modifier
             .width(173.dp)
@@ -64,8 +65,9 @@ fun ProductCard(image: @Composable () -> Unit, name: String, price: String) {
 }
 
 @Composable
-fun ProductCard(imageSource: String, name: String, price: String) {
+fun ProductCard(imageSource: String, name: String, price: String, onClick: () -> Unit) {
     ProductCard(
+        onClick = onClick,
         image = {
             AsyncImage(model = imageSource, contentDescription = "product $name image")
         }, name = name, price = price
@@ -76,13 +78,9 @@ fun ProductCard(imageSource: String, name: String, price: String) {
 @Composable
 @Preview
 fun ProductCardPreview() {
-//    val previewHandler: AsyncImagePreviewHandler = AsyncImagePreviewHandler {
-//        ColorImage(Color.Red.toArgb(), width = 200, height = 200)
-//    }
 //    ProductCard(image = {
-//        CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
 //        AsyncImage(model = "https://s3.ap-southeast-1.amazonaws.com/com.ntc.shopree/Sneakers.png", contentDescription = null)
-//    }}, name = "Sneakers", price = "5.99$")
+//    }, name = "Sneakers", price = "5.99$")
 }
 
 
