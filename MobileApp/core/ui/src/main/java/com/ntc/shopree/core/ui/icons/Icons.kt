@@ -1,5 +1,7 @@
 package com.ntc.shopree.core.ui.icons
 
+import SearchOutlined
+
 object Icons {
     object Filled {
         val Heart = HeartFilled
@@ -13,6 +15,7 @@ object Icons {
         val Google = GoogleFilled
         val Facebook = FacebookFilled
         val Apple = AppleFilled
+        val Cart = CartFilled
     }
     object Outlined {
         val Heart = HeartOutlined
@@ -22,6 +25,10 @@ object Icons {
         val Eye = EyeOutlined
         val EyeClosed = EyeClosedOutlined
         val CheckCircle = CheckCircleOutlined
+        val Search = SearchOutlined
+        val ArrowBack = ArrowBackOutlined
 
+        val CartAdd = CartAddOutlined
+        val Cart = CartOutlined
     }
 }

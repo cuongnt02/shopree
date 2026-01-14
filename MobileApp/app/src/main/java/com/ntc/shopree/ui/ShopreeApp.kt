@@ -65,7 +65,7 @@ fun ShopreeApp() {
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     // TODO: Migrate to DI
-                    productsEntryBuilder()
+                    productsEntryBuilder(backStack)
                     authEntryBuilder(backStack)
                 })
         }

@@ -8,10 +8,10 @@ import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.ui.components.ProductCard
 
 @Composable
-fun ProductsGrid(modifier: Modifier = Modifier, products: List<Product>) {
+fun ProductsGrid(modifier: Modifier = Modifier, products: List<Product>, onProductClick: (String) -> Unit) {
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier) {
         items(products.size) { index ->
-            ProductCard(imageSource = products[index].imageUrl, name = products[index].name, price = products[index].price.toString())
+            ProductCard(imageSource = products[index].imageUrl, name = products[index].name, price = products[index].price.toString(), onClick = { onProductClick(products[index].name)})
         }
     }
 }
