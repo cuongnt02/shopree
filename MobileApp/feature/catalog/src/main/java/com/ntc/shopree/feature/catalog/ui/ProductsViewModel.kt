@@ -103,6 +103,7 @@ class ProductsViewModel @Inject constructor(
             }
             result.onFailure {
                 SnackbarController.sendEvent(SnackbarEvent(message = "Error searching products"))
+                _uiState.value = ProductsUiState.Error("Error searching products")
             }
         }
     }
