@@ -38,6 +38,8 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.coil.network.ktor3)
+    implementation(libs.io.coil.compose)
     ksp(libs.hilt.compiler)
 }
 kotlin {

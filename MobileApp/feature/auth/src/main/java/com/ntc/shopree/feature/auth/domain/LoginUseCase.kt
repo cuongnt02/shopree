@@ -32,7 +32,9 @@ class LoginUseCase @Inject constructor(
                 password = password,
                 firebaseToken = idToken!!
             )
+            // WARN: Not quite right, should be checking if the current session is valid or not somewhere else
             if (session != null) {
+                sessionStore.clearSession()
                 sessionStore.saveSession(session.accessToken, session.refreshToken, session.expiresAt)
                 Log.d("LoginUseCase", "Session saved: $session")
                 Result.success(session)

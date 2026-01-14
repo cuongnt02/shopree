@@ -15,6 +15,7 @@ object Icons {
         val Google = GoogleFilled
         val Facebook = FacebookFilled
         val Apple = AppleFilled
+        val Cart = CartFilled
     }
     object Outlined {
         val Heart = HeartOutlined
@@ -26,5 +27,8 @@ object Icons {
         val CheckCircle = CheckCircleOutlined
         val Search = SearchOutlined
         val ArrowBack = ArrowBackOutlined
+
+        val CartAdd = CartAddOutlined
+        val Cart = CartOutlined
     }
 }

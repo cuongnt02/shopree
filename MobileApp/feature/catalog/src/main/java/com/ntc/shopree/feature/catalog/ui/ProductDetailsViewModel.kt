@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.feature.catalog.domain.GetSingleProductUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ sealed interface ProductDetailsUiState {
     data class Error(val message: String) : ProductDetailsUiState
 }
 
+@HiltViewModel
 class ProductDetailsViewModel @Inject constructor(
     private val getSingleProductUseCase: GetSingleProductUseCase
 ): ViewModel() {
