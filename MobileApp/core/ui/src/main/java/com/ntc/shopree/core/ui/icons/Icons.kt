@@ -1,6 +1,5 @@
 package com.ntc.shopree.core.ui.icons
 
-import SearchOutlined
 
 object Icons {
     object Filled {

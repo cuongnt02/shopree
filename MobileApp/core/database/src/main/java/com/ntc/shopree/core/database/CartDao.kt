@@ -33,20 +33,11 @@ interface CartDao {
         """
             UPDATE cart
             SET quantity = quantity - 1
-            WHERE id = :id
+            WHERE id = :id AND quantity > 1
         """
     )
     suspend fun decrementQuantity(id: String)
 
-    @Transaction
-    suspend fun downdel(item: CartItemEntity) {
-        val item = getItemById(item.id)!!
-        if (item.quantity <= 1) {
-            remove(item.productSlug, item.vendorName)
-        } else {
-            decrementQuantity(item.id)
-        }
-    }
 
     @Transaction
     suspend fun upsert(item: CartItemEntity) {
