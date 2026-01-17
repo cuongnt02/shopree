@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,8 @@ import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.feature.cart.ui.CartButton
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -44,11 +47,13 @@ data class ProductDetails(val slug: String) : NavKey
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailsScreen(
-    navKey: ProductDetails, onBack: () -> Unit, onCheckout: () -> Unit, onCart: () -> Unit
+    navKey: ProductDetails, onBack: () -> Unit, onCheckout: () -> Unit
 ) {
     var productLiked by remember { mutableStateOf(false) }
     val productDetailsViewModel: ProductDetailsViewModel = hiltViewModel()
     val state: ProductDetailsUiState by productDetailsViewModel.uiState.collectAsState()
+    var isAddingToCart by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(productDetailsViewModel) {
         productDetailsViewModel.loadProductDetails(navKey.slug)
@@ -73,6 +78,7 @@ fun ProductDetailsScreen(
                     modifier = Modifier.clickable {
                         productLiked = !productLiked
                     })
+                CartButton(onNavigate = {})
             })
 
             ProductImage(state = state, modifier = Modifier.fillMaxWidth())
@@ -81,10 +87,23 @@ fun ProductDetailsScreen(
 
         }
         Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
-            IconButton(onClick = onCart) {
-                Icon(
-                    imageVector = Icons.Outlined.Heart, contentDescription = "buy icon"
-                )
+            IconButton(onClick = {
+                scope.launch {
+                    isAddingToCart = true
+                    if (state is ProductDetailsUiState.Success) {
+                        productDetailsViewModel.addProductToCart((state as ProductDetailsUiState.Success).product)
+                    }
+                    isAddingToCart = false
+                }
+            }) {
+                if (isAddingToCart) {
+                    CircularProgressIndicator()
+                }
+                else {
+                    Icon(
+                        imageVector = Icons.Outlined.CartAdd, contentDescription = "buy icon"
+                    )
+                }
             }
             PrimaryButton(onclick = onCheckout) { Text(text = "Check out", style = MaterialTheme.typography.labelMedium) }
         }

@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface CartRepository {
     fun observeCart(): Flow<List<CartItem>>
+
+    fun observeTotalQuantity(): Flow<Int>
     suspend fun addItem(item: CartItem)
     suspend fun incrementQuantity(item: CartItem)
     suspend fun decrementQuantity(item: CartItem)

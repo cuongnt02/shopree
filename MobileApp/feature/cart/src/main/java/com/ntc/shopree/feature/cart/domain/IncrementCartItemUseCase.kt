@@ -10,7 +10,7 @@ class IncrementCartItemUseCase @Inject constructor(
         return try {
             cartRepository.incrementQuantity(item)
             Result.success(item.quantity)
-        } catch (e: Exception) {
+            } catch (e: Exception) {
             Result.failure(e)
         }
     }

@@ -13,6 +13,8 @@ interface CartDao {
     @Query("SELECT * FROM cart")
     fun observeCart(): Flow<List<CartItemEntity>>
 
+    @Query("SELECT COALESCE(SUM(quantity), 0) FROM cart")
+    fun observeTotalQuantity(): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CartItemEntity): Long

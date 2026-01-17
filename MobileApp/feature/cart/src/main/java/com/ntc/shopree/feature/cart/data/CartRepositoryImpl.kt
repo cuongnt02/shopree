@@ -14,6 +14,10 @@ class CartRepositoryImpl @Inject constructor(
         cartItems.map { it.toCartItem() }
     }
 
+    override fun observeTotalQuantity(): Flow<Int> {
+        return cartDao.observeTotalQuantity()
+    }
+
     override suspend fun addItem(item: CartItem) = cartDao.upsert(item.toCartItemEntity())
 
     override suspend fun incrementQuantity(item: CartItem) =

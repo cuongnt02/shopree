@@ -17,6 +17,7 @@ android {
     defaultConfig {
         minSdk = 24
     }
+
 }
 kotlin {
     compilerOptions {
@@ -25,7 +26,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(platform(libs.androidx.room.runtime))
+
     implementation(libs.androidx.room.ktx)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

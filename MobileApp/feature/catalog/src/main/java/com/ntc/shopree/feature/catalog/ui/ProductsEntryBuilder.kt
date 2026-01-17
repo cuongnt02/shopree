@@ -13,6 +13,6 @@ fun EntryProviderScope<NavKey>.productsEntryBuilder(backstack: NavBackStack<NavK
     entry<ProductDetails> { key ->
         ProductDetailsScreen(navKey = key, onBack = {
             backstack.removeLastOrNull()
-        }, onCart = {}, onCheckout = {})
+        }, onCheckout = {})
     }
 }

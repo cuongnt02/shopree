@@ -7,22 +7,9 @@ class AddToCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
     suspend operator fun invoke(
-        productSlug: String,
-        vendorName: String,
-        productName: String,
-        price: Double,
-        imageUrl: String,
-        quantity: Int,
+        cartItem: CartItem
     ): Result<CartItem> {
         return try {
-            val cartItem = CartItem(
-                productSlug = productSlug,
-                vendorName = vendorName,
-                productName = productName,
-                price = price,
-                imageUrl = imageUrl,
-                quantity = quantity
-            )
             cartRepository.addItem(cartItem)
             Result.success(cartItem)
         } catch (e: Exception) {

@@ -9,11 +9,10 @@ class RemoveCartItemUseCase @Inject constructor(
     suspend operator fun invoke(item: CartItem): Result<Unit> {
         return try {
             cartRepository.removeItem(item)
-            Result.success()
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
-
     }
 
 }

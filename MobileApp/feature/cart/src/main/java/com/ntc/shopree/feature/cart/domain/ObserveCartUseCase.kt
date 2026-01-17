@@ -12,7 +12,8 @@ class ObserveCartUseCase @Inject constructor(
         return try {
             cartRepository.observeCart()
             Result.success(cartRepository.observeCart())
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Result.failure(e)
         }
 
