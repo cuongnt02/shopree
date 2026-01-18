@@ -47,7 +47,7 @@ data class ProductDetails(val slug: String) : NavKey
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailsScreen(
-    navKey: ProductDetails, onBack: () -> Unit, onCheckout: () -> Unit
+    navKey: ProductDetails, onBack: () -> Unit, onCheckout: () -> Unit, onCart: () -> Unit
 ) {
     var productLiked by remember { mutableStateOf(false) }
     val productDetailsViewModel: ProductDetailsViewModel = hiltViewModel()
@@ -78,7 +78,7 @@ fun ProductDetailsScreen(
                     modifier = Modifier.clickable {
                         productLiked = !productLiked
                     })
-                CartButton(onNavigate = {})
+                CartButton(onNavigate = onCart)
             })
 
             ProductImage(state = state, modifier = Modifier.fillMaxWidth())

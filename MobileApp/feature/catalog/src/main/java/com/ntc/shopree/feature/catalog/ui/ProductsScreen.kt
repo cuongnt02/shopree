@@ -31,7 +31,7 @@ import kotlinx.serialization.Serializable
 data object ProductsScreen: NavKey
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductsScreen(onProductClick: (String) -> Unit) {
+fun ProductsScreen(onProductClick: (String) -> Unit, onCart: () -> Unit) {
     val productsViewModel: ProductsViewModel = hiltViewModel()
     val state: ProductsUiState by productsViewModel.uiState.collectAsState()
 
@@ -39,7 +39,7 @@ fun ProductsScreen(onProductClick: (String) -> Unit) {
         CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {
         }, actions = {
             CartButton(
-                onNavigate = {}
+                onNavigate = onCart
             )
         })
         ProfileSection(state = state)

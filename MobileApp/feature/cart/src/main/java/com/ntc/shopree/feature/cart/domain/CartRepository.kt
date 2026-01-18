@@ -7,6 +7,8 @@ interface CartRepository {
     fun observeCart(): Flow<List<CartItem>>
 
     fun observeTotalQuantity(): Flow<Int>
+
+    fun observeTotalPrice(): Flow<Double>
     suspend fun addItem(item: CartItem)
     suspend fun incrementQuantity(item: CartItem)
     suspend fun decrementQuantity(item: CartItem)

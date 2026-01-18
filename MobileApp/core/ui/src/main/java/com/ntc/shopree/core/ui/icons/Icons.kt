@@ -15,6 +15,8 @@ object Icons {
         val Facebook = FacebookFilled
         val Apple = AppleFilled
         val Cart = CartFilled
+        val Add = AddFilled
+        val Remove = RemoveFilled
     }
     object Outlined {
         val Heart = HeartOutlined

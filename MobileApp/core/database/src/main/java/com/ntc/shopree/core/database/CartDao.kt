@@ -49,13 +49,23 @@ interface CartDao {
         }
     }
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM cart
         WHERE product_slug = :productSlug
         AND vendor_name = :vendorName
-    """)
+    """
+    )
     suspend fun remove(productSlug: String, vendorName: String)
 
     @Query("DELETE FROM cart")
     suspend fun clear()
+
+    @Query(
+        """
+        SELECT COALESCE(CAST(SUM(quantity * price) AS REAL), 0.0)
+        FROM cart
+    """
+    )
+    fun observeTotalPrice(): Flow<Double>
 }
