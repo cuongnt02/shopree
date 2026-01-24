@@ -10,6 +10,7 @@ interface CartRepository {
 
     fun observeTotalPrice(): Flow<Double>
     suspend fun addItem(item: CartItem)
+    suspend fun getItem(itemId: String): CartItem
     suspend fun incrementQuantity(item: CartItem)
     suspend fun decrementQuantity(item: CartItem)
     suspend fun removeItem(item: CartItem)

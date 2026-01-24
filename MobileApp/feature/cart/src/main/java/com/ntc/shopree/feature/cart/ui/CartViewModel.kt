@@ -7,9 +7,12 @@ import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import com.ntc.shopree.feature.cart.domain.AddToCartUseCase
 import com.ntc.shopree.feature.cart.domain.ClearCartItemUseCase
+import com.ntc.shopree.feature.cart.domain.DecrementCartItemUseCase
+import com.ntc.shopree.feature.cart.domain.IncrementCartItemUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveCartQuantityUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveCartUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveTotalPriceUseCase
+import com.ntc.shopree.feature.cart.domain.RemoveCartItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +37,10 @@ class CartViewModel @Inject constructor(
     private val addToCartUseCase: AddToCartUseCase,
     private val observeCartQuantityUseCase: ObserveCartQuantityUseCase,
     private val observeTotalPriceUseCase: ObserveTotalPriceUseCase,
-    private val clearCartItemUseCase: ClearCartItemUseCase
+    private val clearCartItemUseCase: ClearCartItemUseCase,
+    private val incrementCartItemUseCase: IncrementCartItemUseCase,
+    private val decrementCartItemUseCase: DecrementCartItemUseCase,
+    private val removeCartItemUseCase: RemoveCartItemUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
     val uiState = _uiState.asStateFlow()
@@ -119,7 +125,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun clearCart() {
+     fun clearCart() {
         viewModelScope.launch {
             val result = clearCartItemUseCase()
             result.onSuccess {
@@ -127,6 +133,42 @@ class CartViewModel @Inject constructor(
             }
             result.onFailure {
                 SnackbarController.sendEvent(SnackbarEvent(message = "Failed to clear cart"))
+            }
+        }
+    }
+
+    fun incrementCartItem(item: CartItem) {
+        viewModelScope.launch {
+            val result = incrementCartItemUseCase(item)
+            result.onSuccess {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Item incremented"))
+            }
+            result.onFailure {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to increment item"))
+            }
+        }
+    }
+
+    fun decrementCartItem(item: CartItem) {
+        viewModelScope.launch {
+            val result = decrementCartItemUseCase(item)
+            result.onSuccess {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Item decremented"))
+            }
+            result.onFailure {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to decrement item"))
+            }
+        }
+    }
+
+    fun removeCartItem(item: CartItem) {
+        viewModelScope.launch {
+            val result = removeCartItemUseCase(item)
+            result.onSuccess {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Item removed"))
+            }
+            result.onFailure {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to remove item"))
             }
         }
     }

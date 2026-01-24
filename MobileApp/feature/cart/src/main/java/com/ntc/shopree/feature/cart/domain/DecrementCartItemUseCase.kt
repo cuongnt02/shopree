@@ -1,21 +1,24 @@
 package com.ntc.shopree.feature.cart.domain
 
 import com.ntc.shopree.core.model.CartItem
+import com.ntc.shopree.feature.cart.data.toCartItemEntity
 import javax.inject.Inject
 
 class DecrementCartItemUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
     suspend operator fun invoke(item: CartItem): Result<Int> {
-        return try {
+        try {
             if (item.quantity <= 1) {
                 cartRepository.removeItem(item)
-                Result.success(item.quantity)
+                return Result.success(item.quantity)
             }
             cartRepository.decrementQuantity(item)
-            Result.success(item.quantity)
+            val itemId = item.toCartItemEntity().id
+            val updatedItem = cartRepository.getItem(itemId)
+            return Result.success(updatedItem.quantity)
         } catch (e: Exception) {
-            Result.failure(e)
+            return Result.failure(e)
         }
     }
 }

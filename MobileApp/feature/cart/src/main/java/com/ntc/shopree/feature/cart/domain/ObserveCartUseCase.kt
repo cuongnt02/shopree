@@ -10,7 +10,6 @@ class ObserveCartUseCase @Inject constructor(
     operator fun invoke(): Result<Flow<List<CartItem>>> {
 
         return try {
-            cartRepository.observeCart()
             Result.success(cartRepository.observeCart())
         }
         catch (e: Exception) {

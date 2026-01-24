@@ -29,12 +29,16 @@ fun ShopreeAlertDialog(modifier: Modifier = Modifier,
             onDissmissRequest()
         },
         confirmButton = {
-            TextButton(onClick = onConfirmation) {
+            TextButton(onClick = {
+                onConfirmation()
+            }) {
                 Text(text = "Confirm")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDissmissRequest) {
+            TextButton(onClick = {
+                onDissmissRequest()
+            }) {
                 Text(text = "Dismiss")
             }
         }

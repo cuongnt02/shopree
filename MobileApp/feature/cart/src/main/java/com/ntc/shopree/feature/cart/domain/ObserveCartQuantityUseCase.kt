@@ -6,7 +6,7 @@ import javax.inject.Inject
 class ObserveCartQuantityUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend operator fun invoke(): Result<Flow<Int>> {
+    operator fun invoke(): Result<Flow<Int>> {
         return try {
             val quantity = cartRepository.observeTotalQuantity()
             Result.success(quantity)

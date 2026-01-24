@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
     val state by cartViewModel.uiState.collectAsState()
     val price by cartViewModel.totalPrice.collectAsState()
     var clearCartConfirm by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Column {
         CenterAlignedTopAppBar(title = { Text("Your Cart") }, navigationIcon = {
@@ -73,8 +75,15 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LazyColumn(modifier = modifier) {
                         items(cartItems.size) { cartItem ->
-                            CartItem(cartItem = cartItems[cartItem], onDetailsClick = {
+                            val item = cartItems[cartItem]
+                            CartItem(cartItem = item, onDetailsClick = {
                                 // TODO: Navigate to product details
+                            }, onDecrementCartItem = {
+                                cartViewModel.decrementCartItem(item)
+                            }, onIncrementCartItem = {
+                                cartViewModel.incrementCartItem(item)
+                            }, onRemoveCartItem = {
+                                cartViewModel.removeCartItem(item)
                             })
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -97,8 +106,7 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
                         onConfirmation = {
                             cartViewModel.clearCart()
                             clearCartConfirm = false
-                        }
-                    )
+                        })
                 }
 
 
@@ -123,7 +131,14 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
 }
 
 @Composable
-fun CartItem(cartItem: CartItem, modifier: Modifier = Modifier, onDetailsClick: (String) -> Unit) {
+fun CartItem(
+    cartItem: CartItem,
+    modifier: Modifier = Modifier,
+    onDetailsClick: (String) -> Unit,
+    onIncrementCartItem: (CartItem) -> Unit,
+    onDecrementCartItem: (CartItem) -> Unit,
+    onRemoveCartItem: (CartItem) -> Unit
+) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -146,9 +161,19 @@ fun CartItem(cartItem: CartItem, modifier: Modifier = Modifier, onDetailsClick: 
                 Text(text = cartItem.price.toString())
             }
             Column(verticalArrangement = Arrangement.Center) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add quantity")
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add quantity",
+                    modifier = Modifier.clickable {
+                        onIncrementCartItem(cartItem)
+                    })
                 Text(text = cartItem.quantity.toString())
-                Icon(imageVector = Icons.Filled.Remove, contentDescription = "Remove quantity")
+                Icon(
+                    imageVector = Icons.Filled.Remove,
+                    contentDescription = "Remove quantity",
+                    modifier = Modifier.clickable {
+                        onDecrementCartItem(cartItem)
+                    })
             }
         }
     }

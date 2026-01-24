@@ -37,10 +37,6 @@ spring:
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
         default_schema: shopree
 
-  data:
-    rest:
-      basePath: /api/v2
-
 
 
 
@@ -49,3 +45,9 @@ logging:
     org:
       springframework:
         security: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings
