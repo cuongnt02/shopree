@@ -1,8 +1,7 @@
 package com.ntc.data
 
 import com.ntc.shopree.model.Category
-import com.ntc.shopree.model.Product
-import org.springframework.data.jpa.repository.JpaRepository
+import com.ntc.domain.model.Product
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID

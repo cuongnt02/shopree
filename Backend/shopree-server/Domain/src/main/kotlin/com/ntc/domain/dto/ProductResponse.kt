@@ -8,5 +8,4 @@ data class ProductResponse(
     val slug: String,
     val description: String,
     val mainImage: String,
-    val price: Double,
 )

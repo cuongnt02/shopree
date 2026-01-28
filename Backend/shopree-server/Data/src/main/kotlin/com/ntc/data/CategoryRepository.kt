@@ -7,4 +7,5 @@ import java.util.UUID
 
 @Repository
 interface CategoryRepository : CrudRepository<Category, UUID> {
+    fun findCategoryBySlug(slug: String): Category?
 }

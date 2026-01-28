@@ -6,10 +6,10 @@ import com.ntc.api.payload.ResponseBase
 import com.ntc.api.payload.error.UnexpectedErrorResponse
 import com.ntc.api.payload.toLoginResponse
 import com.ntc.service.AuthService
+import com.ntc.service.impl.AuthServiceImpl
 import com.ntc.service.dto.AuthResult
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController

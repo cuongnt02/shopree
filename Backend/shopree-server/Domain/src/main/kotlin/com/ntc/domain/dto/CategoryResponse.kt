@@ -1,4 +1,8 @@
 package com.ntc.domain.dto
 
-class CategoryResponse {
-}
+data class CategoryResponse(
+    var id: String,
+    var name: String,
+    var slug: String,
+    var parentId: String,
+)
