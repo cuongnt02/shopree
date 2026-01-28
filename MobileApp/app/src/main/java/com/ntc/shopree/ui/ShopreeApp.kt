@@ -25,6 +25,7 @@ import com.ntc.shopree.feature.auth.ui.LoginScreen
 import com.ntc.shopree.feature.auth.ui.authEntryBuilder
 import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
 import com.ntc.shopree.core.ui.utils.SnackbarController
+import com.ntc.shopree.feature.cart.ui.cartEntryBuilder
 
 @Composable
 fun ShopreeApp() {
@@ -67,6 +68,7 @@ fun ShopreeApp() {
                     // TODO: Migrate to DI
                     productsEntryBuilder(backStack)
                     authEntryBuilder(backStack)
+                    cartEntryBuilder(backStack)
                 })
         }
 

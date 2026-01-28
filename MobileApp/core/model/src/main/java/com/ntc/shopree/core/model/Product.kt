@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Product (
     val id: Int,
+    val slug: String,
+    val vendorName: String,
     val name: String,
     val description: String,
     val price: Double,

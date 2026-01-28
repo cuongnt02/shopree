@@ -31,7 +31,8 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:11.17.0")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.bouncycastle:bcprov-jdk18on:1.83")
-
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

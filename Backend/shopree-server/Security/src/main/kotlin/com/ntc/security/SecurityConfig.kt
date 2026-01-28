@@ -38,6 +38,9 @@ class SecurityConfig(
                 authorize("/api/v1/categories", hasAuthority("BUYER"))
                 authorize("/api/v1/products", hasAuthority("BUYER"))
                 authorize("/api/v1/auth/**", permitAll)
+                authorize("/v3/api-docs/**", permitAll)
+                authorize("/swagger-ui/**", permitAll)
+                authorize("/error", permitAll)
             }
             // TODO: Somehow implement the Oauth2 Resource Server
 //            oauth2ResourceServer {

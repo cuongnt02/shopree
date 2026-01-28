@@ -1,11 +1,15 @@
 package com.ntc.shopree.feature.catalog.ui
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,16 +23,25 @@ import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.core.ui.components.Avatar
 import com.ntc.shopree.core.ui.components.Search
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
+import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.serialization.Serializable
 
 @Serializable
 data object ProductsScreen: NavKey
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductsScreen(onProductClick: (String) -> Unit) {
+fun ProductsScreen(onProductClick: (String) -> Unit, onCart: () -> Unit) {
     val productsViewModel: ProductsViewModel = hiltViewModel()
     val state: ProductsUiState by productsViewModel.uiState.collectAsState()
 
     Column {
+        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {
+        }, actions = {
+            CartButton(
+                onNavigate = onCart
+            )
+        })
         ProfileSection(state = state)
         SearchSection(state = state, productsViewModel = productsViewModel, modifier = Modifier)
         CategorySection(state = state)

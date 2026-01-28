@@ -13,6 +13,8 @@ interface CartDao {
     @Query("SELECT * FROM cart")
     fun observeCart(): Flow<List<CartItemEntity>>
 
+    @Query("SELECT COALESCE(SUM(quantity), 0) FROM cart")
+    fun observeTotalQuantity(): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CartItemEntity): Long
@@ -33,20 +35,11 @@ interface CartDao {
         """
             UPDATE cart
             SET quantity = quantity - 1
-            WHERE id = :id
+            WHERE id = :id AND quantity > 1
         """
     )
     suspend fun decrementQuantity(id: String)
 
-    @Transaction
-    suspend fun downdel(item: CartItemEntity) {
-        val item = getItemById(item.id)!!
-        if (item.quantity <= 1) {
-            remove(item.productSlug, item.vendorName)
-        } else {
-            decrementQuantity(item.id)
-        }
-    }
 
     @Transaction
     suspend fun upsert(item: CartItemEntity) {
@@ -56,13 +49,23 @@ interface CartDao {
         }
     }
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM cart
         WHERE product_slug = :productSlug
         AND vendor_name = :vendorName
-    """)
+    """
+    )
     suspend fun remove(productSlug: String, vendorName: String)
 
     @Query("DELETE FROM cart")
     suspend fun clear()
+
+    @Query(
+        """
+        SELECT COALESCE(CAST(SUM(quantity * price) AS REAL), 0.0)
+        FROM cart
+    """
+    )
+    fun observeTotalPrice(): Flow<Double>
 }

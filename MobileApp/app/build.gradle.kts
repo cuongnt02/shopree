@@ -22,8 +22,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"http://192.168.1.9:8080\"")
-        buildConfigField("String", "API_HOST", "\"192.168.1.9\"")
+        buildConfigField("String", "BASE_URL", "\"http://192.168.1.7:8080\"")
+        buildConfigField("String", "API_HOST", "\"192.168.1.7\"")
     }
 
     buildTypes {
@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:catalog"))
+    implementation(project(":feature:cart"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -82,6 +83,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.room.runtime)
     ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

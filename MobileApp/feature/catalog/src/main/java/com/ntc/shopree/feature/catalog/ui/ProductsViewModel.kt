@@ -7,6 +7,7 @@ import com.ntc.shopree.core.model.Category
 import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.feature.cart.domain.AddToCartUseCase
 import com.ntc.shopree.feature.catalog.domain.GetCategoriesUseCase
 import com.ntc.shopree.feature.catalog.domain.GetProductsUseCase
 import com.ntc.shopree.feature.catalog.domain.SearchProductsUseCase
@@ -20,7 +21,7 @@ import javax.inject.Inject
 sealed interface ProductsUiState {
     data object Loading : ProductsUiState
     data class Success(
-        val categories: List<Category>, val products: List<Product>, val searchQuery: String
+        val categories: List<Category>, val products: List<Product>, val searchQuery: String, val isCartUpdating: Boolean = false
     ) : ProductsUiState
 
     data class Error(val message: String) : ProductsUiState
@@ -31,6 +32,7 @@ class ProductsViewModel @Inject constructor(
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val getProductsUseCase: GetProductsUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
+    private val addToCartUseCase: AddToCartUseCase,
     private val sessionStore: SessionStore,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ProductsUiState>(ProductsUiState.Loading)
@@ -94,6 +96,9 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun searchProducts(query: String) {
+        if (_uiState.value !is ProductsUiState.Success) {
+            return
+        }
         viewModelScope.launch {
             _uiState.value = ProductsUiState.Loading
 
