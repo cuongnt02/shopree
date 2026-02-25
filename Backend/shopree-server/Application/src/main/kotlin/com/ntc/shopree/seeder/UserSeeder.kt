@@ -2,17 +2,12 @@ package com.ntc.shopree.seeder
 
 import com.ntc.data.UserRepository
 import com.ntc.data.VendorRepository
-import com.ntc.shopree.model.User
-import com.ntc.shopree.model.Vendor
+import com.ntc.domain.model.User
 import jakarta.transaction.Transactional
 import org.springframework.boot.CommandLineRunner
-import org.springframework.context.annotation.DependsOn
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
-import java.util.UUID
 
 @Component
 @Order(2)

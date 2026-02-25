@@ -26,7 +26,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature:catalog"))
     implementation(project(":core:model"))
     implementation(project(":core:ui"))
     implementation(project(":core:network"))
@@ -38,6 +37,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.io.coil.compose)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

@@ -1,9 +1,9 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE vendor
+CREATE TABLE shopree.vendor
 (
     id                       uuid PRIMARY KEY      DEFAULT uuid_generate_v4(),
-    owner_user_id            uuid         REFERENCES shopree_user (id) ON DELETE SET NULL,
+    owner_user_id            uuid         REFERENCES shopree.shopree_user (id) ON DELETE SET NULL,
     vendor_name              varchar(255) NOT NULL,
     slug                     varchar(255) UNIQUE,
     description              text,

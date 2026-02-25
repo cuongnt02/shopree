@@ -23,16 +23,17 @@ class CartRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addItem(item: CartItem) = cartDao.upsert(item.toCartItemEntity())
-    override suspend fun getItem(itemId: String): CartItem {
-        return cartDao.getItemById(itemId)!!.toCartItem()
+
+    override suspend fun getItem(slug: String, vendor: String): CartItem? {
+        return cartDao.getItem(slug, vendor)?.toCartItem()
     }
 
     override suspend fun incrementQuantity(item: CartItem) =
-        cartDao.incrementQuantity(itemId(item))
+        cartDao.incrementQuantity(item.productSlug, item.vendorName)
 
 
     override suspend fun decrementQuantity(item: CartItem) =
-        cartDao.decrementQuantity(itemId(item))
+        cartDao.decrementQuantity(item.productSlug, item.vendorName)
 
 
     override suspend fun removeItem(item: CartItem) =

@@ -14,12 +14,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    // TECHDEBT: Add migrations to database
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ShopreeDatabase {
         val db = Room.databaseBuilder(
             context = context, klass = ShopreeDatabase::class.java, name = "shopree-database"
-        )
+        ).fallbackToDestructiveMigration(true)
         return db.build()
     }
 

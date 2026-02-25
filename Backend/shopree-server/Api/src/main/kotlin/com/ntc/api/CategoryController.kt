@@ -1,8 +1,8 @@
 package com.ntc.api
 
-import com.ntc.data.CategoryRepository
 import com.ntc.service.CategoryService
-import com.ntc.shopree.model.Category
+import com.ntc.domain.model.Category
+import com.ntc.service.dto.CategoryResponse
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,5 +14,5 @@ import org.springframework.web.bind.annotation.RestController
 @CrossOrigin(origins = ["*"])
 class CategoryController(private val categoryService: CategoryService) {
     @GetMapping("/categories")
-    fun getCategories(): List<Category> = categoryService.getCategories()
+    fun getCategories(): List<CategoryResponse> = categoryService.getCategories()
 }

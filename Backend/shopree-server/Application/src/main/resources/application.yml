@@ -29,25 +29,36 @@ spring:
     url: ${DATABASE_URL}
     user: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-    clean-disabled: false
+    clean-disabled: true
 
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
         default_schema: shopree
+    show_sql: false
+
+  web:
+    error:
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+      include-exception: false
 
 
 
 
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
+    root: INFO
+    com.ntc: INFO
+    org.springframework: WARN
 
 management:
   endpoints:
     web:
       exposure:
-        include: mappings
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

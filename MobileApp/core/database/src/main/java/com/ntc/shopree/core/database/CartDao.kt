@@ -19,44 +19,44 @@ interface CartDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CartItemEntity): Long
 
-    @Query("SELECT * FROM cart WHERE id = :id")
-    suspend fun getItemById(id: String): CartItemEntity?
+    @Query("SELECT * FROM cart WHERE product_slug = :slug AND vendor_name = :vendor LIMIT 1")
+    suspend fun getItem(slug: String, vendor: String): CartItemEntity?
 
     @Query(
         """
             UPDATE cart
             SET quantity = quantity + 1
-            WHERE id = :id
+            WHERE product_slug = :slug AND vendor_name = :vendor
         """
     )
-    suspend fun incrementQuantity(id: String)
+    suspend fun incrementQuantity(slug: String, vendor: String)
 
     @Query(
         """
             UPDATE cart
             SET quantity = quantity - 1
-            WHERE id = :id AND quantity > 1
+            WHERE product_slug = :slug AND vendor_name = :vendor AND quantity > 1
         """
     )
-    suspend fun decrementQuantity(id: String)
+    suspend fun decrementQuantity(slug: String, vendor: String)
 
 
     @Transaction
     suspend fun upsert(item: CartItemEntity) {
         val result = insert(item)
         if (result == -1L) {
-            incrementQuantity(item.id)
+            incrementQuantity(item.productSlug, item.vendorName)
         }
     }
 
     @Query(
         """
         DELETE FROM cart
-        WHERE product_slug = :productSlug
-        AND vendor_name = :vendorName
+        WHERE product_slug = :slug
+        AND vendor_name = :vendor
     """
     )
-    suspend fun remove(productSlug: String, vendorName: String)
+    suspend fun remove(slug: String, vendor: String)
 
     @Query("DELETE FROM cart")
     suspend fun clear()

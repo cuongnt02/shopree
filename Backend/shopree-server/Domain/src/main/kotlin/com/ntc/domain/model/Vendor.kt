@@ -1,4 +1,4 @@
-package com.ntc.shopree.model
+package com.ntc.domain.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

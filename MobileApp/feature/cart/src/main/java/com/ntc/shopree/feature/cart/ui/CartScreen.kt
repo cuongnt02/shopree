@@ -146,7 +146,7 @@ fun CartItem(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
-                model = cartItem.imageUrl,
+                model = cartItem.mainImage,
                 contentDescription = "product ${cartItem.productSlug} image",
                 modifier = Modifier.background(color = ColorGrey200, shape = CircleShape)
             )

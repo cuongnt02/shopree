@@ -46,6 +46,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object LoginScreen : NavKey
 
+@Serializable
+data object PostLogin: NavKey
+
 @Composable
 fun LoginScreen(onLoggedIn: () -> Unit) {
     val loginViewModel: LoginViewModel = hiltViewModel()

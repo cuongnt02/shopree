@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
     scanBasePackages = ["com.ntc.shopree", "com.ntc.security", "com.ntc.api", "com.ntc.data", "com.ntc.service"]
 )
 @EnableJpaRepositories(basePackages = ["com.ntc.data"])
-@EntityScan(basePackages = ["com.ntc.shopree.model"])
+@EntityScan(basePackages = ["com.ntc.domain.model"])
 class ShopreeApplication
 
 fun main(args: Array<String>) {

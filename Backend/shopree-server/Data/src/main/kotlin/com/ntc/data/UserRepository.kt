@@ -1,7 +1,6 @@
 package com.ntc.data
 
-import com.ntc.shopree.model.User
-import org.springframework.data.jpa.repository.JpaRepository
+import com.ntc.domain.model.User
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID

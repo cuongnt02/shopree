@@ -11,7 +11,7 @@ import com.ntc.shopree.core.ui.components.ProductCard
 fun ProductsGrid(modifier: Modifier = Modifier, products: List<Product>, onProductClick: (String) -> Unit) {
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier) {
         items(products.size) { index ->
-            ProductCard(imageSource = products[index].imageUrl, name = products[index].name, price = products[index].price.toString(), onClick = { onProductClick(products[index].name)})
+            ProductCard(imageSource = products[index].mainImage, name = products[index].title, price = products[index].price.toString(), onClick = { onProductClick(products[index].slug)})
         }
     }
 }

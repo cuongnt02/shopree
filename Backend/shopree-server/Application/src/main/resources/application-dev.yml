@@ -1,0 +1,65 @@
+# Development profile - local use only
+# Loaded only when spring.profiles.active=dev
+
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        ddl-auto: validate
+
+  flyway:
+    clean-disabled: false
+  web:
+    error:
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: always
+      include-exception: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:9000/oauth2/jwks"
+
+
+jwt:
+  secret: ${JWT_SECRET:secret-key}
+  expiration-ms: 450000
+  refresh-token-expiration-days: 1
+
+logging:
+  level:
+    root: INFO
+    com.ntc: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.flywaydb: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /actuator
+      cors:
+        allowed-origins:
+          - http://localhost:3000
+          - http://10.0.2.2:8080
+          - http://localhost:8080
+        allowed-methods: "*"
+        allowed-headers: "*"
+        allow-credentials: true
+  endpoint:
+    health:
+      show-details: always

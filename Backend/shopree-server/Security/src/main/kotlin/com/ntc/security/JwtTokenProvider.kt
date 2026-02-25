@@ -1,17 +1,14 @@
 package com.ntc.security
 
-import com.ntc.shopree.model.User
+import com.ntc.domain.model.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.UnsupportedJwtException
 import org.springframework.stereotype.Component
-import java.security.Key
 import java.util.Date
 import java.util.UUID
-import javax.crypto.SecretKey
 
 @Component
 class JwtTokenProvider {

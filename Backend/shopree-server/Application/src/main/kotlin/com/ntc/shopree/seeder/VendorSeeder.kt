@@ -2,9 +2,8 @@ package com.ntc.shopree.seeder
 
 import com.ntc.data.UserRepository
 import com.ntc.data.VendorRepository
-import com.ntc.shopree.model.Vendor
+import com.ntc.domain.model.Vendor
 import org.springframework.boot.CommandLineRunner
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 

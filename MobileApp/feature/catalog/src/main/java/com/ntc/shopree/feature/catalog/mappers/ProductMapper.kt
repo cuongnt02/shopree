@@ -7,9 +7,9 @@ fun Product.toCartItem(): CartItem {
     return CartItem(
         productSlug = slug,
         vendorName = vendorName,
-        productName = name,
+        productName = title,
         price = price,
-        imageUrl = imageUrl,
+        mainImage = mainImage,
         quantity = 1
     )
 }

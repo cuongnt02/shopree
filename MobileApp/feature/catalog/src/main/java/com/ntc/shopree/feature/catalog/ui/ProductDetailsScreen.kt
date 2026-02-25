@@ -1,5 +1,6 @@
 package com.ntc.shopree.feature.catalog.ui
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,8 @@ import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.utils.SnackbarController
+import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -121,7 +124,7 @@ fun ProductImage(state: ProductDetailsUiState, modifier: Modifier = Modifier) {
 
         is ProductDetailsUiState.Success -> {
             AsyncImage(
-                model = state.product.imageUrl,
+                model = state.product.mainImage,
                 contentDescription = "product image",
                 modifier = modifier
             )
@@ -129,7 +132,11 @@ fun ProductImage(state: ProductDetailsUiState, modifier: Modifier = Modifier) {
 
         is ProductDetailsUiState.Error -> {
             // TODO: Show error message
-            val message = state.message
+            LaunchedEffect(Unit) {
+                SnackbarController.sendEvent(SnackbarEvent(message = state.message))
+            }
+            Log.e("com.ntc.shopree.ProductDetails", "ProductImage: ${state.message}", )
+
         }
     }
 }
@@ -157,7 +164,7 @@ fun ProductDescription(
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = product.name, style = MaterialTheme.typography.displayMedium)
+                Text(text = product.title, style = MaterialTheme.typography.displayMedium)
                 Text(
                     text = product.description,
                     style = MaterialTheme.typography.bodyMedium,

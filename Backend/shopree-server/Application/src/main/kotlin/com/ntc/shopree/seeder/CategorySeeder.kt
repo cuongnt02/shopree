@@ -1,10 +1,8 @@
 package com.ntc.shopree.seeder
 
-import com.ntc.shopree.model.Category
+import com.ntc.domain.model.Category
 import com.ntc.data.CategoryRepository
 import org.springframework.boot.CommandLineRunner
-import org.springframework.context.annotation.DependsOn
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
