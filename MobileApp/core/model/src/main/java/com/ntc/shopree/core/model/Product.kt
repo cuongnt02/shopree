@@ -2,15 +2,16 @@ package com.ntc.shopree.core.model
 
 import kotlinx.serialization.Serializable
 
-// TODO: Map this to the actual data model
+// TECHDEBT: Add price to Product model
+// TECHDEBT: Add vendorName to Product model
 @Serializable
 data class Product (
-    val id: Int,
+    val id: String,
+    val title: String,
     val slug: String,
     val vendorName: String,
-    val name: String,
     val description: String,
     val price: Double,
-    val imageUrl: String
+    val mainImage: String
 )
 

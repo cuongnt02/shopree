@@ -1,4 +1,4 @@
-package com.ntc.shopree.model
+package com.ntc.domain.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -43,7 +43,7 @@ class Product (
 
     var updatedAt: Instant = Instant.now(),
 
-) {
+    ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null

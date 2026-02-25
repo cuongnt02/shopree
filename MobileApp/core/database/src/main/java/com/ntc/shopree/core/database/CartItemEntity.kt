@@ -4,11 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "cart")
+@Entity(tableName = "cart", primaryKeys = ["product_slug", "vendor_name"])
 data class CartItemEntity(
-    @PrimaryKey
-    @ColumnInfo(name = "id", typeAffinity = ColumnInfo.TEXT)
-    val id: String,
     @ColumnInfo(name = "product_slug", typeAffinity = ColumnInfo.TEXT)
     val productSlug: String,
     @ColumnInfo(name = "vendor_name", typeAffinity = ColumnInfo.TEXT)
@@ -20,5 +17,5 @@ data class CartItemEntity(
     @ColumnInfo(name = "price", typeAffinity = ColumnInfo.REAL)
     val price: Double,
     @ColumnInfo(name = "image", typeAffinity = ColumnInfo.TEXT)
-    val imageUrl: String,
+    val mainImage: String,
 )

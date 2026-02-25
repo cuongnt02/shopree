@@ -1,4 +1,4 @@
-package com.ntc.shopree.model
+package com.ntc.domain.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference

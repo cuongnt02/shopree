@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
     id("org.jetbrains.kotlin.jvm") version "2.2.21"
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.21"
@@ -61,6 +63,43 @@ tasks.named<Test>("test") {
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     mainClass.set("com.ntc.shopree.ShopreeApplication")
+}
+
+fun BootRun.loadEnvFile() {
+    val envFile = file("${project.rootDir}/.env")
+    if (envFile.exists()) {
+        println("[DEV] Loading environment variables from ${envFile.absolutePath}")
+        envFile.readLines()
+            .filter { it.isNotBlank() && !it.startsWith("#")}
+            .forEach { line ->
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2) {
+                    val key = parts[0].trim()
+                    val value = parts[1].trim()
+                    environment(key, value)
+                    println("[DEV] Loaded environment variable: $key=$value")
+                }
+            }
+    }
+    else {
+        println("[DEV] No .env file found at ${envFile.absolutePath}.")
+    }
+}
+
+tasks.named<BootRun>("bootRun") {
+    args = listOf("--spring.profiles.active=dev")
+    loadEnvFile()
+    doFirst { println("[DEV] Starting application in development mode.") }
+}
+
+tasks.register<BootRun>("bootRunNoSec") {
+    group = "application"
+    description = "Runs the application with no security (No JWT required)"
+    classpath = tasks.named<BootRun>("bootRun").get().classpath
+    mainClass = tasks.named<BootRun>("bootRun").get().mainClass
+    args = listOf("--spring.profiles.active=dev,no-security")
+    loadEnvFile()
+    doFirst { println("[DEV] Security: DISABLED - All endpoints are publicly accessible without authentication!") }
 }
 
 tasks.register("prepareKotlinBuildScriptModel"){}

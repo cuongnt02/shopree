@@ -1,6 +1,6 @@
 package com.ntc.data
 
-import com.ntc.shopree.model.Vendor
+import com.ntc.domain.model.Vendor
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID

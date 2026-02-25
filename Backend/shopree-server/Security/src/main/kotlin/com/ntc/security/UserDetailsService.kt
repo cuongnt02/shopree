@@ -1,8 +1,7 @@
 package com.ntc.security
 
 import com.ntc.data.UserRepository
-import com.ntc.shopree.model.User
-import org.springframework.security.core.userdetails.UserDetails
+import com.ntc.domain.model.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service

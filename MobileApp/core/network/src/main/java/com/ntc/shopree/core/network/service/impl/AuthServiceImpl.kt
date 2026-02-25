@@ -1,6 +1,8 @@
 package com.ntc.shopree.core.network.service.impl
 
 import android.util.Log
+import com.ntc.shopree.core.model.dto.RefreshTokenRequest
+import com.ntc.shopree.core.model.dto.RefreshTokenResponse
 import com.ntc.shopree.core.network.dto.LoginRequest
 import com.ntc.shopree.core.network.dto.LoginResponse
 import com.ntc.shopree.core.network.service.AuthService
@@ -29,6 +31,13 @@ class AuthServiceImpl @Inject constructor(
             )
         }
         return response.body()
+    }
+
+    override suspend fun refreshAccessToken(refreshToken: String): RefreshTokenResponse {
+        return client.post {
+            url("$baseUrl/api/v1/auth/refresh")
+            setBody(RefreshTokenRequest(refreshToken))
+        }.body()
     }
 }
 

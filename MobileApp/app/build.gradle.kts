@@ -22,8 +22,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"http://192.168.1.7:8080\"")
-        buildConfigField("String", "API_HOST", "\"192.168.1.7\"")
+        buildConfigField("String", "BASE_URL", "\"http://172.16.0.70:8080\"")
+        buildConfigField("String", "API_HOST", "\"172.16.0.70\"")
     }
 
     buildTypes {
@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.coil.network.ktor3)
     implementation(libs.ktor.client.logging)
     implementation(libs.slf4j.android)
+    implementation(libs.slf4j.api)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.ktor.client.content.negotiation)

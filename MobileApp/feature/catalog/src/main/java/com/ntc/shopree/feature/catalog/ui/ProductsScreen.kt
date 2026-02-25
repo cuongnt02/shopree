@@ -109,7 +109,7 @@ fun SearchSection(state: ProductsUiState, productsViewModel: ProductsViewModel, 
                     onSearch = { query ->
                         productsViewModel.searchProducts(query)
                     },
-                    searchResults = state.products.map { it.name }
+                    searchResults = state.products.map { it.title }
                 )
                 Filter()
             }

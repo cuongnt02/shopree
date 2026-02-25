@@ -16,4 +16,9 @@ class DataStoreSessionTokenProvider(
         return context.sessionDataStore.data.first().refreshToken
     }
 
+    override suspend fun isSessionValid(): Boolean {
+        val exp = context.sessionDataStore.data.first().expiresAt ?: return false
+        return exp > System.currentTimeMillis() / 1000
+    }
+
 }

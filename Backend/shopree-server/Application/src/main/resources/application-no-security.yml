@@ -1,0 +1,10 @@
+# No-security profile - DEVELOPMENT ONLY
+# Activated by: --spring.profiles.active=dev,no-security
+# Used for: Quick API testing without JWT tokens
+#
+# WARNING: NEVER activate this profile in production!
+
+logging:
+  level:
+    com.ntc.security: DEBUG
+    org.springframework.security: DEBUG
