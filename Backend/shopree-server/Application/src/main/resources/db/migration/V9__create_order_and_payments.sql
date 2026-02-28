@@ -30,6 +30,7 @@ CREATE TABLE order_item
     seller_order_id   uuid REFERENCES seller_order (id) ON DELETE CASCADE,
     variant_id        uuid REFERENCES product_variant (id),
     product_title     varchar(255),
+    product_slug      varchar(255),
     sku               varchar(100),
     quantity          int    NOT NULL,
     unit_price_cents  bigint NOT NULL,

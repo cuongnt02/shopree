@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.util.UUID
 
@@ -18,17 +19,24 @@ class OrderItem(
     @JoinColumn(name = "order_id", nullable = false)
     var order: Order,
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id", nullable = true)
+    var variant: ProductVariant? = null,
+
     @Column(length = 255)
     var productSlug: String,
 
     @Column(length = 255)
     var productTitle: String,
 
+    @Column(length = 100)
+    var sku: String? = null,
+
     var quantity: Int,
 
     var unitPriceCents: Long,
 
-    var totalPriceCents: Long
+    var totalPriceCents: Long,
 
 ) {
     @Id
