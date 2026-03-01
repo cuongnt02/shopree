@@ -121,7 +121,7 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
         }
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Total: $price")
-            PrimaryButton(onclick = {}) {
+            PrimaryButton(onclick = { onCheckout()}) {
                 Text(text = "Checkout", style = MaterialTheme.typography.labelMedium)
             }
         }

@@ -13,6 +13,7 @@ fun EntryProviderScope<NavKey>.productsEntryBuilder(backstack: NavBackStack<NavK
             backstack.add(CartScreen)
         })
     }
+    // WARN: Key -> Navkey = key in lambda is misleading and obscured
     entry<ProductDetails> { key ->
         ProductDetailsScreen(navKey = key, onBack = {
             backstack.removeLastOrNull()
