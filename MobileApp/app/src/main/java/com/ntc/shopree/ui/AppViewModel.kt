@@ -3,8 +3,9 @@ package com.ntc.shopree.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ntc.shopree.feature.auth.domain.CheckSessionUseCase
+import com.ntc.shopree.feature.auth.domain.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,7 +19,8 @@ sealed class AppState {
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val checkSessionUseCase: CheckSessionUseCase
+    private val checkSessionUseCase: CheckSessionUseCase,
+    private val logoutUseCase: LogoutUseCase
 ): ViewModel() {
     private val _state = MutableStateFlow<AppState>(AppState.Loading)
     val state = _state.asStateFlow()
@@ -33,6 +35,13 @@ class AppViewModel @Inject constructor(
             result.onSuccess { isAuthenticated ->
                 _state.update { if(isAuthenticated) AppState.Authenticated else AppState.Unauthenticated }
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+            _state.update { AppState.Unauthenticated }
         }
     }
 }

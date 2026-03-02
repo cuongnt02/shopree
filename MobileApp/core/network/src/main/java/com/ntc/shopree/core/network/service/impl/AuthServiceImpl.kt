@@ -39,5 +39,13 @@ class AuthServiceImpl @Inject constructor(
             setBody(RefreshTokenRequest(refreshToken))
         }.body()
     }
+
+    override suspend fun logout(token: String) {
+        client.post {
+            url("$baseUrl/api/v1/auth/logout")
+            contentType(ContentType.Application.Json)
+            setBody(RefreshTokenRequest(token))
+        }
+    }
 }
 

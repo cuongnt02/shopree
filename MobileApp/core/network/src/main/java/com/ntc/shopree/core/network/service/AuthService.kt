@@ -7,5 +7,7 @@ interface AuthService {
     suspend fun loginWithEmailAndPassword(email: String, password: String): LoginResponse
 
     suspend fun refreshAccessToken(refreshToken: String): RefreshTokenResponse
+
+    suspend fun logout(token: String)
 }
 

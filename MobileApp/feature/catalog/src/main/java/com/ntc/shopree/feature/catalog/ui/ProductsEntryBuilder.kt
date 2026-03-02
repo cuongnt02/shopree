@@ -5,13 +5,16 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.feature.cart.ui.CartScreen
 
-fun EntryProviderScope<NavKey>.productsEntryBuilder(backstack: NavBackStack<NavKey>) {
+fun EntryProviderScope<NavKey>.productsEntryBuilder(
+    backstack: NavBackStack<NavKey>,
+    onLogout: () -> Unit
+) {
     entry<ProductsScreen> {
         ProductsScreen(onProductClick = {
             backstack.add(ProductDetails(it))
         }, onCart = {
             backstack.add(CartScreen)
-        })
+        }, onLogout = { onLogout() })
     }
     // WARN: Key -> Navkey = key in lambda is misleading and obscured
     entry<ProductDetails> { key ->

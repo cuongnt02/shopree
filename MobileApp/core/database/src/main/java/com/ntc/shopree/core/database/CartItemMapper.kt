@@ -1,6 +1,5 @@
-package com.ntc.shopree.feature.cart.data
+package com.ntc.shopree.core.database
 
-import com.ntc.shopree.core.database.CartItemEntity
 import com.ntc.shopree.core.model.CartItem
 
 fun CartItemEntity.toCartItem(): CartItem {

@@ -1,7 +1,7 @@
 package com.ntc.shopree.feature.cart.domain
 
+import com.ntc.shopree.core.database.CartRepository
 import com.ntc.shopree.core.model.CartItem
-import com.ntc.shopree.feature.cart.data.toCartItemEntity
 import javax.inject.Inject
 
 class DecrementCartItemUseCase @Inject constructor(

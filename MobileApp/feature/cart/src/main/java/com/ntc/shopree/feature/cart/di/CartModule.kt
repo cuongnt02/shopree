@@ -1,8 +1,8 @@
 package com.ntc.shopree.feature.cart.di
 
 import com.ntc.shopree.core.database.CartDao
-import com.ntc.shopree.feature.cart.data.CartRepositoryImpl
-import com.ntc.shopree.feature.cart.domain.CartRepository
+import com.ntc.shopree.core.database.CartRepositoryImpl
+import com.ntc.shopree.core.database.CartRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

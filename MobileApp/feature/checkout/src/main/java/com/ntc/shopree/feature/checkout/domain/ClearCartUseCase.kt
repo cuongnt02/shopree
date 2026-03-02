@@ -1,9 +1,9 @@
-package com.ntc.shopree.feature.cart.domain
+package com.ntc.shopree.feature.checkout.domain
 
 import com.ntc.shopree.core.database.CartRepository
 import javax.inject.Inject
 
-class ClearCartItemUseCase @Inject constructor(
+class ClearCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
     suspend operator fun invoke(): Result<Unit> {

@@ -1,4 +1,4 @@
-package com.ntc.shopree.feature.cart.domain
+package com.ntc.shopree.core.database
 
 import com.ntc.shopree.core.model.CartItem
 import kotlinx.coroutines.flow.Flow

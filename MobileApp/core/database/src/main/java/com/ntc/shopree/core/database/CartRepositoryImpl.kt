@@ -1,8 +1,6 @@
-package com.ntc.shopree.feature.cart.data
+package com.ntc.shopree.core.database
 
-import com.ntc.shopree.core.database.CartDao
 import com.ntc.shopree.core.model.CartItem
-import com.ntc.shopree.feature.cart.domain.CartRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

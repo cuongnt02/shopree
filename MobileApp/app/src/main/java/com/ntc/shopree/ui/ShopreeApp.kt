@@ -15,6 +15,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,6 +52,14 @@ fun ShopreeApp(
 
     // TODO: Store the back stack in a viewmodel
     val backStack = initScreen?.let { rememberNavBackStack(it) } ?: return
+
+    // React to state changes: only navigate to LoginScreen AFTER session is cleared
+    LaunchedEffect(startupState) {
+        if (startupState == AppState.Unauthenticated) {
+            backStack.clear()
+            backStack.add(LoginScreen)
+        }
+    }
 
     if (startupState == AppState.Loading) {
         Box(
@@ -95,7 +104,11 @@ fun ShopreeApp(
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     // TODO: Migrate to DI
-                    productsEntryBuilder(backStack)
+                    productsEntryBuilder(backStack, onLogout = {
+                        viewModel.logout()
+                        // Navigation to LoginScreen is handled by LaunchedEffect above,
+                        // which fires only after the session is fully cleared.
+                    })
                     authEntryBuilder(backStack)
                     cartEntryBuilder(backStack, onCheckout = { backStack.add(CheckoutScreen) })
                     checkoutEntryBuilder(
