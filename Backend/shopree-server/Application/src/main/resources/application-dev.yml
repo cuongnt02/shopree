@@ -19,10 +19,10 @@ spring:
     clean-disabled: false
   web:
     error:
-      include-message: always
-      include-binding-errors: always
-      include-stacktrace: always
-      include-exception: true
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+      include-exception: false
 
   security:
     oauth2:
