@@ -10,6 +10,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,9 +60,8 @@ fun CategorySection(state: ProductsUiState) {
             Categories(categories = categories.map { it.name })
         }
         is ProductsUiState.Error -> {
-            // TODO: Show error message
-            val message = state.message
-            Log.e("ProductsScreen", "ProductsScreen: ", Exception(message) )
+            Text(text = state.message, color = MaterialTheme.colorScheme.error)
+            Log.e("ProductsScreen", "ProductsScreen: ", Exception(state.message))
         }
     }
 }
@@ -77,9 +77,7 @@ fun ProductSection(state: ProductsUiState, onProductClick: (String) -> Unit) {
             ProductsGrid(products = products, onProductClick = onProductClick)
         }
         is ProductsUiState.Error -> {
-            // TODO: Show error message
-            val message = state.message
-
+            Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
@@ -115,8 +113,7 @@ fun SearchSection(state: ProductsUiState, productsViewModel: ProductsViewModel, 
             }
         }
         is ProductsUiState.Error -> {
-            // TODO: Show error message
-            val message = state.message
+            Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 
