@@ -39,6 +39,10 @@ dependencies {
     implementation(libs.io.coil.compose)
     implementation(libs.coil.network.ktor3)
     ksp(libs.hilt.compiler)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 kotlin {
     compilerOptions {
