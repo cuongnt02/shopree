@@ -12,57 +12,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = ColorPrimary300,
-    onPrimary = Color(0xFF0B1412),
-    secondary = ColorSecondary300,
-    onSecondary = Color(0xFF2B0C05),
-    tertiary = ColorSecondary200,
-    onTertiary = ColorGrey700,
-    background = Color(0xFF101716),
-    onBackground = ColorGrey100,
-    surface = Color(0xFF111A19),
-    onSurface = ColorGrey100,
-    surfaceVariant = Color(0xFF1A2624),
-    onSurfaceVariant = ColorGrey200,
-    error = Color(0xFFE57373),
-    onError = Color(0xFF2B0C05)
-
-    /* Other default colors to override
-   background = Color(0xFFFFFBFE),
-   surface = Color(0xFFFFFBFE),
-   onPrimary = Color.White,
-   onSecondary = Color.White,
-   onTertiary = Color.White,
-   onBackground = Color(0xFF1C1B1F),
-   onSurface = Color(0xFF1C1B1F),
-   */
+    primary = ColorPrimary200, // Light gray for primary in dark mode
+    onPrimary = Neutral950,
+    secondary = ColorSecondary400, // Medium gray for secondary
+    onSecondary = Neutral950,
+    tertiary = ColorSecondary300,
+    onTertiary = Neutral950,
+    background = Neutral950, // Pure dark background
+    onBackground = Neutral100,
+    surface = Neutral900,
+    onSurface = Neutral100,
+    surfaceVariant = Neutral800,
+    onSurfaceVariant = Neutral200,
+    error = Neutral400,
+    onError = Neutral950
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = ColorPrimary400,
-    onPrimary = Color.White,
-    secondary = ColorSecondary300,
+    primary = Neutral900, // Dark gray/black for primary in light mode
+    onPrimary = Neutral50,
+    secondary = Neutral600, // Medium gray for secondary
     onSecondary = Color.White,
-    tertiary = ColorSecondary200,
-    onTertiary = ColorGrey700,
-    background = Color(0xFFF9FBFA),
-    onBackground = ColorGrey700,
-    surface = Color.White,
-    onSurface = ColorGrey700,
-    surfaceVariant = ColorGrey100,
-    onSurfaceVariant = ColorGrey600,
-    error = Color(0xFFC62828),
-    onError = Color.White
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
+    tertiary = Neutral400,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    background = Neutral50, // Very light gray background
+    onBackground = Neutral900,
+    surface = Color.White,
+    onSurface = Neutral900,
+    surfaceVariant = Neutral100,
+    onSurfaceVariant = Neutral600,
+    error = Neutral600,
+    onError = Color.White
 )
 
 @Composable

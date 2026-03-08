@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.2"
+composeunstyled = "1.49.6"
 firebaseBom = "34.7.0"
 kotlin = "2.2.0"
 coreKtx = "1.17.0"
@@ -27,6 +28,7 @@ room = "2.8.4"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
+composeunstyled = { module = "com.composables:composeunstyled", version.ref = "composeunstyled" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

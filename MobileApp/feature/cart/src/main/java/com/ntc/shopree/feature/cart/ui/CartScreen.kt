@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,9 +42,15 @@ import com.ntc.shopree.core.ui.theme.ColorGrey200
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import kotlinx.serialization.Serializable
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import com.ntc.shopree.core.model.Product
+
 
 @Serializable
 data object CartScreen : NavKey
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +60,6 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
     val state by cartViewModel.uiState.collectAsState()
     val price by cartViewModel.totalPrice.collectAsState()
     var clearCartConfirm by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     Column {
         CenterAlignedTopAppBar(title = { Text("Your Cart") }, navigationIcon = {
@@ -72,19 +78,33 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
             is CartUiState.Success -> {
                 val cartState = state as CartUiState.Success
                 val cartItems = cartState.cartItems
+                val products = cartState.products
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LazyColumn(modifier = modifier) {
-                        items(cartItems.size) { cartItem ->
-                            val item = cartItems[cartItem]
-                            CartItem(cartItem = item, onDetailsClick = {
-                                // TODO: Navigate to product details
-                            }, onDecrementCartItem = {
-                                cartViewModel.decrementCartItem(item)
-                            }, onIncrementCartItem = {
-                                cartViewModel.incrementCartItem(item)
-                            }, onRemoveCartItem = {
-                                cartViewModel.removeCartItem(item)
-                            })
+                    LazyColumn(modifier = modifier.weight(1f)) {
+                        items(cartItems.size) { index ->
+                            val item = cartItems[index]
+                            val product = products[item.productSlug]
+                            CartItem(
+                                cartItem = item,
+                                product = product,
+                                onDetailsClick = {
+                                    // TODO: Navigate to product details
+                                },
+                                onDecrementCartItem = {
+                                    cartViewModel.decrementCartItem(item)
+                                },
+                                onIncrementCartItem = {
+                                    cartViewModel.incrementCartItem(item)
+                                },
+                                onRemoveCartItem = {
+                                    cartViewModel.removeCartItem(item)
+                                },
+                                onVariantChange = { variantId ->
+                                    if (product != null) {
+                                        cartViewModel.updateVariant(item, product, variantId)
+                                    }
+                                }
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
@@ -119,8 +139,8 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
                 }
             }
         }
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Total: $price")
+        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Text(text = "Total: $price", style = MaterialTheme.typography.titleLarge)
             PrimaryButton(onclick = { onCheckout()}) {
                 Text(text = "Checkout", style = MaterialTheme.typography.labelMedium)
             }
@@ -133,48 +153,79 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
 @Composable
 fun CartItem(
     cartItem: CartItem,
+    product: Product?,
     modifier: Modifier = Modifier,
     onDetailsClick: (String) -> Unit,
     onIncrementCartItem: (CartItem) -> Unit,
     onDecrementCartItem: (CartItem) -> Unit,
-    onRemoveCartItem: (CartItem) -> Unit
+    onRemoveCartItem: (CartItem) -> Unit,
+    onVariantChange: (String) -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = ColorGrey200)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
-                model = cartItem.mainImage,
-                contentDescription = "product ${cartItem.productSlug} image",
-                modifier = Modifier.background(color = ColorGrey200, shape = CircleShape)
-            )
-            Column {
-                Text(text = cartItem.productName)
-                Text(
-                    text = "View details", modifier = Modifier.clickable(
-                        onClick = {
-                            onDetailsClick(cartItem.productSlug)
-                        })
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AsyncImage(
+                    model = cartItem.mainImage,
+                    contentDescription = "product ${cartItem.productSlug} image",
+                    modifier = Modifier.background(color = ColorGrey200, shape = CircleShape)
                 )
-                Text(text = cartItem.price.toString())
+                Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
+                    Text(text = cartItem.productName, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = "Variant: ${cartItem.variantName}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(text = "$${cartItem.price}", style = MaterialTheme.typography.labelLarge)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Remove,
+                        contentDescription = "Remove quantity",
+                        modifier = Modifier.clickable {
+                            onDecrementCartItem(cartItem)
+                        })
+                    Text(text = cartItem.quantity.toString(), modifier = Modifier.padding(horizontal = 8.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add quantity",
+                        modifier = Modifier.clickable {
+                            onIncrementCartItem(cartItem)
+                        })
+                }
             }
-            Column(verticalArrangement = Arrangement.Center) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add quantity",
-                    modifier = Modifier.clickable {
-                        onIncrementCartItem(cartItem)
-                    })
-                Text(text = cartItem.quantity.toString())
-                Icon(
-                    imageVector = Icons.Filled.Remove,
-                    contentDescription = "Remove quantity",
-                    modifier = Modifier.clickable {
-                        onDecrementCartItem(cartItem)
-                    })
+
+            if (product != null && product.variants.size > 1) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Change variant:", style = MaterialTheme.typography.labelSmall)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    product.variants.forEach { variant ->
+                        val isSelected = variant.id == cartItem.variantId
+                        AssistChip(
+                            onClick = { if (!isSelected) onVariantChange(variant.id) },
+                            label = { Text(variant.title ?: "Default", style = MaterialTheme.typography.labelSmall) },
+                            colors = if (isSelected) {
+                                AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            } else {
+                                AssistChipDefaults.assistChipColors()
+                            }
+                        )
+                    }
+                }
             }
+
+            Text(
+                text = "Remove",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.align(Alignment.End).clickable { onRemoveCartItem(cartItem) }
+            )
         }
     }
 }

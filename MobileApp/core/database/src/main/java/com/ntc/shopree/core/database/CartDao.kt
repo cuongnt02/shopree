@@ -19,33 +19,33 @@ interface CartDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CartItemEntity): Long
 
-    @Query("SELECT * FROM cart WHERE product_slug = :slug AND vendor_name = :vendor LIMIT 1")
-    suspend fun getItem(slug: String, vendor: String): CartItemEntity?
+    @Query("SELECT * FROM cart WHERE product_slug = :slug AND vendor_name = :vendor AND variant_id = :variantId LIMIT 1")
+    suspend fun getItem(slug: String, vendor: String, variantId: String): CartItemEntity?
 
     @Query(
         """
             UPDATE cart
             SET quantity = quantity + 1
-            WHERE product_slug = :slug AND vendor_name = :vendor
+            WHERE product_slug = :slug AND vendor_name = :vendor AND variant_id = :variantId
         """
     )
-    suspend fun incrementQuantity(slug: String, vendor: String)
+    suspend fun incrementQuantity(slug: String, vendor: String, variantId: String)
 
     @Query(
         """
             UPDATE cart
             SET quantity = quantity - 1
-            WHERE product_slug = :slug AND vendor_name = :vendor AND quantity > 1
+            WHERE product_slug = :slug AND vendor_name = :vendor AND variant_id = :variantId AND quantity > 1
         """
     )
-    suspend fun decrementQuantity(slug: String, vendor: String)
+    suspend fun decrementQuantity(slug: String, vendor: String, variantId: String)
 
 
     @Transaction
     suspend fun upsert(item: CartItemEntity) {
         val result = insert(item)
         if (result == -1L) {
-            incrementQuantity(item.productSlug, item.vendorName)
+            incrementQuantity(item.productSlug, item.vendorName, item.variantId)
         }
     }
 
@@ -54,9 +54,10 @@ interface CartDao {
         DELETE FROM cart
         WHERE product_slug = :slug
         AND vendor_name = :vendor
+        AND variant_id = :variantId
     """
     )
-    suspend fun remove(slug: String, vendor: String)
+    suspend fun remove(slug: String, vendor: String, variantId: String)
 
     @Query("DELETE FROM cart")
     suspend fun clear()

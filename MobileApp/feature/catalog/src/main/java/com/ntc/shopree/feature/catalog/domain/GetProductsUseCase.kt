@@ -1,12 +1,13 @@
 package com.ntc.shopree.feature.catalog.domain
 
 import com.ntc.shopree.core.model.Product
+import com.ntc.shopree.core.model.repository.ProductRepository
 import javax.inject.Inject
 
 class GetProductsUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
-     suspend operator fun invoke(): Result<List<Product>> {
+    suspend operator fun invoke(): Result<List<Product>> {
         return try {
             val products = productRepository.getProducts()
             Result.success(products)
@@ -15,6 +16,3 @@ class GetProductsUseCase @Inject constructor(
         }
     }
 }
-
-
-

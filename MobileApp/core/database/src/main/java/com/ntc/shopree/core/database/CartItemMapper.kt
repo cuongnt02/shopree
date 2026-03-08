@@ -6,6 +6,8 @@ fun CartItemEntity.toCartItem(): CartItem {
     return CartItem(
         productSlug = productSlug,
         vendorName = vendorName,
+        variantId = variantId,
+        variantName = variantName,
         productName = productName,
         quantity = quantity,
         price = price,
@@ -17,6 +19,8 @@ fun CartItem.toCartItemEntity(): CartItemEntity {
     return CartItemEntity(
         productSlug = productSlug,
         vendorName = vendorName,
+        variantId = variantId,
+        variantName = variantName,
         productName = productName,
         quantity = quantity,
         price = price,

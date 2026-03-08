@@ -82,7 +82,7 @@ val HeartFilled: ImageVector
             viewportWidth = 960f,
             viewportHeight = 960f
         ).apply {
-            path(fill = SolidColor(Color(0xFFEA3323))) {
+            path(fill = SolidColor(Color(0xFF404040))) {
                 moveToRelative(480f, 840f)
                 lineToRelative(-58f, -52f)
                 quadToRelative(-101f, -91f, -167f, -157f)

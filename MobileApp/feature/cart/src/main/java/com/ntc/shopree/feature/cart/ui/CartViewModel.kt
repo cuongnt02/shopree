@@ -13,6 +13,13 @@ import com.ntc.shopree.feature.cart.domain.ObserveCartQuantityUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveCartUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveTotalPriceUseCase
 import com.ntc.shopree.feature.cart.domain.RemoveCartItemUseCase
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+import com.ntc.shopree.core.model.Product
+import com.ntc.shopree.feature.cart.domain.UpdateCartItemUseCase
+import com.ntc.shopree.core.network.domain.GetSingleProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +31,7 @@ sealed interface CartUiState {
     data object Loading : CartUiState
     data class Success(
         val cartItems: List<CartItem>,
+        val products: Map<String, Product> = emptyMap(), // slug -> Product
         val isUpdating: Boolean = false,
         val errorMessage: String? = null,
     ) : CartUiState
@@ -41,6 +49,8 @@ class CartViewModel @Inject constructor(
     private val incrementCartItemUseCase: IncrementCartItemUseCase,
     private val decrementCartItemUseCase: DecrementCartItemUseCase,
     private val removeCartItemUseCase: RemoveCartItemUseCase,
+    private val updateCartItemUseCase: UpdateCartItemUseCase,
+    private val getSingleProductUseCase: GetSingleProductUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
     val uiState = _uiState.asStateFlow()
@@ -78,13 +88,53 @@ class CartViewModel @Inject constructor(
             val result = observeCartUseCase()
             result.onSuccess { flow ->
                 flow.collect { cartItems ->
-                    _uiState.value = CartUiState.Success(cartItems = cartItems)
+                    val currentProducts = (_uiState.value as? CartUiState.Success)?.products ?: emptyMap()
+                    _uiState.value = CartUiState.Success(cartItems = cartItems, products = currentProducts)
+                    
+                    // Load details for items we don't have yet
+                    cartItems.forEach { item ->
+                        if (!currentProducts.containsKey(item.productSlug)) {
+                            loadProductDetails(item.productSlug)
+                        }
+                    }
                 }
             }
             result.onFailure {
                 _uiState.value = CartUiState.Error(it.message ?: "Unable to observe cart items")
             }
 
+        }
+    }
+
+    private fun loadProductDetails(slug: String) {
+        viewModelScope.launch {
+            val result = getSingleProductUseCase(slug)
+            result.onSuccess { product ->
+                _uiState.update { state ->
+                    if (state is CartUiState.Success) {
+                        state.copy(products = state.products + (slug to product))
+                    } else state
+                }
+            }
+        }
+    }
+
+    fun updateVariant(cartItem: CartItem, product: Product, variantId: String) {
+        val variant = product.variants.find { it.id == variantId } ?: return
+        val newItem = cartItem.copy(
+            variantId = variant.id,
+            variantName = variant.title ?: "Default",
+            price = variant.price
+        )
+        
+        viewModelScope.launch {
+            val result = updateCartItemUseCase(cartItem, newItem)
+            result.onSuccess {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Variant updated"))
+            }
+            result.onFailure {
+                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to update variant"))
+            }
         }
     }
 

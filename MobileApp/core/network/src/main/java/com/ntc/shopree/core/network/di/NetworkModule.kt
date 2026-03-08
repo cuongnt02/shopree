@@ -76,9 +76,10 @@ object NetworkClientModule {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
             filter { request ->
-                request.url.host.contains("192.168.1")
-                request.url.host.contains("172.16.0")
-
+                request.url.host.contains("192.168") ||
+                request.url.host.contains("172.16") ||
+                request.url.host == "10.0.2.2" ||
+                request.url.host == "localhost"
             }
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
         }

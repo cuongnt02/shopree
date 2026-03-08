@@ -2,8 +2,10 @@ package com.ntc.shopree.seeder
 
 import com.ntc.data.CategoryRepository
 import com.ntc.data.ProductRepository
+import com.ntc.data.ProductVariantRepository
 import com.ntc.data.VendorRepository
 import com.ntc.domain.model.Product
+import com.ntc.domain.model.ProductVariant
 import com.ntc.domain.model.Vendor
 import com.ntc.domain.model.Category
 import org.springframework.boot.CommandLineRunner
@@ -16,6 +18,7 @@ import kotlin.random.Random
 @Order(4)
 class ProductsSeeder(
     private val productRepository: ProductRepository,
+    private val productVariantRepository: ProductVariantRepository,
     private val vendorRepository: VendorRepository,
     private val categoryRepository: CategoryRepository
 ): CommandLineRunner {
@@ -70,9 +73,41 @@ class ProductsSeeder(
                 mainImage = image,
                 tags = null, // left null to match current mapping (no @ElementCollection/@Json)
                 pickupAvailable = Random.nextBoolean(),
+                status = Product.Status.PUBLISHED,
             )
         }
 
-        productRepository.saveAll(products)
+        val savedProducts = productRepository.saveAll(products).toList()
+
+        val variants = mutableListOf<ProductVariant>()
+        savedProducts.forEachIndexed { index, product ->
+            if (index < 10) {
+                // Create 3 variants for the first 10 products
+                val variantTitles = listOf("Small", "Medium", "Large")
+                variantTitles.forEach { title ->
+                    variants.add(
+                        ProductVariant(
+                            product = product,
+                            title = title,
+                            sku = "${product.slug}-${title.lowercase()}",
+                            priceCents = Random.nextLong(5_000_00L, 50_000_00L),
+                            inventoryCount = Random.nextInt(10, 100),
+                        )
+                    )
+                }
+            } else {
+                // Create 1 default variant for the remaining products
+                variants.add(
+                    ProductVariant(
+                        product = product,
+                        title = "Default",
+                        sku = "${product.slug}-default",
+                        priceCents = Random.nextLong(5_000_00L, 50_000_00L),
+                        inventoryCount = Random.nextInt(10, 100),
+                    )
+                )
+            }
+        }
+        productVariantRepository.saveAll(variants)
     }
 }

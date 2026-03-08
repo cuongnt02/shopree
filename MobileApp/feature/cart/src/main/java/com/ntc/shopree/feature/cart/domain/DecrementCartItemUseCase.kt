@@ -14,7 +14,7 @@ class DecrementCartItemUseCase @Inject constructor(
                 return Result.success(item.quantity)
             }
             cartRepository.decrementQuantity(item)
-            val updatedItem = cartRepository.getItem(item.productSlug, item.vendorName)
+            val updatedItem = cartRepository.getItem(item.productSlug, item.vendorName, item.vendorName)
             return Result.success(updatedItem!!.quantity)
         } catch (e: Exception) {
             return Result.failure(e)
