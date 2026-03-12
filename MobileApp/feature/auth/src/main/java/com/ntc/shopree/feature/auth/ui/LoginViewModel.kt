@@ -9,6 +9,7 @@ import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import com.ntc.shopree.feature.auth.domain.CheckCurrentUserUseCase
 import com.ntc.shopree.feature.auth.domain.CheckSessionUseCase
 import com.ntc.shopree.feature.auth.domain.LoginUseCase
+import com.ntc.shopree.feature.auth.ui.data.LoginFormInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import javax.inject.Inject
@@ -32,18 +33,8 @@ class LoginViewModel @Inject constructor(
     private val _authenticated = MutableStateFlow(false)
     val authenticated: StateFlow<Boolean> = _authenticated.asStateFlow()
 
-    private val _inputs = MutableStateFlow(LoginFormUiState())
-    val inputs: StateFlow<LoginFormUiState> = _inputs.asStateFlow()
-
-
-    val validation: StateFlow<LoginFormErrors> =
-        inputs.map { input ->
-            validateLoginForm(input)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LoginFormErrors()
-        )
+    private val _validation = MutableStateFlow(LoginFormErrors())
+    val validation: StateFlow<LoginFormErrors> = _validation.asStateFlow()
 
     val _loginUiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
@@ -74,7 +65,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun validateLoginForm(inputs: LoginFormUiState): LoginFormErrors {
+    fun validateLoginForm(inputs: LoginFormInput): LoginFormErrors {
         val emailOrPhoneError =
             if (inputs.emailOrPhone.isBlank()) "Email or phone number is required"
             else null
@@ -95,17 +86,12 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    fun updateEmailOrPhone(emailOrPhone: String) {
-        _inputs.update {
-            it.copy(emailOrPhone = emailOrPhone)
-        }
+
+    fun validateInput(inputs: LoginFormInput) {
+        _validation.update { validateLoginForm(inputs) }
     }
 
-    fun updatePassword(password: String) {
-        _inputs.update {
-            it.copy(password = password)
-        }
-    }
+
 
     fun logUserIn(username: String, password: String) {
         if (_loginUiState.value is LoginUiState.Loading) return

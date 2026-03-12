@@ -15,6 +15,9 @@ val Neutral800 = Color(0xFF262626)
 val Neutral900 = Color(0xFF171717)
 val Neutral950 = Color(0xFF0A0A0A)
 
+
+val Red500 = Color(0XFFFB2C36)
+
 // Primary (Grayscale)
 val ColorPrimary100 = Neutral100
 val ColorPrimary200 = Neutral200

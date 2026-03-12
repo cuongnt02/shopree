@@ -13,14 +13,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,6 +47,9 @@ import com.ntc.shopree.core.ui.components.TextInput
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.feature.auth.ui.data.LoginFormInput
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -53,10 +63,11 @@ data object PostLogin : NavKey
 fun LoginScreen(onLoggedIn: () -> Unit) {
     val loginViewModel: LoginViewModel = hiltViewModel()
     val authenticated by loginViewModel.authenticated.collectAsState()
-    val inputs by loginViewModel.inputs.collectAsState()
     val validation by loginViewModel.validation.collectAsState()
     val loginUiState by loginViewModel.loginUiState.collectAsState()
     val scope = rememberCoroutineScope()
+    val emailState = rememberTextFieldState()
+    val passwordState = rememberTextFieldState()
     LifecycleStartEffect(lifecycleOwner = LocalLifecycleOwner.current, key1 = authenticated) {
         loginViewModel.checkCurrentUser()
         if (authenticated) {
@@ -94,35 +105,41 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
             fontWeight = FontWeight.Normal
         )
         Spacer(Modifier.height(20.dp))
-        LoginForm(email = inputs.emailOrPhone, onEmailChange = {
-            loginViewModel.updateEmailOrPhone(it)
-        }, password = inputs.password, onPasswordChange = {
-            loginViewModel.updatePassword(it)
-        }, loginFormErrors = validation)
+        LoginForm(
+            emailState = emailState, passwordState = passwordState, viewModel = loginViewModel
+        )
         Spacer(Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             LoginMethod(methodIcon = Icons.Filled.Google)
             LoginMethod(methodIcon = Icons.Filled.Facebook)
         }
         Spacer(Modifier.height(16.dp))
+        // TODO: Handles fast clicker problem
         PrimaryButton(
             onclick = {
+                val currentInput = LoginFormInput(
+                    emailOrPhone = emailState.text.toString(),
+                    password = passwordState.text.toString()
+                )
+
+                val immediateValidation = loginViewModel.validateLoginForm(currentInput)
+
                 val hasErrors =
-                    validation.blankEmailOrPhoneError != null || validation.passwordError != null
+                    immediateValidation.blankEmailOrPhoneError != null || immediateValidation.passwordError != null
                 if (hasErrors) {
                     scope.launch {
                         SnackbarController.sendEvent(SnackbarEvent(message = "Please fill in all fields"))
                     }
                     return@PrimaryButton
                 }
-                val invalidEmailFormatError = validation.invalidEmailFormatError != null
+                val invalidEmailFormatError = immediateValidation.invalidEmailFormatError != null
                 if (invalidEmailFormatError) {
                     scope.launch {
                         SnackbarController.sendEvent(SnackbarEvent(message = "Invalid email format, please fill in another email address"))
                     }
                     return@PrimaryButton
                 }
-                loginViewModel.logUserIn(inputs.emailOrPhone, inputs.password)
+                loginViewModel.logUserIn(emailState.text.toString(), passwordState.text.toString())
             },
             modifier = Modifier.fillMaxWidth(),
             text = "Sign in",
@@ -147,50 +164,82 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
     }
 }
 
+@OptIn(FlowPreview::class)
 @Composable
 fun LoginForm(
-    email: String,
-    onEmailChange: (String) -> Unit,
+    emailState: TextFieldState,
+    passwordState: TextFieldState,
     modifier: Modifier = Modifier,
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    loginFormErrors: LoginFormErrors
+    viewModel: LoginViewModel
 ) {
-    val emailErrorText =
-        loginFormErrors.blankEmailOrPhoneError ?: loginFormErrors.invalidEmailFormatError
-    val passwordErrorText = loginFormErrors.passwordError
+    var emailTouched by remember { mutableStateOf(false) }
+    var passwordTouched by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
+
+    val validation by viewModel.validation.collectAsState()
+
+    val emailErrorText = validation.blankEmailOrPhoneError ?: validation.invalidEmailFormatError
+    val passwordErrorText = validation.passwordError
+
+
+
+    LaunchedEffect(emailState, passwordState) {
+        snapshotFlow {
+            LoginFormInput(
+                emailOrPhone = emailState.text.toString(), password = passwordState.text.toString()
+            )
+        }.debounce { 800L }.collect { input ->
+            if (input.emailOrPhone.isNotEmpty()) emailTouched = true
+            if (input.password.isNotEmpty()) passwordTouched = true
+            viewModel.validateInput(input)
+        }
+    }
+
 
     Column(modifier = modifier.fillMaxWidth()) {
         TextInput(
-            value = email,
-            onValueChanged = onEmailChange,
+            state = emailState,
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            error = emailTouched && emailErrorText != null,
+            errorText = emailErrorText ?: "",
             placeholder = "Mobile or Email",
             leading = {
-                Icon(imageVector = Icons.Outlined.Mail, contentDescription = "email input icon")
+                Icon(
+                    imageVector = Icons.Outlined.Mail,
+                    contentDescription = "email input icon",
+                    modifier = Modifier.padding(end = 4.dp)
+                )
             },
-            validatorHasErrors = emailErrorText != null,
-            errorText = emailErrorText ?: ""
         )
         Spacer(Modifier.height(16.dp))
         TextInput(
+            state = passwordState,
             modifier = Modifier.fillMaxWidth(),
-            value = password,
-            onValueChanged = onPasswordChange,
             placeholder = "Password",
+            error = passwordTouched && passwordErrorText != null,
+            errorText = passwordErrorText ?: "",
+            singleLine = true,
             leading = {
-                Icon(imageVector = Icons.Filled.Password, contentDescription = "email input icon")
+                Icon(
+                    imageVector = Icons.Filled.Password,
+                    contentDescription = "email input icon",
+                    modifier = Modifier.padding(end = 4.dp)
+                )
             },
             trailing = {
-                Icon(imageVector = Icons.Filled.Eye, contentDescription = "password input icon")
+                Icon(
+                    imageVector = Icons.Filled.Eye,
+                    contentDescription = "password input icon",
+                    modifier = Modifier.padding(end = 4.dp)
+                )
             },
-            validatorHasErrors = passwordErrorText != null,
-            errorText = passwordErrorText ?: ""
         )
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Row(modifier = Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                CheckBox(selected = false, onChecked = {})
+            Row(modifier = Modifier.height(32.dp), verticalAlignment = Alignment.CenterVertically) {
+                CheckBox(selected = rememberMe , onChecked = { rememberMe = it })
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Remember me",
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
