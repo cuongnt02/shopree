@@ -142,12 +142,11 @@ fun ProductImage(state: ProductDetailsUiState, modifier: Modifier = Modifier) {
         }
 
         is ProductDetailsUiState.Error -> {
-            // TODO: Show error message
             LaunchedEffect(Unit) {
                 SnackbarController.sendEvent(SnackbarEvent(message = state.message))
             }
             Log.e("com.ntc.shopree.ProductDetails", "ProductImage: ${state.message}", )
-
+            Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
@@ -210,8 +209,7 @@ fun ProductDescription(
         }
 
         is ProductDetailsUiState.Error -> {
-            // TODO: Show error message
-            val message = state.message
+            Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
