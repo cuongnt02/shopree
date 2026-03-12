@@ -42,6 +42,10 @@ class ProductsViewModel @Inject constructor(
         initialLoad()
     }
 
+    fun retry() {
+        initialLoad()
+    }
+
     private fun initialLoad() {
         viewModelScope.launch {
             _uiState.value = ProductsUiState.Loading

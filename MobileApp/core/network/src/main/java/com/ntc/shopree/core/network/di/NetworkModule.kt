@@ -26,6 +26,7 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.DEFAULT
@@ -88,6 +89,14 @@ object NetworkClientModule {
             connectTimeoutMillis = 15_000L
             socketTimeoutMillis = 30_000L
         }
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 3)
+            retryOnException(maxRetries = 3, retryOnTimeout = true)
+            retryIf { request, response ->
+                response.status.value == 401 || response.status.value == 403
+            }
+            exponentialDelay()
+        }
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
@@ -97,9 +106,35 @@ object NetworkClientModule {
         install(Auth) {
             bearer {
                 loadTokens {
-                    val access = tokenProvider.getAccessToken() ?: return@loadTokens null
+                    var access = tokenProvider.getAccessToken() ?: return@loadTokens null
+                    var refresh = tokenProvider.getRefreshToken() ?: return@loadTokens null
 
-                    val refresh = tokenProvider.getRefreshToken() ?: return@loadTokens null
+                    if (!tokenProvider.isSessionValid()) {
+                        try {
+                            val tempClient = HttpClient(Android) {
+                                install(ContentNegotiation) {
+                                    json(Json { ignoreUnknownKeys = true })
+                                }
+                            }
+                            val response = tempClient.post {
+                                url("$baseUrl/api/v1/auth/refresh")
+                                contentType(ContentType.Application.Json)
+                                setBody(RefreshTokenRequest(refresh))
+                            }.body<RefreshTokenResponse>()
+                            tempClient.close()
+
+                            sessionStore.saveSession(
+                                accessToken = response.accessToken,
+                                refreshToken = response.refreshToken,
+                                expiresAt = response.expiresAt,
+                            )
+                            access = response.accessToken
+                            refresh = response.refreshToken
+                        } catch (e: Exception) {
+                            return@loadTokens null
+                        }
+                    }
+
                     BearerTokens(access, refresh)
                 }
 
