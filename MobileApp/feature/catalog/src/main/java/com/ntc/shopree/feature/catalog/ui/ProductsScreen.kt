@@ -29,23 +29,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.core.ui.components.Avatar
-import com.ntc.shopree.core.ui.components.Search
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object ProductsScreen: NavKey
+data object ProductsScreen : NavKey
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductsScreen(onProductClick: (String) -> Unit, onCart: () -> Unit) {
+fun ProductsScreen(
+    onProductClick: (String) -> Unit,
+    onCart: () -> Unit,
+    onLogout: () -> Unit
+) {
     val productsViewModel: ProductsViewModel = hiltViewModel()
     val state: ProductsUiState by productsViewModel.uiState.collectAsState()
 
     Column {
-        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {
-        }, actions = {
+        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {}, actions = {
+            Icon(
+                imageVector = Icons.Outlined.Home,
+                contentDescription = "home icon",
+                modifier = Modifier.clickable {
+                    onLogout()
+                })
             CartButton(
                 onNavigate = onCart
             )
@@ -77,10 +86,12 @@ fun CategorySection(state: ProductsUiState) {
         is ProductsUiState.Loading -> {
             CircularProgressIndicator()
         }
+
         is ProductsUiState.Success -> {
             val categories = state.categories
             Categories(categories = categories.map { it.name })
         }
+
         is ProductsUiState.Error -> {
             Text(text = state.message, color = MaterialTheme.colorScheme.error)
             Log.e("ProductsScreen", "ProductsScreen: ", Exception(state.message))
@@ -89,23 +100,32 @@ fun CategorySection(state: ProductsUiState) {
 }
 
 @Composable
-fun ProductSection(state: ProductsUiState, onProductClick: (String) -> Unit) {
+fun ProductSection(
+    state: ProductsUiState,
+    onProductClick: (String) -> Unit
+) {
     when (state) {
         is ProductsUiState.Loading -> {
             CircularProgressIndicator()
         }
+
         is ProductsUiState.Success -> {
             val products = state.products
             ProductsGrid(products = products, onProductClick = onProductClick)
         }
+
         is ProductsUiState.Error -> {
             Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
+
 // TECHDEBT: The avatar should have image, name, greeting and also options to logout or go to settings (profile screen)
 @Composable
-fun ProfileSection(state: ProductsUiState, modifier: Modifier = Modifier) {
+fun ProfileSection(
+    state: ProductsUiState,
+    modifier: Modifier = Modifier
+) {
     Row(modifier = modifier.wrapContentHeight()) {
         Avatar()
         Column {
@@ -116,24 +136,26 @@ fun ProfileSection(state: ProductsUiState, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SearchSection(state: ProductsUiState, productsViewModel: ProductsViewModel, modifier: Modifier = Modifier) {
-    when(state) {
+fun SearchSection(
+    state: ProductsUiState,
+    productsViewModel: ProductsViewModel,
+    modifier: Modifier = Modifier
+) {
+    when (state) {
         is ProductsUiState.Loading -> {
             CircularProgressIndicator()
         }
+
         is ProductsUiState.Success -> {
             val textFieldState = rememberTextFieldState(state.searchQuery)
             Row(modifier = modifier.wrapContentHeight()) {
-                SimpleSearchBar(
-                    textFieldState = textFieldState,
-                    onSearch = { query ->
-                        productsViewModel.searchProducts(query)
-                    },
-                    searchResults = state.products.map { it.title }
-                )
+                SimpleSearchBar(textFieldState = textFieldState, onSearch = { query ->
+                    productsViewModel.searchProducts(query)
+                }, searchResults = state.products.map { it.title })
                 Filter()
             }
         }
+
         is ProductsUiState.Error -> {
             Text(text = state.message, color = MaterialTheme.colorScheme.error)
         }

@@ -1,6 +1,7 @@
 package com.ntc.shopree.feature.catalog.domain
 
 import com.ntc.shopree.core.model.Product
+import com.ntc.shopree.core.model.repository.ProductRepository
 import javax.inject.Inject
 
 class SearchProductsUseCase @Inject constructor(
@@ -8,12 +9,7 @@ class SearchProductsUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(query: String): Result<List<Product>> {
         return try {
-            if (query.isBlank()) {
-                val allProducts = productRepository.getProducts()
-                return Result.success(allProducts)
-            }
             val products = productRepository.findProductsByName(query)
-
             Result.success(products)
         } catch (e: Exception) {
             Result.failure(e)

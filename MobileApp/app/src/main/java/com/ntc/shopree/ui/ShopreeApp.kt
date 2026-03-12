@@ -15,10 +15,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -28,13 +28,15 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
-import com.ntc.shopree.feature.auth.ui.LoginScreen
-import com.ntc.shopree.feature.auth.ui.authEntryBuilder
-import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
 import com.ntc.shopree.core.ui.utils.SnackbarController
+import com.ntc.shopree.feature.auth.ui.LoginScreen
 import com.ntc.shopree.feature.auth.ui.PostLogin
+import com.ntc.shopree.feature.auth.ui.authEntryBuilder
 import com.ntc.shopree.feature.cart.ui.cartEntryBuilder
 import com.ntc.shopree.feature.catalog.ui.ProductsScreen
+import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
+import com.ntc.shopree.feature.checkout.ui.CheckoutScreen
+import com.ntc.shopree.feature.checkout.ui.checkoutEntryBuilder
 
 @Composable
 fun ShopreeApp(
@@ -49,12 +51,19 @@ fun ShopreeApp(
     }
 
     // TODO: Store the back stack in a viewmodel
-    val backStack = initScreen?.let {  rememberNavBackStack(it) } ?: return
+    val backStack = initScreen?.let { rememberNavBackStack(it) } ?: return
+
+    // React to state changes: only navigate to LoginScreen AFTER session is cleared
+    LaunchedEffect(startupState) {
+        if (startupState == AppState.Unauthenticated) {
+            backStack.clear()
+            backStack.add(LoginScreen)
+        }
+    }
 
     if (startupState == AppState.Loading) {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }
@@ -95,10 +104,16 @@ fun ShopreeApp(
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     // TODO: Migrate to DI
-                    productsEntryBuilder(backStack)
+                    productsEntryBuilder(backStack, onLogout = {
+                        viewModel.logout()
+                        // Navigation to LoginScreen is handled by LaunchedEffect above,
+                        // which fires only after the session is fully cleared.
+                    })
                     authEntryBuilder(backStack)
-                    cartEntryBuilder(backStack)
-
+                    cartEntryBuilder(backStack, onCheckout = { backStack.add(CheckoutScreen) })
+                    checkoutEntryBuilder(
+                        backStack,
+                        onBackHome = { backStack.clear(); backStack.add(ProductsScreen) })
                     entry<PostLogin> {
                         backStack.clear()
                         backStack.add(ProductsScreen)

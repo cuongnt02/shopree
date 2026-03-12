@@ -43,8 +43,12 @@ import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.FilterChip
+import com.ntc.shopree.core.model.ProductVariant
 @Serializable
 data class ProductDetails(val slug: String) : NavKey
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +58,7 @@ fun ProductDetailsScreen(
 ) {
     var productLiked by remember { mutableStateOf(false) }
     val productDetailsViewModel: ProductDetailsViewModel = hiltViewModel()
-    val state: ProductDetailsUiState by productDetailsViewModel.uiState.collectAsState()
+    val state by productDetailsViewModel.uiState.collectAsState()
     var isAddingToCart by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -85,18 +89,25 @@ fun ProductDetailsScreen(
             })
 
             ProductImage(state = state, modifier = Modifier.fillMaxWidth())
-            ProductDescription(state = state)
+            ProductDescription(
+                state = state,
+                onVariantSelected = { productDetailsViewModel.selectVariant(it) }
+            )
             Spacer(modifier = Modifier.height(100.dp))
 
         }
         Row(modifier = Modifier.align(alignment = Alignment.BottomCenter)) {
             IconButton(onClick = {
                 scope.launch {
-                    isAddingToCart = true
                     if (state is ProductDetailsUiState.Success) {
-                        productDetailsViewModel.addProductToCart((state as ProductDetailsUiState.Success).product)
+                        isAddingToCart = true
+                        val successState = state as ProductDetailsUiState.Success
+                        productDetailsViewModel.addProductToCart(
+                            successState.product,
+                            successState.selectedVariant
+                        )
+                        isAddingToCart = false
                     }
-                    isAddingToCart = false
                 }
             }) {
                 if (isAddingToCart) {
@@ -141,9 +152,11 @@ fun ProductImage(state: ProductDetailsUiState, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDescription(
     state: ProductDetailsUiState,
+    onVariantSelected: (ProductVariant) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (state) {
@@ -153,6 +166,7 @@ fun ProductDescription(
 
         is ProductDetailsUiState.Success -> {
             val product = state.product
+            val selectedVariant = state.selectedVariant
             Column(modifier = modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -160,7 +174,8 @@ fun ProductDescription(
                 ) {
                     Text(text = "Description", style = MaterialTheme.typography.labelMedium)
                     Text(
-                        text = product.price.toString(), style = MaterialTheme.typography.labelLarge
+                        text = "$${selectedVariant?.price ?: product.price}",
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -170,8 +185,24 @@ fun ProductDescription(
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Justify
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                // TODO: Product variants
+
+                if (product.variants.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Variants", style = MaterialTheme.typography.labelMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        product.variants.forEach { variant ->
+                            FilterChip(
+                                selected = variant.id == selectedVariant?.id,
+                                onClick = { onVariantSelected(variant) },
+                                label = { Text(variant.title ?: "Default") }
+                            )
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
             }

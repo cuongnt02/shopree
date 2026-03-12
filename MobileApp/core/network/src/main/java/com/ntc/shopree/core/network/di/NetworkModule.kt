@@ -8,9 +8,11 @@ import com.ntc.shopree.core.model.dto.RefreshTokenRequest
 import com.ntc.shopree.core.model.dto.RefreshTokenResponse
 import com.ntc.shopree.core.network.service.AuthService
 import com.ntc.shopree.core.network.service.CategoryService
+import com.ntc.shopree.core.network.service.OrderService
 import com.ntc.shopree.core.network.service.ProductService
 import com.ntc.shopree.core.network.service.impl.AuthServiceImpl
 import com.ntc.shopree.core.network.service.impl.CategoryServiceImpl
+import com.ntc.shopree.core.network.service.impl.OrderServiceImpl
 import com.ntc.shopree.core.network.service.impl.ProductServiceImpl
 import dagger.Binds
 import dagger.Module
@@ -20,6 +22,7 @@ import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -57,6 +60,10 @@ abstract class NetworkModule {
     @Binds
     @Singleton
     abstract fun bindProductService(impl: ProductServiceImpl): ProductService
+
+    @Binds
+    @Singleton
+    abstract fun bindOrderService(impl: OrderServiceImpl): OrderService
 }
 
 @Module
@@ -70,11 +77,17 @@ object NetworkClientModule {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
             filter { request ->
-                request.url.host.contains("192.168.1")
-                request.url.host.contains("172.16.0")
-
+                request.url.host.contains("192.168") ||
+                request.url.host.contains("172.16") ||
+                request.url.host == "10.0.2.2" ||
+                request.url.host == "localhost"
             }
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000L
+            connectTimeoutMillis = 15_000L
+            socketTimeoutMillis = 30_000L
         }
         install(HttpRequestRetry) {
             retryOnServerErrors(maxRetries = 3)

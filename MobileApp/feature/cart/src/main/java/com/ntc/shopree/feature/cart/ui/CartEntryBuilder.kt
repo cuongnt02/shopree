@@ -4,10 +4,12 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 
-fun EntryProviderScope<NavKey>.cartEntryBuilder(backStack: NavBackStack<NavKey>) {
+fun EntryProviderScope<NavKey>.cartEntryBuilder(backStack: NavBackStack<NavKey>, onCheckout: () -> Unit) {
     entry<CartScreen> {
         CartScreen(onBack = {
             backStack.removeLastOrNull()
-        }, onCheckout = {})
+        }, onCheckout = {
+            onCheckout()
+        })
     }
 }

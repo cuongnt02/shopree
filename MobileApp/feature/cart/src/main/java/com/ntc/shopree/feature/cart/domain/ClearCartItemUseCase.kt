@@ -1,9 +1,6 @@
 package com.ntc.shopree.feature.cart.domain
 
-import com.ntc.shopree.core.ui.utils.SnackbarController
-import com.ntc.shopree.core.ui.utils.SnackbarEvent
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.toList
+import com.ntc.shopree.core.database.CartRepository
 import javax.inject.Inject
 
 class ClearCartItemUseCase @Inject constructor(

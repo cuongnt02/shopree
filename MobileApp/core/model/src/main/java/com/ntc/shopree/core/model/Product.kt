@@ -11,7 +11,9 @@ data class Product (
     val slug: String,
     val vendorName: String,
     val description: String,
-    val price: Double,
-    val mainImage: String
-)
+    val mainImage: String,
+    val variants: List<ProductVariant> = emptyList()
+) {
+    val price: Double get() = variants.firstOrNull()?.price ?: 0.0
+}
 

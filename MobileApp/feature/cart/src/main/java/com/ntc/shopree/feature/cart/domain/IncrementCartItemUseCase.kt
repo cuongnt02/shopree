@@ -1,5 +1,6 @@
 package com.ntc.shopree.feature.cart.domain
 
+import com.ntc.shopree.core.database.CartRepository
 import com.ntc.shopree.core.model.CartItem
 import javax.inject.Inject
 
@@ -9,7 +10,7 @@ class IncrementCartItemUseCase @Inject constructor(
     suspend operator fun invoke(item: CartItem): Result<Int> {
         return try {
             cartRepository.incrementQuantity(item)
-            val updatedItem: CartItem? = cartRepository.getItem(item.productSlug,  item.vendorName)
+            val updatedItem: CartItem? = cartRepository.getItem(item.productSlug, item.vendorName,  item.vendorName)
             Result.success(updatedItem!!.quantity)
         } catch (e: Exception) {
             Result.failure(e)

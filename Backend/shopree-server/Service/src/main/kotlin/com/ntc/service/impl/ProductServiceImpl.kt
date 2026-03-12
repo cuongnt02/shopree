@@ -5,8 +5,10 @@ import com.ntc.service.ProductService
 import com.ntc.service.dto.ProductResponse
 import com.ntc.service.dto.toProductResponse
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class ProductServiceImpl(private val productRepository: ProductRepository): ProductService {
     override fun getProducts(): List<ProductResponse> {
         val products = productRepository.findAll().toList()

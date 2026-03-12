@@ -47,7 +47,7 @@ import kotlinx.serialization.Serializable
 data object LoginScreen : NavKey
 
 @Serializable
-data object PostLogin: NavKey
+data object PostLogin : NavKey
 
 @Composable
 fun LoginScreen(onLoggedIn: () -> Unit) {
@@ -105,33 +105,30 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
             LoginMethod(methodIcon = Icons.Filled.Facebook)
         }
         Spacer(Modifier.height(16.dp))
-        PrimaryButton(onclick = {
-            val hasErrors = validation.blankEmailOrPhoneError != null || validation.passwordError != null
-            if (hasErrors) {
-                scope.launch {
-                    SnackbarController.sendEvent(SnackbarEvent(message = "Please fill in all fields"))
+        PrimaryButton(
+            onclick = {
+                val hasErrors =
+                    validation.blankEmailOrPhoneError != null || validation.passwordError != null
+                if (hasErrors) {
+                    scope.launch {
+                        SnackbarController.sendEvent(SnackbarEvent(message = "Please fill in all fields"))
+                    }
+                    return@PrimaryButton
                 }
-                return@PrimaryButton
-            }
-            val invalidEmailFormatError = validation.invalidEmailFormatError != null
-            if (invalidEmailFormatError) {
-                scope.launch {
-                    SnackbarController.sendEvent(SnackbarEvent(message = "Invalid email format, please fill in another email address"))
+                val invalidEmailFormatError = validation.invalidEmailFormatError != null
+                if (invalidEmailFormatError) {
+                    scope.launch {
+                        SnackbarController.sendEvent(SnackbarEvent(message = "Invalid email format, please fill in another email address"))
+                    }
+                    return@PrimaryButton
                 }
-                return@PrimaryButton
-            }
-            loginViewModel.logUserIn(inputs.emailOrPhone, inputs.password)
-        }, modifier = Modifier.fillMaxWidth()) {
-            if (loginUiState is LoginUiState.Loading) {
-                CircularProgressIndicator()
-            } else {
-                Text(
-                    text = "Sign in",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-        }
+                loginViewModel.logUserIn(inputs.emailOrPhone, inputs.password)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            text = "Sign in",
+            fontSize = 24.sp,
+            loading = loginUiState is LoginUiState.Loading
+        )
         Spacer(Modifier.height(16.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Don't have an account?", style = MaterialTheme.typography.bodyMedium)
@@ -214,7 +211,10 @@ fun LoginForm(
 }
 
 @Composable
-fun LoginMethod(methodIcon: ImageVector, modifier: Modifier = Modifier) {
+fun LoginMethod(
+    methodIcon: ImageVector,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
             .background(

@@ -10,9 +10,13 @@ import org.springframework.stereotype.Component
 import java.util.Date
 import java.util.UUID
 
+import org.springframework.beans.factory.annotation.Value
+import javax.crypto.SecretKey
+import io.jsonwebtoken.security.Keys
+
 @Component
-class JwtTokenProvider {
-    private val secretKey = Jwts.SIG.HS512.key().build()
+class JwtTokenProvider(@Value("\${jwt.secret}") private val secretKeyString: String) {
+    private val secretKey: SecretKey = Keys.hmacShaKeyFor(secretKeyString.padEnd(64, '0').toByteArray())
     private val tokenValidityInMilliseconds = 864_000_000
 
     fun generateToken(userDetails: User): String {
