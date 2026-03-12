@@ -3,6 +3,7 @@ package com.ntc.shopree.core.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +36,11 @@ import com.ntc.shopree.core.ui.theme.ColorGrey500
 import com.ntc.shopree.core.ui.theme.ColorGrey600
 import com.ntc.shopree.core.ui.theme.ColorGrey700
 import com.ntc.shopree.core.ui.theme.Red500
+import com.ntc.shopree.core.ui.theme.spacing1
+import com.ntc.shopree.core.ui.theme.spacing2
+import com.ntc.shopree.core.ui.theme.spacing3
+import com.ntc.shopree.core.ui.theme.spacing4
+import com.ntc.shopree.core.ui.theme.spacing5
 
 @Composable
 fun TextInput(
@@ -139,9 +145,15 @@ fun TextInput(
                     }
                 }
             )
-            if (error) {
-                Spacer(Modifier.height(8.dp))
-                Text(text = errorText, fontSize = 16.sp, color = Red500, fontWeight = FontWeight.Bold)
+            Box(modifier = Modifier.height(spacing3)) {
+                if (error) {
+                    Text(
+                        text = errorText,
+                        fontSize = 16.sp,
+                        color = Red500,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

@@ -25,6 +25,16 @@ val Outfit = FontFamily(
     Font(googleFont = OutfitFont, fontProvider = provider, weight = FontWeight.Bold),
 )
 
+val fontSize1 = 12.sp
+val fontSize2 = 14.sp
+val fontSize3 = 16.sp
+val fontSize4 = 18.sp
+val fontSize5 = 20.sp
+val fontSize6 = 24.sp
+val fontSize7 = 32.sp
+
+
+
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = Outfit,

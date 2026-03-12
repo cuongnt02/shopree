@@ -41,6 +41,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import javax.inject.Named
 import javax.inject.Singleton
@@ -123,10 +124,12 @@ object NetworkClientModule {
                             }.body<RefreshTokenResponse>()
                             tempClient.close()
 
+                            val rememberMe = sessionStore.tokens.first().rememberMe
                             sessionStore.saveSession(
                                 accessToken = response.accessToken,
                                 refreshToken = response.refreshToken,
                                 expiresAt = response.expiresAt,
+                                rememberMe = rememberMe
                             )
                             access = response.accessToken
                             refresh = response.refreshToken
@@ -149,10 +152,12 @@ object NetworkClientModule {
 
                         }.body<RefreshTokenResponse>()
                         // TODO: Add userId and role
+                        val rememberMe = sessionStore.tokens.first().rememberMe
                         sessionStore.saveSession(
                             accessToken = response.accessToken,
                             refreshToken = response.refreshToken,
                             expiresAt = response.expiresAt,
+                            rememberMe = rememberMe
                         )
                         BearerTokens(response.accessToken, response.refreshToken)
                     } catch (e: Exception) {

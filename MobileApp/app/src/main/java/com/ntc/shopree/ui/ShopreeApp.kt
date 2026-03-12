@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,6 +30,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
+import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import com.ntc.shopree.feature.auth.ui.LoginScreen
 import com.ntc.shopree.feature.auth.ui.PostLogin
 import com.ntc.shopree.feature.auth.ui.authEntryBuilder
@@ -37,29 +39,18 @@ import com.ntc.shopree.feature.catalog.ui.ProductsScreen
 import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
 import com.ntc.shopree.feature.checkout.ui.CheckoutScreen
 import com.ntc.shopree.feature.checkout.ui.checkoutEntryBuilder
+import kotlinx.coroutines.launch
 
 @Composable
 fun ShopreeApp(
     viewModel: AppViewModel = hiltViewModel()
 ) {
     val startupState by viewModel.state.collectAsState()
+    val scope = rememberCoroutineScope()
 
-    val initScreen = when (startupState) {
-        AppState.Loading -> null
-        AppState.Authenticated -> ProductsScreen
-        AppState.Unauthenticated -> LoginScreen
-    }
+    // TODO: Store the back stack in a viewmodel ?
+    val backStack = viewModel.backStack
 
-    // TODO: Store the back stack in a viewmodel
-    val backStack = initScreen?.let { rememberNavBackStack(it) } ?: return
-
-    // React to state changes: only navigate to LoginScreen AFTER session is cleared
-    LaunchedEffect(startupState) {
-        if (startupState == AppState.Unauthenticated) {
-            backStack.clear()
-            backStack.add(LoginScreen)
-        }
-    }
 
     if (startupState == AppState.Loading) {
         Box(
@@ -103,9 +94,12 @@ fun ShopreeApp(
                 backStack = backStack,
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
-                    // TODO: Migrate to DI
+                    // TODO: Migrate to DI ?
                     productsEntryBuilder(backStack, onLogout = {
                         viewModel.logout()
+                        scope.launch {
+                            SnackbarController.sendEvent(SnackbarEvent("Logged out"))
+                        }
                         // Navigation to LoginScreen is handled by LaunchedEffect above,
                         // which fires only after the session is fully cleared.
                     })

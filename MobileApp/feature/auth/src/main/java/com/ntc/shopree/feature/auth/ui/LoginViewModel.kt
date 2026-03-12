@@ -39,8 +39,8 @@ class LoginViewModel @Inject constructor(
     val _loginUiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
 
-
-
+    private val _rememberMe = MutableStateFlow(false)
+    val rememberMe: StateFlow<Boolean> = _rememberMe.asStateFlow()
 
     fun checkCurrentUser() {
         viewModelScope.launch {
@@ -86,7 +86,9 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-
+    fun updateRememberMe(checked: Boolean) {
+        _rememberMe.update { checked }
+    }
     fun validateInput(inputs: LoginFormInput) {
         _validation.update { validateLoginForm(inputs) }
     }
@@ -97,7 +99,7 @@ class LoginViewModel @Inject constructor(
         if (_loginUiState.value is LoginUiState.Loading) return
         viewModelScope.launch {
             _loginUiState.value = LoginUiState.Loading
-            val loginResult = loginUseCase(username, password)
+            val loginResult = loginUseCase(username, password, _rememberMe.value)
             loginResult.onSuccess {
                 _loginUiState.value = LoginUiState.Success("Logged in successfully")
                 _authenticated.update { true }
