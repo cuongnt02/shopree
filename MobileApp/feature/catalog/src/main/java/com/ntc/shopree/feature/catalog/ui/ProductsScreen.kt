@@ -1,6 +1,7 @@
 package com.ntc.shopree.feature.catalog.ui
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.core.ui.components.Avatar
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.theme.ColorGrey700
 import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.serialization.Serializable
 
@@ -72,7 +74,6 @@ fun ProductsScreen(
                 }
             }
         } else {
-            ProfileSection(state = state)
             SearchSection(state = state, productsViewModel = productsViewModel, modifier = Modifier)
             CategorySection(state = state)
             ProductSection(state = state, onProductClick = onProductClick)
@@ -84,7 +85,7 @@ fun ProductsScreen(
 fun CategorySection(state: ProductsUiState) {
     when (state) {
         is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+            CategorySectionSkeleton()
         }
 
         is ProductsUiState.Success -> {
@@ -106,7 +107,7 @@ fun ProductSection(
 ) {
     when (state) {
         is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+            ProductSectionSkeleton(8)
         }
 
         is ProductsUiState.Success -> {
@@ -120,20 +121,6 @@ fun ProductSection(
     }
 }
 
-// TECHDEBT: The avatar should have image, name, greeting and also options to logout or go to settings (profile screen)
-@Composable
-fun ProfileSection(
-    state: ProductsUiState,
-    modifier: Modifier = Modifier
-) {
-    Row(modifier = modifier.wrapContentHeight()) {
-        Avatar()
-        Column {
-            Text(text = "Hello John")
-            Text(text = "Welcome back")
-        }
-    }
-}
 
 @Composable
 fun SearchSection(
@@ -143,7 +130,7 @@ fun SearchSection(
 ) {
     when (state) {
         is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+            SearchSectionSkeleton()
         }
 
         is ProductsUiState.Success -> {

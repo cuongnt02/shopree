@@ -12,6 +12,7 @@ import com.ntc.shopree.feature.catalog.domain.GetCategoriesUseCase
 import com.ntc.shopree.feature.catalog.domain.GetProductsUseCase
 import com.ntc.shopree.feature.catalog.domain.SearchProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,15 @@ sealed interface ProductsUiState {
     data class Error(val message: String) : ProductsUiState
 }
 
+//data class ProductsUiState(
+//    val isLoading: Boolean = true,
+//    val products: List<Product> = emptyList(),
+//    val filteredProducts: List<Product> = emptyList(),
+//    val categories: List<Category> = emptyList(),
+//    val searchQuery: String = "",
+//    val error: String? = null
+//)
+
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
     private val getCategoriesUseCase: GetCategoriesUseCase,
@@ -38,6 +48,8 @@ class ProductsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ProductsUiState>(ProductsUiState.Loading)
     val uiState: StateFlow<ProductsUiState> = _uiState
 
+    private var cachedState: ProductsUiState.Success? = null
+
     init {
         initialLoad()
     }
@@ -47,7 +59,7 @@ class ProductsViewModel @Inject constructor(
     }
 
     private fun initialLoad() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = ProductsUiState.Loading
             try {
                 val getCategoriesResult = async { getCategoriesUseCase() }
@@ -85,7 +97,7 @@ class ProductsViewModel @Inject constructor(
     }
 
     private fun loadProducts() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = ProductsUiState.Loading
 
             val result = getProductsUseCase()
@@ -100,15 +112,14 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun searchProducts(query: String) {
+        val currentSuccess = _uiState.value as? ProductsUiState.Success
         if (_uiState.value !is ProductsUiState.Success) {
             return
         }
-        viewModelScope.launch {
-            _uiState.value = ProductsUiState.Loading
-
+        viewModelScope.launch(Dispatchers.IO) {
             val result = searchProductsUseCase(query)
             result.onSuccess { products ->
-                _uiState.value = ProductsUiState.Success(emptyList(), products, query)
+                _uiState.value = ProductsUiState.Success(currentSuccess?.categories ?: emptyList(), products, query)
             }
             result.onFailure {
                 SnackbarController.sendEvent(SnackbarEvent(message = "Error searching products"))

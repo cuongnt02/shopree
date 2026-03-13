@@ -35,7 +35,9 @@ import com.ntc.shopree.core.ui.theme.ColorGrey400
 import com.ntc.shopree.core.ui.theme.ColorGrey500
 import com.ntc.shopree.core.ui.theme.ColorGrey600
 import com.ntc.shopree.core.ui.theme.ColorGrey700
+import com.ntc.shopree.core.ui.theme.Outfit
 import com.ntc.shopree.core.ui.theme.Red500
+import com.ntc.shopree.core.ui.theme.fontSize3
 import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.theme.spacing2
 import com.ntc.shopree.core.ui.theme.spacing3
@@ -111,7 +113,7 @@ fun TextInput(
     TextField(
         state = state,
         singleLine = singleLine,
-        modifier = Modifier.onFocusChanged {
+        modifier = modifier.onFocusChanged {
             isFocused = it.isFocused
             if (!isFocused) {
                 onUnfocused?.invoke()
@@ -123,17 +125,17 @@ fun TextInput(
             TextInput(
                 shape = RoundedCornerShape(6.dp),
                 contentPadding = PaddingValues(
-                    start = 12.dp,
-                    top = 12.dp,
-                    bottom = 12.dp,
-                    end = 12.dp
+                    start = spacing2,
+                    top = spacing2,
+                    bottom = spacing2,
+                    end = spacing2
                 ),
                 modifier = Modifier.border(
                     width = 2.dp, color = inputBorderColor, shape = RoundedCornerShape(6.dp)
                 ),
                 placeholder = {
                     if (placeholder != null) Text(
-                        text = placeholder, color = ColorGrey400
+                        text = placeholder, color = ColorGrey400, fontFamily = Outfit
                     )
                 },
                 leading = { leading?.invoke() },
@@ -149,9 +151,10 @@ fun TextInput(
                 if (error) {
                     Text(
                         text = errorText,
-                        fontSize = 16.sp,
+                        fontSize = fontSize3,
                         color = Red500,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = Outfit
                     )
                 }
             }

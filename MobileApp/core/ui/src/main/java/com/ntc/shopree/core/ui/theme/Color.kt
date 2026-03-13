@@ -15,6 +15,7 @@ val Neutral800 = Color(0xFF262626)
 val Neutral900 = Color(0xFF171717)
 val Neutral950 = Color(0xFF0A0A0A)
 
+val Transparent1 = Color(0x1A99A1AF)
 
 val Red500 = Color(0XFFFB2C36)
 
