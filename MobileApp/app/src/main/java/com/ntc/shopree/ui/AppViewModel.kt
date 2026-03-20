@@ -55,10 +55,15 @@ class AppViewModel @Inject constructor(
                         backStack.add(LoginScreen)
                     }
                 }
+                result.onFailure {
+                    _state.update { AppState.Unauthenticated }
+                    backStack.clear()
+                    backStack.add(LoginScreen)
+                }
             } else {
                 _state.update { AppState.Unauthenticated }
-                //backStack.clear()
-                //backStack.add(LoginScreen)
+                backStack.clear()
+                backStack.add(LoginScreen)
             }
 
         }

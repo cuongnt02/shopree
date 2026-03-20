@@ -32,5 +32,6 @@ object Icons {
         val CartAdd = CartAddOutlined
         val Cart = CartOutlined
         val Check = CheckOutlined
+        val Logout = LogoutOutlined
     }
 }

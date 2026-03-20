@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,6 +36,7 @@ import com.ntc.shopree.core.ui.components.Avatar
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.core.ui.theme.ColorGrey700
+import com.ntc.shopree.core.ui.theme.spacing2
 import com.ntc.shopree.feature.cart.ui.CartButton
 import kotlinx.serialization.Serializable
 
@@ -50,16 +54,18 @@ fun ProductsScreen(
     val state: ProductsUiState by productsViewModel.uiState.collectAsState()
 
     Column {
-        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {}, actions = {
+        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {
             Icon(
-                imageVector = Icons.Outlined.Home,
-                contentDescription = "home icon",
+                imageVector = Icons.Outlined.Logout,
+                contentDescription = "logout icon",
                 modifier = Modifier.clickable {
                     onLogout()
-                })
+                }.size(32.dp).padding(start = spacing2))
+        }, actions = {
             CartButton(
                 onNavigate = onCart
             )
+            Spacer(Modifier.width(spacing2))
         })
         if (state is ProductsUiState.Error) {
             Column(
