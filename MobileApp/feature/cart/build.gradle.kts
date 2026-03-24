@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.io.coil.compose)
     implementation(libs.coil.network.ktor3)
+    implementation(libs.composeunstyled)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)

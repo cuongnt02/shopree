@@ -48,6 +48,7 @@ import com.ntc.shopree.core.ui.components.ShopreeAlertDialog
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.core.ui.theme.ColorGrey200
 import com.ntc.shopree.core.ui.theme.MobileAppTheme
+import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import kotlinx.serialization.Serializable
@@ -115,7 +116,7 @@ fun CartScreenContent(
             is CartUiState.Success -> {
                 val cartItems = state.cartItems
                 val products = state.products
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = spacing1)) {
                     LazyColumn(modifier = modifier.weight(1f)) {
                         items(cartItems.size) { index ->
                             val item = cartItems[index]
@@ -185,95 +186,6 @@ fun CartScreenContent(
     }
 }
 
-@Composable
-fun CartItem(
-    cartItem: CartItem,
-    product: Product?,
-    modifier: Modifier = Modifier,
-    painter: Painter? = null,
-    onDetailsClick: (String) -> Unit,
-    onIncrementCartItem: (CartItem) -> Unit,
-    onDecrementCartItem: (CartItem) -> Unit,
-    onRemoveCartItem: (CartItem) -> Unit,
-    onVariantChange: (String) -> Unit
-) {
-    Card(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = ColorGrey200)
-    ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val imageModifier = Modifier.background(color = ColorGrey200, shape = CircleShape)
-                if (painter != null) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "product ${cartItem.productSlug} image",
-                        modifier = imageModifier
-                    )
-                } else {
-                    AsyncImage(
-                        model = cartItem.mainImage,
-                        contentDescription = "product ${cartItem.productSlug} image",
-                        modifier = imageModifier
-                    )
-                }
-                Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                    Text(text = cartItem.productName, style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        text = "Variant: ${cartItem.variantName}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(text = "$${cartItem.price}", style = MaterialTheme.typography.labelLarge)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.Remove,
-                        contentDescription = "Remove quantity",
-                        modifier = Modifier.clickable {
-                            onDecrementCartItem(cartItem)
-                        })
-                    Text(text = cartItem.quantity.toString(), modifier = Modifier.padding(horizontal = 8.dp))
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Add quantity",
-                        modifier = Modifier.clickable {
-                            onIncrementCartItem(cartItem)
-                        })
-                }
-            }
-
-            if (product != null && product.variants.size > 1) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Change variant:", style = MaterialTheme.typography.labelSmall)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    product.variants.forEach { variant ->
-                        val isSelected = variant.id == cartItem.variantId
-                        AssistChip(
-                            onClick = { if (!isSelected) onVariantChange(variant.id) },
-                            label = { Text(variant.title ?: "Default", style = MaterialTheme.typography.labelSmall) },
-                            colors = if (isSelected) {
-                                AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            } else {
-                                AssistChipDefaults.assistChipColors()
-                            }
-                        )
-                    }
-                }
-            }
-
-            Text(
-                text = "Remove",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.align(Alignment.End).clickable { onRemoveCartItem(cartItem) }
-            )
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
