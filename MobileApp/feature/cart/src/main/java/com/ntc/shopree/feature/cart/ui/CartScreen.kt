@@ -1,28 +1,18 @@
 package com.ntc.shopree.feature.cart.ui
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,20 +25,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavKey
-import coil3.compose.AsyncImage
 import com.ntc.shopree.core.model.CartItem
 import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.model.ProductVariant
 import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.components.ShopreeAlertDialog
 import com.ntc.shopree.core.ui.icons.Icons
-import com.ntc.shopree.core.ui.theme.ColorGrey200
+import com.ntc.shopree.core.ui.theme.ColorGrey100
 import com.ntc.shopree.core.ui.theme.MobileAppTheme
+import com.ntc.shopree.core.ui.theme.Outfit
+import com.ntc.shopree.core.ui.theme.fontSize5
+import com.ntc.shopree.core.ui.theme.fontSize6
 import com.ntc.shopree.core.ui.theme.spacing1
+import com.ntc.shopree.core.ui.theme.spacing3
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import kotlinx.serialization.Serializable
@@ -59,9 +53,12 @@ import com.ntc.shopree.core.ui.R as CoreUiR
 data object CartScreen : NavKey
 
 
-
 @Composable
-fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: () -> Unit) {
+fun CartScreen(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    onCheckout: () -> Unit
+) {
     val cartViewModel: CartViewModel = hiltViewModel()
     val state by cartViewModel.uiState.collectAsState()
     val price by cartViewModel.totalPrice.collectAsState()
@@ -78,8 +75,7 @@ fun CartScreen(modifier: Modifier = Modifier, onBack: () -> Unit, onCheckout: ()
         onClearCart = { cartViewModel.clearCart() },
         onVariantChange = { item, product, variantId ->
             cartViewModel.updateVariant(item, product, variantId)
-        }
-    )
+        })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,8 +112,11 @@ fun CartScreenContent(
             is CartUiState.Success -> {
                 val cartItems = state.cartItems
                 val products = state.products
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = spacing1)) {
-                    LazyColumn(modifier = modifier.weight(1f)) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = spacing1)
+                ) {
+                    LazyColumn() {
                         items(cartItems.size) { index ->
                             val item = cartItems[index]
                             val product = products[item.productSlug]
@@ -141,16 +140,21 @@ fun CartScreenContent(
                                     if (product != null) {
                                         onVariantChange(item, product, variantId)
                                     }
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
+                                })
+                            Spacer(modifier = Modifier.height(spacing1))
                         }
                     }
                     PrimaryButton(
                         onclick = {
                             clearCartConfirm = true
                         }) {
-                        Text(text = "Clear Cart")
+                        Text(
+                            text = "Clear",
+                            color = ColorGrey100,
+                            fontSize = fontSize5,
+                            fontFamily = Outfit,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
                 if (clearCartConfirm) {
@@ -177,10 +181,28 @@ fun CartScreenContent(
                 }
             }
         }
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Text(text = "Total: $price", style = MaterialTheme.typography.titleLarge)
-            PrimaryButton(onclick = { onCheckout()}) {
-                Text(text = "Checkout", style = MaterialTheme.typography.labelMedium)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(spacing3),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = spacing3),
+                text = "$price$",
+                fontSize = fontSize6,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Outfit
+            )
+            PrimaryButton(onclick = { onCheckout() }) {
+                Text(
+                    text = "Checkout",
+                    color = ColorGrey100,
+                    fontSize = fontSize6,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Outfit
+                )
             }
         }
     }
@@ -200,8 +222,7 @@ fun CartScreenPreview() {
             quantity = 2,
             price = 10.0,
             mainImage = ""
-        ),
-        CartItem(
+        ), CartItem(
             productSlug = "product-2",
             vendorName = "Vendor 2",
             variantId = "v3",
@@ -224,8 +245,7 @@ fun CartScreenPreview() {
                 ProductVariant("v1", "Small", "sku1", 1000, null, 10),
                 ProductVariant("v2", "Large", "sku2", 1500, null, 5)
             )
-        ),
-        "product-2" to Product(
+        ), "product-2" to Product(
             id = "p2",
             title = "Sample Product 2",
             slug = "product-2",
@@ -255,7 +275,6 @@ fun CartScreenPreview() {
                 } else {
                     painterResource(CoreUiR.drawable.large_image_demo)
                 }
-            }
-        )
+            })
     }
 }
