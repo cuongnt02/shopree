@@ -4,15 +4,12 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
@@ -23,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.UnstyledButton
-import com.ntc.shopree.core.ui.theme.ColorGrey500
 import com.ntc.shopree.core.ui.theme.ColorGrey700
 
 @Composable
@@ -33,13 +29,6 @@ fun PrimaryButton(
     enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
-//    Button(
-//        onClick = onclick, modifier =modifier.background(MaterialTheme.colorScheme.primary, shape = CircleShape
-//        ), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-//        enabled = enabled
-//    ) {
-//            content()
-//        }
     UnstyledButton(
         onclick,
         enabled,
@@ -68,6 +57,7 @@ fun PrimaryButton(
     text: String,
     fontSize: TextUnit = 12.sp,
     loading: Boolean = false,
+    loadingIndicator: (@Composable () -> Unit)? = null
 ) {
     val verticalPadding = with(LocalDensity.current) {
         (fontSize.toPx() * 0.5f).toDp()
@@ -95,7 +85,8 @@ fun PrimaryButton(
         Alignment.CenterVertically,
         {
             if (loading) {
-                CircularProgressIndicator()
+                if (loadingIndicator != null) loadingIndicator()
+                else CircularProgressIndicator()
             } else {
                 Text(text, fontSize = fontSize, color = Color.White)
             }

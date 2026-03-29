@@ -13,34 +13,55 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.SubcomposeAsyncImage
 import com.ntc.shopree.core.ui.components.CheckBox
 import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.components.TextInput
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.theme.ColorGrey100
+import com.ntc.shopree.core.ui.theme.ColorGrey400
+import com.ntc.shopree.core.ui.theme.ColorGrey500
+import com.ntc.shopree.core.ui.theme.ColorGrey700
+import com.ntc.shopree.core.ui.theme.Outfit
+import com.ntc.shopree.core.ui.theme.fontSize3
+import com.ntc.shopree.core.ui.theme.fontSize4
+import com.ntc.shopree.core.ui.theme.fontSize6
+import com.ntc.shopree.core.ui.theme.spacing1
+import com.ntc.shopree.core.ui.theme.spacing2
+import com.ntc.shopree.core.ui.theme.spacing3
+import com.ntc.shopree.core.ui.theme.spacing4
+import com.ntc.shopree.core.ui.theme.spacing5
+import com.ntc.shopree.core.ui.theme.spacing6
+import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
-import kotlinx.coroutines.launch
+import com.ntc.shopree.feature.auth.ui.data.LoginFormInput
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -52,161 +73,194 @@ data object PostLogin : NavKey
 @Composable
 fun LoginScreen(onLoggedIn: () -> Unit) {
     val loginViewModel: LoginViewModel = hiltViewModel()
-    val authenticated by loginViewModel.authenticated.collectAsState()
-    val inputs by loginViewModel.inputs.collectAsState()
-    val validation by loginViewModel.validation.collectAsState()
-    val loginUiState by loginViewModel.loginUiState.collectAsState()
-    val scope = rememberCoroutineScope()
-    LifecycleStartEffect(lifecycleOwner = LocalLifecycleOwner.current, key1 = authenticated) {
-        loginViewModel.checkCurrentUser()
-        if (authenticated) {
-            onLoggedIn()
-        }
-        onStopOrDispose {
-            // Intentionally do nothing
+    val state by loginViewModel.uiState.collectAsStateWithLifecycle()
+    val emailState = rememberTextFieldState()
+    val passwordState = rememberTextFieldState()
+
+    // Navigation and snackbar driven by ViewModel events — no direct SnackbarController calls here.
+    ObserveAsEvents(loginViewModel.events) { event ->
+        when (event) {
+            is LoginEvent.NavigateToHome -> onLoggedIn()
+            is LoginEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = spacing5, vertical = spacing4),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SubcomposeAsyncImage(
             modifier = Modifier
                 .size(240.dp)
-                .padding(bottom = 8.dp),
+                .padding(bottom = spacing1),
             model = "https://s3.ap-southeast-1.amazonaws.com/com.ntc.shopree/Login.jpg",
             contentDescription = "login image",
             loading = { CircularProgressIndicator() })
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(spacing1))
         Text(
             text = "Welcome",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold
+            fontSize = fontSize6,
+            fontWeight = FontWeight.SemiBold,
+            color = ColorGrey700,
+            fontFamily = Outfit
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(spacing1))
         Text(
             text = "Sign in to continue shopping",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Normal
+            fontSize = fontSize4,
+            color = ColorGrey400,
+            fontWeight = FontWeight.Normal,
+            fontFamily = Outfit
         )
-        Spacer(Modifier.height(20.dp))
-        LoginForm(email = inputs.emailOrPhone, onEmailChange = {
-            loginViewModel.updateEmailOrPhone(it)
-        }, password = inputs.password, onPasswordChange = {
-            loginViewModel.updatePassword(it)
-        }, loginFormErrors = validation)
-        Spacer(Modifier.height(20.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Spacer(Modifier.height(spacing4))
+        LoginForm(
+            emailState = emailState,
+            passwordState = passwordState,
+            validation = state.validation,
+            rememberMe = state.rememberMe,
+            viewModel = loginViewModel
+        )
+        Spacer(Modifier.height(spacing4))
+        Row(horizontalArrangement = Arrangement.spacedBy(spacing2)) {
             LoginMethod(methodIcon = Icons.Filled.Google)
             LoginMethod(methodIcon = Icons.Filled.Facebook)
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(spacing4))
+        // TODO: Handles fast clicker problem
         PrimaryButton(
             onclick = {
-                val hasErrors =
-                    validation.blankEmailOrPhoneError != null || validation.passwordError != null
-                if (hasErrors) {
-                    scope.launch {
-                        SnackbarController.sendEvent(SnackbarEvent(message = "Please fill in all fields"))
-                    }
-                    return@PrimaryButton
-                }
-                val invalidEmailFormatError = validation.invalidEmailFormatError != null
-                if (invalidEmailFormatError) {
-                    scope.launch {
-                        SnackbarController.sendEvent(SnackbarEvent(message = "Invalid email format, please fill in another email address"))
-                    }
-                    return@PrimaryButton
-                }
-                loginViewModel.logUserIn(inputs.emailOrPhone, inputs.password)
+                loginViewModel.logUserIn(
+                    emailState.text.toString(),
+                    passwordState.text.toString()
+                )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             text = "Sign in",
-            fontSize = 24.sp,
-            loading = loginUiState is LoginUiState.Loading
+            fontSize = fontSize6,
+            loading = state.isLoading,
+            loadingIndicator = {
+                CircularProgressIndicator(modifier = Modifier.size(32.dp), color = ColorGrey100)
+            }
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(spacing3))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Don't have an account?", style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.width(4.dp))
+            Text(text = "Don't have an account?", fontSize = fontSize3, color = ColorGrey400)
+            Spacer(Modifier.width(spacing1))
             Text(
                 text = "Sign Up",
-                style = MaterialTheme.typography.bodyMedium,
+                fontSize = fontSize3,
                 textDecoration = TextDecoration.Underline,
+                fontStyle = FontStyle.Italic,
                 modifier = Modifier.clickable {
-                    // TODO handle signup navigation
+                    // TODO: handle signup navigation
                 },
-                color = MaterialTheme.colorScheme.primary
+                color = ColorGrey500,
+                fontFamily = Outfit
             )
         }
-
     }
 }
 
+@OptIn(FlowPreview::class)
 @Composable
 fun LoginForm(
-    email: String,
-    onEmailChange: (String) -> Unit,
+    emailState: TextFieldState,
+    passwordState: TextFieldState,
+    validation: LoginFormErrors,
+    rememberMe: Boolean,
     modifier: Modifier = Modifier,
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    loginFormErrors: LoginFormErrors
+    viewModel: LoginViewModel
 ) {
-    val emailErrorText =
-        loginFormErrors.blankEmailOrPhoneError ?: loginFormErrors.invalidEmailFormatError
-    val passwordErrorText = loginFormErrors.passwordError
+    var emailTouched by remember { mutableStateOf(false) }
+    var passwordTouched by remember { mutableStateOf(false) }
+
+    val emailErrorText = validation.blankEmailOrPhoneError ?: validation.invalidEmailFormatError
+    val passwordErrorText = validation.passwordError
+
+    LaunchedEffect(emailState, passwordState) {
+        snapshotFlow {
+            LoginFormInput(
+                emailOrPhone = emailState.text.toString(), password = passwordState.text.toString()
+            )
+        }.debounce { 800L }.collect { input ->
+            if (input.emailOrPhone.isNotEmpty()) emailTouched = true
+            if (input.password.isNotEmpty()) passwordTouched = true
+            viewModel.validateInput(input)
+        }
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         TextInput(
-            value = email,
-            onValueChanged = onEmailChange,
+            state = emailState,
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            error = emailTouched && emailErrorText != null,
+            errorText = emailErrorText ?: "",
             placeholder = "Mobile or Email",
             leading = {
-                Icon(imageVector = Icons.Outlined.Mail, contentDescription = "email input icon")
+                Icon(
+                    imageVector = Icons.Outlined.Mail,
+                    contentDescription = "email input icon",
+                    modifier = Modifier.padding(end = spacing1)
+                )
             },
-            validatorHasErrors = emailErrorText != null,
-            errorText = emailErrorText ?: ""
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(spacing2))
         TextInput(
+            state = passwordState,
             modifier = Modifier.fillMaxWidth(),
-            value = password,
-            onValueChanged = onPasswordChange,
             placeholder = "Password",
+            error = passwordTouched && passwordErrorText != null,
+            errorText = passwordErrorText ?: "",
+            singleLine = true,
             leading = {
-                Icon(imageVector = Icons.Filled.Password, contentDescription = "email input icon")
+                Icon(
+                    imageVector = Icons.Filled.Password,
+                    contentDescription = "email input icon",
+                    modifier = Modifier.padding(end = spacing1)
+                )
             },
             trailing = {
-                Icon(imageVector = Icons.Filled.Eye, contentDescription = "password input icon")
+                Icon(
+                    imageVector = Icons.Filled.Eye,
+                    contentDescription = "password input icon",
+                    modifier = Modifier.padding(end = spacing1)
+                )
             },
-            validatorHasErrors = passwordErrorText != null,
-            errorText = passwordErrorText ?: ""
         )
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Row(modifier = Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                CheckBox(selected = false, onChecked = {})
+        Spacer(Modifier.height(spacing2))
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.height(spacing6), verticalAlignment = Alignment.CenterVertically
+            ) {
+                CheckBox(selected = rememberMe, onChecked = {
+                    viewModel.updateRememberMe(it)
+                })
+                Spacer(modifier = Modifier.width(spacing2))
                 Text(
                     text = "Remember me",
-                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Normal
+                    fontSize = fontSize4,
+                    color = ColorGrey400,
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = Outfit
                 )
             }
             Text(
-                text = "Forgot password?", style = MaterialTheme.typography.labelMedium.copy(
-                    fontSize = 14.sp, textDecoration = TextDecoration.Underline
-                ), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Normal
+                text = "Forgot password?",
+                fontSize = fontSize4,
+                color = ColorGrey400,
+                fontWeight = FontWeight.Normal,
+                fontFamily = Outfit
             )
-
         }
-
-
     }
 }
 
@@ -220,12 +274,12 @@ fun LoginMethod(
             .background(
                 MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)
             )
-            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .padding(horizontal = spacing2, vertical = spacing1)
     ) {
         Icon(
             imageVector = methodIcon,
             contentDescription = "login method icon",
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(spacing5)
         )
     }
 }

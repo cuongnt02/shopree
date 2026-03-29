@@ -2,6 +2,7 @@ package com.ntc.shopree.core.datastore
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.datastore.dataStore
 import com.ntc.shopree.core.datastore.utils.JwtDecoder
 import kotlinx.coroutines.flow.Flow
@@ -18,16 +19,16 @@ class SessionStoreImpl(
     override val tokens: Flow<SessionToken> = context.sessionDataStore.data
 
     override suspend fun saveSession(
-        accessToken: String, refreshToken: String, expiresAt: Long
+        accessToken: String, refreshToken: String, expiresAt: Long, rememberMe: Boolean
     ) {
         context.sessionDataStore.updateData {
-            it.copy(accessToken = accessToken, refreshToken = refreshToken, expiresAt = expiresAt)
+            it.copy(accessToken = accessToken, refreshToken = refreshToken, expiresAt = expiresAt, rememberMe = rememberMe)
         }
     }
 
     override suspend fun clearSession() {
         context.sessionDataStore.updateData {
-            it.copy(accessToken = null, refreshToken = null, expiresAt = null)
+            it.copy(accessToken = null, refreshToken = null, expiresAt = null, rememberMe = false)
         }
     }
 

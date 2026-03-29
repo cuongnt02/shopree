@@ -4,34 +4,36 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavKey
-import com.ntc.shopree.core.ui.components.Avatar
+import com.ntc.shopree.core.model.AsyncState
+import com.ntc.shopree.core.model.Category
+import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.utils.ObserveAsEvents
+import com.ntc.shopree.core.ui.utils.SnackbarController
+import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.ui.theme.spacing2
 import com.ntc.shopree.feature.cart.ui.CartButton
+import com.ntc.shopree.feature.cart.ui.CartViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -45,120 +47,124 @@ fun ProductsScreen(
     onLogout: () -> Unit
 ) {
     val productsViewModel: ProductsViewModel = hiltViewModel()
-    val state: ProductsUiState by productsViewModel.uiState.collectAsState()
+    val cartViewModel: CartViewModel = hiltViewModel()
+    val state: ProductsUiState by productsViewModel.uiState.collectAsStateWithLifecycle()
+    val cartQuantity by cartViewModel.quantity.collectAsStateWithLifecycle()
+
+    ObserveAsEvents(productsViewModel.events) { event ->
+        when (event) {
+            is ProductsEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
+        }
+    }
 
     Column {
-        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {}, actions = {
+        CenterAlignedTopAppBar(title = { Text(text = "Shopree") }, navigationIcon = {
             Icon(
-                imageVector = Icons.Outlined.Home,
-                contentDescription = "home icon",
-                modifier = Modifier.clickable {
-                    onLogout()
-                })
+                imageVector = Icons.Outlined.Logout,
+                contentDescription = "logout icon",
+                modifier = Modifier
+                    .clickable { onLogout() }
+                    .size(32.dp)
+                    .padding(start = spacing2)
+            )
+        }, actions = {
             CartButton(
+                quantity = cartQuantity,
                 onNavigate = onCart
             )
+            Spacer(Modifier.width(spacing2))
         })
-        if (state is ProductsUiState.Error) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "An error occurred: ${(state as ProductsUiState.Error).message}")
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { productsViewModel.retry() }) {
-                    Text(text = "Retry")
-                }
-            }
-        } else {
-            ProfileSection(state = state)
-            SearchSection(state = state, productsViewModel = productsViewModel, modifier = Modifier)
-            CategorySection(state = state)
-            ProductSection(state = state, onProductClick = onProductClick)
-        }
+        SearchSection(
+            searchState = state.searchState,
+            productsState = state.productsState,
+            productsViewModel = productsViewModel,
+            modifier = Modifier
+        )
+        CategorySection(
+            categoriesState = state.categoriesState,
+            onCategoryClick = { productsViewModel.filterByCategory(it) }
+        )
+        ProductSection(
+            productsState = state.productsState,
+            onProductClick = onProductClick
+        )
     }
 }
 
 @Composable
-fun CategorySection(state: ProductsUiState) {
-    when (state) {
-        is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+fun CategorySection(categoriesState: AsyncState<CategoriesState>, onCategoryClick: (Category) -> Unit) {
+    when (categoriesState) {
+        is AsyncState.Loading -> {
+            CategorySectionSkeleton()
         }
 
-        is ProductsUiState.Success -> {
-            val categories = state.categories
-            Categories(categories = categories.map { it.name })
+        is AsyncState.Success -> {
+            Categories(
+                categories = categoriesState.data.categories,
+                selectedCategory = categoriesState.data.selectedCategory,
+                onCategoryClick = onCategoryClick
+            )
         }
 
-        is ProductsUiState.Error -> {
-            Text(text = state.message, color = MaterialTheme.colorScheme.error)
-            Log.e("ProductsScreen", "ProductsScreen: ", Exception(state.message))
+        is AsyncState.Error -> {
+            Text(text = categoriesState.message, color = MaterialTheme.colorScheme.error)
+            Log.e("ProductsScreen", "CategorySection: ", Exception(categoriesState.message))
         }
     }
 }
 
 @Composable
 fun ProductSection(
-    state: ProductsUiState,
+    productsState: AsyncState<List<Product>>,
     onProductClick: (String) -> Unit
 ) {
-    when (state) {
-        is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+    when (productsState) {
+        is AsyncState.Loading -> {
+            ProductSectionSkeleton(8)
         }
 
-        is ProductsUiState.Success -> {
-            val products = state.products
-            ProductsGrid(products = products, onProductClick = onProductClick)
+        is AsyncState.Success -> {
+            ProductsGrid(products = productsState.data, onProductClick = onProductClick)
         }
 
-        is ProductsUiState.Error -> {
-            Text(text = state.message, color = MaterialTheme.colorScheme.error)
-        }
-    }
-}
-
-// TECHDEBT: The avatar should have image, name, greeting and also options to logout or go to settings (profile screen)
-@Composable
-fun ProfileSection(
-    state: ProductsUiState,
-    modifier: Modifier = Modifier
-) {
-    Row(modifier = modifier.wrapContentHeight()) {
-        Avatar()
-        Column {
-            Text(text = "Hello John")
-            Text(text = "Welcome back")
+        is AsyncState.Error -> {
+            Text(text = productsState.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
 
 @Composable
 fun SearchSection(
-    state: ProductsUiState,
+    searchState: AsyncState<String>,
+    productsState: AsyncState<List<Product>>,
     productsViewModel: ProductsViewModel,
     modifier: Modifier = Modifier
 ) {
-    when (state) {
-        is ProductsUiState.Loading -> {
-            CircularProgressIndicator()
+    when (searchState) {
+        is AsyncState.Loading -> {
+            SearchSectionSkeleton()
         }
 
-        is ProductsUiState.Success -> {
-            val textFieldState = rememberTextFieldState(state.searchQuery)
+        is AsyncState.Success -> {
+            val textFieldState = rememberTextFieldState(searchState.data)
+            LaunchedEffect(searchState.data) {
+                if (searchState.data != textFieldState.text.toString()) {
+                    textFieldState.edit { replace(0, length, searchState.data) }
+                }
+            }
+            val searchResults = (productsState as? AsyncState.Success)?.data?.map { it.title } ?: emptyList()
             Row(modifier = modifier.wrapContentHeight()) {
-                SimpleSearchBar(textFieldState = textFieldState, onSearch = { query ->
-                    productsViewModel.searchProducts(query)
-                }, searchResults = state.products.map { it.title })
+                SimpleSearchBar(
+                    textFieldState = textFieldState,
+                    onSearch = { query -> productsViewModel.searchProducts(query) },
+                    searchResults = searchResults
+                )
                 Filter()
             }
         }
 
-        is ProductsUiState.Error -> {
-            Text(text = state.message, color = MaterialTheme.colorScheme.error)
+        is AsyncState.Error -> {
+            Text(text = searchState.message, color = MaterialTheme.colorScheme.error)
         }
     }
-
 }

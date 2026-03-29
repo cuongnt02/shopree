@@ -17,7 +17,7 @@ import java.util.UUID
 @Entity
 class Payment(
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn("order_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     var order: Order,
 
     @Enumerated(EnumType.STRING)

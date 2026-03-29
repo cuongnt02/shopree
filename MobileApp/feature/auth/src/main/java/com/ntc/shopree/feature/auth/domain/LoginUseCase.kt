@@ -14,7 +14,11 @@ class LoginUseCase @Inject constructor(
 ) {
     // TODO: Handle nullable session and map to a dedicated auth error state.
     // TODO: Handle gracefully wrong credential logins
-    suspend operator fun invoke(email: String, password: String): Result<Session?> {
+    suspend operator fun invoke(
+        email: String,
+        password: String,
+        rememberMe: Boolean
+    ): Result<Session?> {
         var idToken = firebaseRepository.getTokenId()
 
         if (idToken == null) {
@@ -28,14 +32,14 @@ class LoginUseCase @Inject constructor(
 
         return try {
             val session = authRepository.getSession(
-                email = email,
-                password = password,
-                firebaseToken = idToken!!
+                email = email, password = password, firebaseToken = idToken!!
             )
             // WARN: Not quite right, should be checking if the current session is valid or not somewhere else
             if (session != null) {
                 sessionStore.clearSession()
-                sessionStore.saveSession(session.accessToken, session.refreshToken, session.expiresAt)
+                sessionStore.saveSession(
+                    session.accessToken, session.refreshToken, session.expiresAt, rememberMe
+                )
                 Log.d("LoginUseCase", "Session saved: $session")
                 Result.success(session)
             }

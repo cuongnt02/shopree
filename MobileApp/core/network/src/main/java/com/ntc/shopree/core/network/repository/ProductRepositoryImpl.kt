@@ -20,4 +20,8 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getProduct(slug: String): Product {
         return productService.getProduct(slug).toProduct()
     }
+
+    override suspend fun getProductsByCategory(categorySlug: String): List<Product> {
+        return productService.getProductsByCategory(categorySlug).map { it.toProduct() }
+    }
 }

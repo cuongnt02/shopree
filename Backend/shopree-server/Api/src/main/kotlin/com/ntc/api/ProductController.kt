@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.RequestParam
 @RequestMapping("/api/v1", produces = [MediaType.APPLICATION_JSON_VALUE])
 class ProductController(private val productService: ProductService) {
     @GetMapping("/products")
-    fun getProducts(@RequestParam(required = false) name: String?): ResponseEntity<List<ProductResponse>> {
-        return name?.let {
-            val products = productService.getProductsByName(it)
-            ResponseEntity.ok(products)
-        } ?: ResponseEntity.ok(productService.getProducts())
+    fun getProducts(
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) category: String?
+    ): ResponseEntity<List<ProductResponse>> {
+        return when {
+            name != null -> ResponseEntity.ok(productService.getProductsByName(name))
+            category != null -> ResponseEntity.ok(productService.getProductsByCategory(category))
+            else -> ResponseEntity.ok(productService.getProducts())
+        }
     }
 
     @GetMapping("/product/{slug}")

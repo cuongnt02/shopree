@@ -1,5 +1,6 @@
 package com.ntc.shopree.feature.auth.data
 
+import android.util.Log
 import com.ntc.shopree.core.datastore.SessionStore
 import com.ntc.shopree.core.model.Session
 import com.ntc.shopree.core.network.dto.toSession
@@ -19,14 +20,18 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun logout() {
         val token = sessionStore.tokens.first().refreshToken
+        Log.d("DEBUG LOGOUT", "Logout process started. Refresh token: $token")
         if (token != null) {
             try {
                 authService.logout(token)
+                Log.d("DEBUG_LOGOUT", "Backend logout request successful")
             } catch (e: Exception) {
                 // TODO: Implement exception handling
+                Log.e("DEBUG_LOGOUT", "Backend logout request failed: ${e.message}")
             }
         }
         sessionStore.clearSession()
+        Log.d("DEBUG_LOGOUT", "Local session (DataStore) cleared successfully")
     }
 
     private fun isFirebaseTokenValid(): Boolean {

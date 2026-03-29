@@ -1,9 +1,12 @@
 package com.ntc.shopree.feature.auth.ui
 
-sealed class LoginUiState {
-    data object Loading: LoginUiState()
-    data class Success(val message: String): LoginUiState()
-    data class Error(val message: String): LoginUiState()
-    data object Idle: LoginUiState()
-}
+data class LoginUiState(
+    val isLoading: Boolean = false,
+    val validation: LoginFormErrors = LoginFormErrors(),
+    val rememberMe: Boolean = false
+)
 
+sealed interface LoginEvent {
+    data object NavigateToHome : LoginEvent
+    data class ShowSnackbar(val message: String) : LoginEvent
+}
