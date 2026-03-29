@@ -2,65 +2,40 @@ package com.ntc.shopree.feature.auth.ui
 
 import android.util.Log
 import android.util.Patterns
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ntc.shopree.core.ui.utils.SnackbarController
-import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.ui.ShopreeViewModel
 import com.ntc.shopree.feature.auth.domain.CheckCurrentUserUseCase
 import com.ntc.shopree.feature.auth.domain.CheckSessionUseCase
 import com.ntc.shopree.feature.auth.domain.LoginUseCase
 import com.ntc.shopree.feature.auth.ui.data.LoginFormInput
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val checkCurrentUserUseCase: CheckCurrentUserUseCase,
     private val checkSessionUseCase: CheckSessionUseCase,
     private val loginUseCase: LoginUseCase
-) : ViewModel() {
-    private val _authenticated = MutableStateFlow(false)
-    val authenticated: StateFlow<Boolean> = _authenticated.asStateFlow()
-
-    private val _validation = MutableStateFlow(LoginFormErrors())
-    val validation: StateFlow<LoginFormErrors> = _validation.asStateFlow()
-
-    val _loginUiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
-
-    private val _rememberMe = MutableStateFlow(false)
-    val rememberMe: StateFlow<Boolean> = _rememberMe.asStateFlow()
+) : ShopreeViewModel<LoginUiState, LoginEvent>(LoginUiState()) {
 
     fun checkCurrentUser() {
         viewModelScope.launch {
             val sessionResult = checkSessionUseCase()
             sessionResult.onSuccess { isAuthenticated ->
-                _authenticated.update { isAuthenticated }
+                if (isAuthenticated) emitEvent(LoginEvent.NavigateToHome)
                 return@launch
             }
             sessionResult.onFailure {
                 Log.e("LoginViewModel", "checkSession: Error checking session")
-                _authenticated.update { false }
-                return@launch
             }
             val result = checkCurrentUserUseCase()
             result.onSuccess { isAuthenticated ->
-                _authenticated.update { isAuthenticated }
+                if (isAuthenticated) emitEvent(LoginEvent.NavigateToHome)
             }
             result.onFailure {
                 Log.e("LoginViewModel", "checkCurrentUser: Error authenticating user")
-                _authenticated.update { false }
             }
         }
     }
@@ -87,34 +62,38 @@ class LoginViewModel @Inject constructor(
     }
 
     fun updateRememberMe(checked: Boolean) {
-        _rememberMe.update { checked }
+        _uiState.update { it.copy(rememberMe = checked) }
     }
+
     fun validateInput(inputs: LoginFormInput) {
-        _validation.update { validateLoginForm(inputs) }
+        _uiState.update { it.copy(validation = validateLoginForm(inputs)) }
     }
-
-
 
     fun logUserIn(username: String, password: String) {
-        if (_loginUiState.value is LoginUiState.Loading) return
+        val input = LoginFormInput(username, password)
+        val validation = validateLoginForm(input)
+        _uiState.update { it.copy(validation = validation) }
+
+        if (validation.blankEmailOrPhoneError != null || validation.passwordError != null) {
+            emitEvent(LoginEvent.ShowSnackbar("Please fill in all fields"))
+            return
+        }
+        if (validation.invalidEmailFormatError != null) {
+            emitEvent(LoginEvent.ShowSnackbar("Invalid email format, please fill in another email address"))
+            return
+        }
+        if (_uiState.value.isLoading) return
+
         viewModelScope.launch {
-            _loginUiState.value = LoginUiState.Loading
-            val loginResult = loginUseCase(username, password, _rememberMe.value)
+            _uiState.update { it.copy(isLoading = true) }
+            val loginResult = loginUseCase(username, password, _uiState.value.rememberMe)
             loginResult.onSuccess {
-                _loginUiState.value = LoginUiState.Success("Logged in successfully")
-                _authenticated.update { true }
+                emitEvent(LoginEvent.NavigateToHome)
             }
-            loginResult.onFailure { message ->
-                _loginUiState.value = LoginUiState.Error("Error logging in user: $message")
-                SnackbarController.sendEvent(SnackbarEvent(message = "Error logging in user $message"))
-                _authenticated.update { false }
+            loginResult.onFailure { error ->
+                emitEvent(LoginEvent.ShowSnackbar("Error logging in: ${error.message}"))
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
-
-    fun resetLoginState() {
-        _loginUiState.value = LoginUiState.Idle
-    }
 }
-
-

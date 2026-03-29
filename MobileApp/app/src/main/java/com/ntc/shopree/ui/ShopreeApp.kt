@@ -16,8 +16,8 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -35,6 +35,7 @@ import com.ntc.shopree.feature.auth.ui.LoginScreen
 import com.ntc.shopree.feature.auth.ui.PostLogin
 import com.ntc.shopree.feature.auth.ui.authEntryBuilder
 import com.ntc.shopree.feature.cart.ui.cartEntryBuilder
+import com.ntc.shopree.feature.catalog.ui.ProductDetails
 import com.ntc.shopree.feature.catalog.ui.ProductsScreen
 import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
 import com.ntc.shopree.feature.checkout.ui.CheckoutScreen
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 fun ShopreeApp(
     viewModel: AppViewModel = hiltViewModel()
 ) {
-    val startupState by viewModel.state.collectAsState()
+    val startupState by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     // TODO: Store the back stack in a viewmodel ?
@@ -104,7 +105,11 @@ fun ShopreeApp(
                         // which fires only after the session is fully cleared.
                     })
                     authEntryBuilder(backStack)
-                    cartEntryBuilder(backStack, onCheckout = { backStack.add(CheckoutScreen) })
+                    cartEntryBuilder(
+                        backStack,
+                        onCheckout = { backStack.add(CheckoutScreen) },
+                        onProductClick = { slug -> backStack.add(ProductDetails(slug)) }
+                    )
                     checkoutEntryBuilder(
                         backStack,
                         onBackHome = { backStack.clear(); backStack.add(ProductsScreen) })

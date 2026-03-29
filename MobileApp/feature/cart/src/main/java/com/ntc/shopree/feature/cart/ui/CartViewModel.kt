@@ -1,10 +1,10 @@
 package com.ntc.shopree.feature.cart.ui
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ntc.shopree.core.model.AsyncState
 import com.ntc.shopree.core.model.CartItem
-import com.ntc.shopree.core.ui.utils.SnackbarController
-import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.model.Product
+import com.ntc.shopree.core.ui.ShopreeViewModel
 import com.ntc.shopree.feature.cart.domain.AddToCartUseCase
 import com.ntc.shopree.feature.cart.domain.ClearCartItemUseCase
 import com.ntc.shopree.feature.cart.domain.DecrementCartItemUseCase
@@ -13,30 +13,28 @@ import com.ntc.shopree.feature.cart.domain.ObserveCartQuantityUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveCartUseCase
 import com.ntc.shopree.feature.cart.domain.ObserveTotalPriceUseCase
 import com.ntc.shopree.feature.cart.domain.RemoveCartItemUseCase
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-
-import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.feature.cart.domain.UpdateCartItemUseCase
 import com.ntc.shopree.core.network.domain.GetSingleProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed interface CartUiState {
-    data object Loading : CartUiState
-    data class Success(
-        val cartItems: List<CartItem>,
-        val products: Map<String, Product> = emptyMap(), // slug -> Product
-        val isUpdating: Boolean = false,
-        val errorMessage: String? = null,
-    ) : CartUiState
+data class CartData(
+    val items: List<CartItem>,
+    val products: Map<String, Product> = emptyMap()
+)
 
-    data class Error(val message: String) : CartUiState
+data class CartUiState(
+    val cartState: AsyncState<CartData> = AsyncState.Loading,
+    val isUpdating: Boolean = false
+)
+
+sealed interface CartEvent {
+    data class ShowSnackbar(val message: String) : CartEvent
 }
 
 @HiltViewModel
@@ -51,15 +49,14 @@ class CartViewModel @Inject constructor(
     private val removeCartItemUseCase: RemoveCartItemUseCase,
     private val updateCartItemUseCase: UpdateCartItemUseCase,
     private val getSingleProductUseCase: GetSingleProductUseCase
-) : ViewModel() {
-    private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
-    val uiState = _uiState.asStateFlow()
+) : ShopreeViewModel<CartUiState, CartEvent>(CartUiState()) {
 
+    // Separate flows used as cart badge count by ProductsScreen and ProductDetailsScreen.
     private val _quantity = MutableStateFlow(0)
-    val quantity = _quantity.asStateFlow()
+    val quantity: StateFlow<Int> = _quantity.asStateFlow()
 
     private val _totalPrice = MutableStateFlow(0.0)
-    val totalPrice = _totalPrice.asStateFlow()
+    val totalPrice: StateFlow<Double> = _totalPrice.asStateFlow()
 
     init {
         observeCart()
@@ -71,27 +68,21 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             val result = observeTotalPriceUseCase()
             result.onSuccess { flow ->
-                flow.collect { totalPrice ->
-                    _totalPrice.value = totalPrice
-                }
-
+                flow.collect { totalPrice -> _totalPrice.value = totalPrice }
             }
-            result.onFailure {
-                _uiState.value = CartUiState.Error(it.message ?: "Unable to observe total price")
+            result.onFailure { e ->
+                emitEvent(CartEvent.ShowSnackbar(e.message ?: "Unable to observe total price"))
             }
         }
     }
 
     private fun observeCart() {
-        _uiState.value = CartUiState.Loading
         viewModelScope.launch {
             val result = observeCartUseCase()
             result.onSuccess { flow ->
                 flow.collect { cartItems ->
-                    val currentProducts = (_uiState.value as? CartUiState.Success)?.products ?: emptyMap()
-                    _uiState.value = CartUiState.Success(cartItems = cartItems, products = currentProducts)
-                    
-                    // Load details for items we don't have yet
+                    val currentProducts = (_uiState.value.cartState as? AsyncState.Success)?.data?.products ?: emptyMap()
+                    _uiState.update { it.copy(cartState = AsyncState.Success(CartData(cartItems, currentProducts))) }
                     cartItems.forEach { item ->
                         if (!currentProducts.containsKey(item.productSlug)) {
                             loadProductDetails(item.productSlug)
@@ -99,10 +90,10 @@ class CartViewModel @Inject constructor(
                     }
                 }
             }
-            result.onFailure {
-                _uiState.value = CartUiState.Error(it.message ?: "Unable to observe cart items")
+            result.onFailure { e ->
+                _uiState.update { it.copy(cartState = AsyncState.Error(e.message ?: "Unable to observe cart items")) }
+                emitEvent(CartEvent.ShowSnackbar("Unable to load cart"))
             }
-
         }
     }
 
@@ -111,10 +102,23 @@ class CartViewModel @Inject constructor(
             val result = getSingleProductUseCase(slug)
             result.onSuccess { product ->
                 _uiState.update { state ->
-                    if (state is CartUiState.Success) {
-                        state.copy(products = state.products + (slug to product))
-                    } else state
+                    val currentData = (state.cartState as? AsyncState.Success)?.data ?: return@update state
+                    state.copy(cartState = AsyncState.Success(currentData.copy(
+                        products = currentData.products + (slug to product)
+                    )))
                 }
+            }
+        }
+    }
+
+    private fun observeCartQuantity() {
+        viewModelScope.launch {
+            val result = observeCartQuantityUseCase()
+            result.onSuccess { flow ->
+                flow.collect { quantity -> _quantity.value = quantity }
+            }
+            result.onFailure { e ->
+                emitEvent(CartEvent.ShowSnackbar(e.message ?: "Unable to observe cart quantity"))
             }
         }
     }
@@ -126,101 +130,58 @@ class CartViewModel @Inject constructor(
             variantName = variant.title ?: "Default",
             price = variant.price
         )
-        
         viewModelScope.launch {
             val result = updateCartItemUseCase(cartItem, newItem)
-            result.onSuccess {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Variant updated"))
-            }
-            result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to update variant"))
-            }
-        }
-    }
-
-    private fun observeCartQuantity() {
-        viewModelScope.launch {
-            val result = observeCartQuantityUseCase()
-            result.onSuccess { flow ->
-                flow.collect { quantity ->
-                    _quantity.value = quantity
-                }
-            }
-            result.onFailure {
-                _uiState.value = CartUiState.Error(it.message ?: "Unable to observe cart Quantity")
-            }
+            result.onSuccess { emitEvent(CartEvent.ShowSnackbar("Variant updated")) }
+            result.onFailure { emitEvent(CartEvent.ShowSnackbar("Failed to update variant")) }
         }
     }
 
     fun addToCart(cartItem: CartItem) {
-        if ( _uiState.value !is CartUiState.Success) {
-            return
-        }
-        _uiState.update {
-            (it as CartUiState.Success).copy(isUpdating = true)
-        }
+        if (_uiState.value.cartState !is AsyncState.Success) return
+        _uiState.update { it.copy(isUpdating = true) }
         viewModelScope.launch {
-            val result = addToCartUseCase(
-               cartItem
-            )
+            val result = addToCartUseCase(cartItem)
             result.onSuccess {
-                _uiState.update {
-                    (it as CartUiState.Success).copy(isUpdating = false, errorMessage = null)
-                }
-                SnackbarController.sendEvent(SnackbarEvent(message = "Added to cart"))
+                _uiState.update { it.copy(isUpdating = false) }
+                emitEvent(CartEvent.ShowSnackbar("Added to cart"))
             }
             result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to add to cart"))
+                _uiState.update { it.copy(isUpdating = false) }
+                emitEvent(CartEvent.ShowSnackbar("Failed to add to cart"))
             }
         }
     }
 
-     fun clearCart() {
+    fun clearCart() {
         viewModelScope.launch {
             val result = clearCartItemUseCase()
-            result.onSuccess {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Cart cleared"))
-            }
-            result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to clear cart"))
-            }
+            result.onSuccess { emitEvent(CartEvent.ShowSnackbar("Cart cleared")) }
+            result.onFailure { emitEvent(CartEvent.ShowSnackbar("Failed to clear cart")) }
         }
     }
 
     fun incrementCartItem(item: CartItem) {
         viewModelScope.launch {
             val result = incrementCartItemUseCase(item)
-            result.onSuccess {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Item incremented"))
-            }
-            result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to increment item"))
-            }
+            result.onSuccess { emitEvent(CartEvent.ShowSnackbar("Item incremented")) }
+            result.onFailure { emitEvent(CartEvent.ShowSnackbar("Failed to increment item")) }
         }
     }
 
     fun decrementCartItem(item: CartItem) {
         viewModelScope.launch {
             val result = decrementCartItemUseCase(item)
-            result.onSuccess {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Item decremented"))
-            }
-            result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to decrement item"))
-            }
+            result.onSuccess { emitEvent(CartEvent.ShowSnackbar("Item decremented")) }
+            result.onFailure { emitEvent(CartEvent.ShowSnackbar("Failed to decrement item")) }
         }
     }
 
     fun removeCartItem(item: CartItem) {
         viewModelScope.launch {
             val result = removeCartItemUseCase(item)
-            result.onSuccess {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Item removed"))
-            }
-            result.onFailure {
-                SnackbarController.sendEvent(SnackbarEvent(message = "Failed to remove item"))
-            }
+            result.onSuccess { emitEvent(CartEvent.ShowSnackbar("Item removed")) }
+            result.onFailure { emitEvent(CartEvent.ShowSnackbar("Failed to remove item")) }
         }
     }
-
 }

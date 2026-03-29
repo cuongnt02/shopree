@@ -29,13 +29,6 @@ fun PrimaryButton(
     enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
-//    Button(
-//        onClick = onclick, modifier =modifier.background(MaterialTheme.colorScheme.primary, shape = CircleShape
-//        ), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-//        enabled = enabled
-//    ) {
-//            content()
-//        }
     UnstyledButton(
         onclick,
         enabled,

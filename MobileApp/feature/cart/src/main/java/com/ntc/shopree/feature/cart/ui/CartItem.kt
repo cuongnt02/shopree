@@ -75,7 +75,9 @@ fun CartItem(
     ) {
         Column(modifier = Modifier.padding(spacing4)) {
             Row(verticalAlignment = Alignment.Top) {
-                val imageModifier = Modifier.size(100.dp)
+                val imageModifier = Modifier
+                    .size(100.dp)
+                    .clickable { onDetailsClick(cartItem.productSlug) }
                 if (painter != null) {
                     Image(
                         painter = painter,

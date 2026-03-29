@@ -24,4 +24,8 @@ class ProductServiceImpl(private val productRepository: ProductRepository): Prod
         val product = productRepository.findBySlug(slug)
         return product?.toProductResponse()
     }
+
+    override fun getProductsByCategory(categorySlug: String): List<ProductResponse> {
+        return productRepository.findByCategorySlug(categorySlug).map { it.toProductResponse() }
+    }
 }

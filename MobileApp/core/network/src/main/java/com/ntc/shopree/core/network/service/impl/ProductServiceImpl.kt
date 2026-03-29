@@ -7,6 +7,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.url
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.isSuccess
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -27,9 +29,23 @@ class ProductServiceImpl @Inject constructor(
     }
 
     override suspend fun getProduct(slug: String): ProductResponse {
-        return client.get {
+        val response: HttpResponse = client.get {
             url("$baseUrl/api/v1/product/${slug}")
-        }.body()
+        }
+        if (!response.status.isSuccess()) {
+            throw Exception("Product not found (HTTP ${response.status.value}): $slug")
+        }
+        return response.body()
+    }
+
+    override suspend fun getProductsByCategory(categorySlug: String): List<ProductResponse> {
+        val response: HttpResponse = client.get {
+            url("$baseUrl/api/v1/products?category=$categorySlug")
+        }
+        if (!response.status.isSuccess()) {
+            throw Exception("Failed to load products for category: $categorySlug (HTTP ${response.status.value})")
+        }
+        return response.body()
     }
 }
 

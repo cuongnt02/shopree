@@ -6,4 +6,5 @@ interface ProductRepository {
     suspend fun getProducts(): List<Product>
     suspend fun findProductsByName(name: String): List<Product>
     suspend fun getProduct(slug: String): Product
+    suspend fun getProductsByCategory(categorySlug: String): List<Product>
 }

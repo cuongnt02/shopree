@@ -15,8 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,7 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
+import com.ntc.shopree.core.model.AsyncState
 import com.ntc.shopree.core.model.CartItem
 import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.model.ProductVariant
@@ -43,6 +43,7 @@ import com.ntc.shopree.core.ui.theme.fontSize5
 import com.ntc.shopree.core.ui.theme.fontSize6
 import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.theme.spacing3
+import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import kotlinx.serialization.Serializable
@@ -57,11 +58,18 @@ data object CartScreen : NavKey
 fun CartScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    onCheckout: () -> Unit
+    onCheckout: () -> Unit,
+    onProductClick: (String) -> Unit
 ) {
     val cartViewModel: CartViewModel = hiltViewModel()
-    val state by cartViewModel.uiState.collectAsState()
-    val price by cartViewModel.totalPrice.collectAsState()
+    val state by cartViewModel.uiState.collectAsStateWithLifecycle()
+    val price by cartViewModel.totalPrice.collectAsStateWithLifecycle()
+
+    ObserveAsEvents(cartViewModel.events) { event ->
+        when (event) {
+            is CartEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
+        }
+    }
 
     CartScreenContent(
         state = state,
@@ -69,6 +77,7 @@ fun CartScreen(
         modifier = modifier,
         onBack = onBack,
         onCheckout = onCheckout,
+        onProductClick = onProductClick,
         onDecrementCartItem = { cartViewModel.decrementCartItem(it) },
         onIncrementCartItem = { cartViewModel.incrementCartItem(it) },
         onRemoveCartItem = { cartViewModel.removeCartItem(it) },
@@ -90,6 +99,7 @@ fun CartScreenContent(
     onIncrementCartItem: (CartItem) -> Unit,
     onRemoveCartItem: (CartItem) -> Unit,
     onClearCart: () -> Unit,
+    onProductClick: (String) -> Unit,
     onVariantChange: (CartItem, Product, String) -> Unit,
     itemPainter: @Composable (CartItem) -> Painter? = { null }
 ) {
@@ -100,18 +110,16 @@ fun CartScreenContent(
             Icon(
                 imageVector = Icons.Outlined.ArrowBack,
                 contentDescription = "Back",
-                modifier = Modifier.clickable {
-                    onBack()
-                })
+                modifier = Modifier.clickable { onBack() })
         })
-        when (state) {
-            is CartUiState.Loading -> {
+        when (val cartState = state.cartState) {
+            is AsyncState.Loading -> {
                 CircularProgressIndicator()
             }
 
-            is CartUiState.Success -> {
-                val cartItems = state.cartItems
-                val products = state.products
+            is AsyncState.Success -> {
+                val cartItems = cartState.data.items
+                val products = cartState.data.products
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(horizontal = spacing1)
@@ -124,18 +132,10 @@ fun CartScreenContent(
                                 cartItem = item,
                                 product = product,
                                 painter = itemPainter(item),
-                                onDetailsClick = {
-                                    // TODO: Navigate to product details
-                                },
-                                onDecrementCartItem = {
-                                    onDecrementCartItem(item)
-                                },
-                                onIncrementCartItem = {
-                                    onIncrementCartItem(item)
-                                },
-                                onRemoveCartItem = {
-                                    onRemoveCartItem(item)
-                                },
+                                onDetailsClick = { onProductClick(it) },
+                                onDecrementCartItem = { onDecrementCartItem(item) },
+                                onIncrementCartItem = { onIncrementCartItem(item) },
+                                onRemoveCartItem = { onRemoveCartItem(item) },
                                 onVariantChange = { variantId ->
                                     if (product != null) {
                                         onVariantChange(item, product, variantId)
@@ -144,10 +144,7 @@ fun CartScreenContent(
                             Spacer(modifier = Modifier.height(spacing1))
                         }
                     }
-                    PrimaryButton(
-                        onclick = {
-                            clearCartConfirm = true
-                        }) {
+                    PrimaryButton(onclick = { clearCartConfirm = true }) {
                         Text(
                             text = "Clear",
                             color = ColorGrey100,
@@ -162,24 +159,15 @@ fun CartScreenContent(
                         title = "Clear Cart",
                         text = "Are you sure you want to clear your cart?",
                         icon = Icons.Outlined.Cart,
-                        onDissmissRequest = {
-                            clearCartConfirm = false
-                        },
+                        onDissmissRequest = { clearCartConfirm = false },
                         onConfirmation = {
                             onClearCart()
                             clearCartConfirm = false
                         })
                 }
-
-
             }
 
-            is CartUiState.Error -> {
-                val message = state.message
-                LaunchedEffect(message) {
-                    SnackbarController.sendEvent(SnackbarEvent(message = message))
-                }
-            }
+            is AsyncState.Error -> {}
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -190,7 +178,7 @@ fun CartScreenContent(
         ) {
             Text(
                 modifier = Modifier.padding(start = spacing3),
-                text = "$price$",
+                text = "%.0f$".format(price),
                 fontSize = fontSize6,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Outfit
@@ -260,7 +248,7 @@ fun CartScreenPreview() {
 
     MobileAppTheme {
         CartScreenContent(
-            state = CartUiState.Success(cartItems = sampleCartItems, products = sampleProducts),
+            state = CartUiState(cartState = AsyncState.Success(CartData(items = sampleCartItems, products = sampleProducts))),
             price = 45.0,
             onBack = {},
             onCheckout = {},
@@ -268,6 +256,7 @@ fun CartScreenPreview() {
             onIncrementCartItem = {},
             onRemoveCartItem = {},
             onClearCart = {},
+            onProductClick = {},
             onVariantChange = { _, _, _ -> },
             itemPainter = { item ->
                 if (item.productSlug == "product-1") {

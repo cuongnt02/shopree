@@ -21,11 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -37,8 +35,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.SubcomposeAsyncImage
 import com.ntc.shopree.core.ui.components.CheckBox
@@ -59,12 +56,12 @@ import com.ntc.shopree.core.ui.theme.spacing3
 import com.ntc.shopree.core.ui.theme.spacing4
 import com.ntc.shopree.core.ui.theme.spacing5
 import com.ntc.shopree.core.ui.theme.spacing6
+import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import com.ntc.shopree.feature.auth.ui.data.LoginFormInput
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -76,19 +73,15 @@ data object PostLogin : NavKey
 @Composable
 fun LoginScreen(onLoggedIn: () -> Unit) {
     val loginViewModel: LoginViewModel = hiltViewModel()
-    val authenticated by loginViewModel.authenticated.collectAsState()
-    val validation by loginViewModel.validation.collectAsState()
-    val loginUiState by loginViewModel.loginUiState.collectAsState()
-    val scope = rememberCoroutineScope()
+    val state by loginViewModel.uiState.collectAsStateWithLifecycle()
     val emailState = rememberTextFieldState()
     val passwordState = rememberTextFieldState()
-    LifecycleStartEffect(lifecycleOwner = LocalLifecycleOwner.current, key1 = authenticated) {
-        //loginViewModel.checkCurrentUser()
-        if (authenticated) {
-            onLoggedIn()
-        }
-        onStopOrDispose {
-            // Intentionally do nothing
+
+    // Navigation and snackbar driven by ViewModel events — no direct SnackbarController calls here.
+    ObserveAsEvents(loginViewModel.events) { event ->
+        when (event) {
+            is LoginEvent.NavigateToHome -> onLoggedIn()
+            is LoginEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
         }
     }
 
@@ -123,7 +116,11 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
         )
         Spacer(Modifier.height(spacing4))
         LoginForm(
-            emailState = emailState, passwordState = passwordState, viewModel = loginViewModel
+            emailState = emailState,
+            passwordState = passwordState,
+            validation = state.validation,
+            rememberMe = state.rememberMe,
+            viewModel = loginViewModel
         )
         Spacer(Modifier.height(spacing4))
         Row(horizontalArrangement = Arrangement.spacedBy(spacing2)) {
@@ -134,34 +131,17 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
         // TODO: Handles fast clicker problem
         PrimaryButton(
             onclick = {
-                val currentInput = LoginFormInput(
-                    emailOrPhone = emailState.text.toString(),
-                    password = passwordState.text.toString()
+                loginViewModel.logUserIn(
+                    emailState.text.toString(),
+                    passwordState.text.toString()
                 )
-
-                val immediateValidation = loginViewModel.validateLoginForm(currentInput)
-
-                val hasErrors =
-                    immediateValidation.blankEmailOrPhoneError != null || immediateValidation.passwordError != null
-                if (hasErrors) {
-                    scope.launch {
-                        SnackbarController.sendEvent(SnackbarEvent(message = "Please fill in all fields"))
-                    }
-                    return@PrimaryButton
-                }
-                val invalidEmailFormatError = immediateValidation.invalidEmailFormatError != null
-                if (invalidEmailFormatError) {
-                    scope.launch {
-                        SnackbarController.sendEvent(SnackbarEvent(message = "Invalid email format, please fill in another email address"))
-                    }
-                    return@PrimaryButton
-                }
-                loginViewModel.logUserIn(emailState.text.toString(), passwordState.text.toString())
             },
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             text = "Sign in",
             fontSize = fontSize6,
-            loading = loginUiState is LoginUiState.Loading,
+            loading = state.isLoading,
             loadingIndicator = {
                 CircularProgressIndicator(modifier = Modifier.size(32.dp), color = ColorGrey100)
             }
@@ -182,7 +162,6 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
                 fontFamily = Outfit
             )
         }
-
     }
 }
 
@@ -191,19 +170,16 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
 fun LoginForm(
     emailState: TextFieldState,
     passwordState: TextFieldState,
+    validation: LoginFormErrors,
+    rememberMe: Boolean,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel
 ) {
     var emailTouched by remember { mutableStateOf(false) }
     var passwordTouched by remember { mutableStateOf(false) }
-    val rememberMe by viewModel.rememberMe.collectAsState()
-
-    val validation by viewModel.validation.collectAsState()
 
     val emailErrorText = validation.blankEmailOrPhoneError ?: validation.invalidEmailFormatError
     val passwordErrorText = validation.passwordError
-
-
 
     LaunchedEffect(emailState, passwordState) {
         snapshotFlow {
@@ -216,7 +192,6 @@ fun LoginForm(
             viewModel.validateInput(input)
         }
     }
-
 
     Column(modifier = modifier.fillMaxWidth()) {
         TextInput(
@@ -285,10 +260,7 @@ fun LoginForm(
                 fontWeight = FontWeight.Normal,
                 fontFamily = Outfit
             )
-
         }
-
-
     }
 }
 

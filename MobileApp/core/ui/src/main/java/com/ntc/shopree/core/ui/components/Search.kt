@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,7 +46,6 @@ import com.ntc.shopree.core.ui.theme.ColorGrey500
 import com.ntc.shopree.core.ui.theme.Outfit
 import com.ntc.shopree.core.ui.theme.fontSize4
 import com.ntc.shopree.core.ui.theme.radius1
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +122,6 @@ fun SimpleSearchBar(
     searchResults: List<String>,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
@@ -151,9 +148,6 @@ fun SimpleSearchBar(
                     query = textFieldState.text.toString(),
                     onQueryChange = {
                         textFieldState.edit { replace(0, length, it) }
-                        scope.launch {
-                            onSearch(it)
-                        }
                     },
                     onSearch = {
                         onSearch(textFieldState.text.toString())
