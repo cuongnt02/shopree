@@ -2,6 +2,9 @@ package com.ntc.shopree.core.database.di
 
 import android.content.Context
 import androidx.room.Room
+import com.ntc.shopree.core.database.CartDao
+import com.ntc.shopree.core.database.CartRepository
+import com.ntc.shopree.core.database.CartRepositoryImpl
 import com.ntc.shopree.core.database.ShopreeDatabase
 import dagger.Module
 import dagger.Provides
@@ -28,4 +31,7 @@ object DatabaseModule {
     @Singleton
     fun provideCartDao(db: ShopreeDatabase) = db.cartDao()
 
+    @Provides
+    @Singleton
+    fun provideCartRepository(cartDao: CartDao): CartRepository = CartRepositoryImpl(cartDao = cartDao)
 }

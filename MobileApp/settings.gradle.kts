@@ -35,5 +35,6 @@ include(
     ":feature:cart",
     ":feature:checkout",
     ":feature:orders",
-    ":feature:vendor"
+    ":feature:vendor",
+    ":feature:profile"
 )

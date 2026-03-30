@@ -40,6 +40,8 @@ import com.ntc.shopree.feature.catalog.ui.ProductsScreen
 import com.ntc.shopree.feature.catalog.ui.productsEntryBuilder
 import com.ntc.shopree.feature.checkout.ui.CheckoutScreen
 import com.ntc.shopree.feature.checkout.ui.checkoutEntryBuilder
+import com.ntc.shopree.feature.profile.ui.ProfileScreen
+import com.ntc.shopree.feature.profile.ui.profileEntryBuilder
 import kotlinx.coroutines.launch
 
 @Composable
@@ -103,7 +105,10 @@ fun ShopreeApp(
                         }
                         // Navigation to LoginScreen is handled by LaunchedEffect above,
                         // which fires only after the session is fully cleared.
+                    }, onProfile = {
+                        backStack.add(ProfileScreen)
                     })
+                    profileEntryBuilder(backStack)
                     authEntryBuilder(backStack)
                     cartEntryBuilder(
                         backStack,
