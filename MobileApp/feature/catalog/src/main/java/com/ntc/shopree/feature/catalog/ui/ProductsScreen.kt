@@ -28,6 +28,7 @@ import com.ntc.shopree.core.model.Category
 import com.ntc.shopree.core.model.Product
 import com.ntc.shopree.core.ui.components.SimpleSearchBar
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
@@ -44,7 +45,8 @@ data object ProductsScreen : NavKey
 fun ProductsScreen(
     onProductClick: (String) -> Unit,
     onCart: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onProfile: () -> Unit
 ) {
     val productsViewModel: ProductsViewModel = hiltViewModel()
     val cartViewModel: CartViewModel = hiltViewModel()
@@ -71,6 +73,14 @@ fun ProductsScreen(
             CartButton(
                 quantity = cartQuantity,
                 onNavigate = onCart
+            )
+            Spacer(Modifier.width(spacing1))
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = "profile",
+                modifier = Modifier
+                    .clickable { onProfile() }
+                    .size(32.dp)
             )
             Spacer(Modifier.width(spacing2))
         })

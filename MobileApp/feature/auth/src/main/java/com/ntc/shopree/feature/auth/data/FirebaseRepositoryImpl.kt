@@ -15,6 +15,10 @@ class FirebaseRepositoryImpl @Inject constructor(
     override suspend fun getTokenId(): String? {
         return firebaseService.getFirebaseIdToken()
     }
+
+    override suspend fun login(email: String, password: String): Result<Unit> {
+        return firebaseService.login(email, password).map { }
+    }
 }
 
 

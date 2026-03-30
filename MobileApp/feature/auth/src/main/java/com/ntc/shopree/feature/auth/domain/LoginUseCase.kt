@@ -3,12 +3,10 @@ package com.ntc.shopree.feature.auth.domain
 import android.util.Log
 import com.ntc.shopree.core.datastore.SessionStore
 import com.ntc.shopree.core.model.Session
-import com.ntc.shopree.feature.auth.data.remote.service.FirebaseService
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
     private val firebaseRepository: FirebaseRepository,
-    private val firebaseService: FirebaseService,
     private val authRepository: AuthRepository,
     private val sessionStore: SessionStore
 ) {
@@ -22,7 +20,7 @@ class LoginUseCase @Inject constructor(
         var idToken = firebaseRepository.getTokenId()
 
         if (idToken == null) {
-            val result = firebaseService.login(username = email, password = password)
+            val result = firebaseRepository.login(email, password)
             result.onSuccess {
                 idToken = firebaseRepository.getTokenId()
             }.onFailure {

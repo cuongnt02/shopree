@@ -10,10 +10,12 @@ import com.ntc.shopree.core.network.service.AuthService
 import com.ntc.shopree.core.network.service.CategoryService
 import com.ntc.shopree.core.network.service.OrderService
 import com.ntc.shopree.core.network.service.ProductService
+import com.ntc.shopree.core.network.service.UserService
 import com.ntc.shopree.core.network.service.impl.AuthServiceImpl
 import com.ntc.shopree.core.network.service.impl.CategoryServiceImpl
 import com.ntc.shopree.core.network.service.impl.OrderServiceImpl
 import com.ntc.shopree.core.network.service.impl.ProductServiceImpl
+import com.ntc.shopree.core.network.service.impl.UserServiceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -65,6 +67,10 @@ abstract class NetworkModule {
     @Binds
     @Singleton
     abstract fun bindOrderService(impl: OrderServiceImpl): OrderService
+
+    @Binds
+    @Singleton
+    abstract fun bindUserService(impl: UserServiceImpl): UserService
 }
 
 @Module

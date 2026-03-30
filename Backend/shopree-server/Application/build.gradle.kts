@@ -1,8 +1,8 @@
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.2.21"
-    id("org.jetbrains.kotlin.plugin.spring") version "2.2.21"
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.flywaydb.flyway") version "11.17.0"

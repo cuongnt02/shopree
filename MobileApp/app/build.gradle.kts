@@ -58,6 +58,7 @@ dependencies {
     implementation(project(":feature:catalog"))
     implementation(project(":feature:cart"))
     implementation(project(":feature:checkout"))
+    implementation(project(":feature:profile"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
