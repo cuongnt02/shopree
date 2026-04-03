@@ -45,7 +45,7 @@ class OrderController(
         return ResponseEntity.ok(orderService.getOrders(user.id!!))
     }
 
-    @GetMapping("/orders/{id}")
+    @GetMapping("/order/{id}")
     fun getOrder(
         authentication: Authentication,
         @PathVariable id: UUID
