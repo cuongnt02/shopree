@@ -15,16 +15,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.core.model.User
+import com.ntc.shopree.core.ui.components.PrimaryButton
+import com.ntc.shopree.core.ui.components.TextInput
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.core.ui.theme.Neutral100
 import com.ntc.shopree.core.ui.theme.Neutral200
@@ -60,24 +66,87 @@ import com.ntc.shopree.core.ui.utils.SnackbarEvent
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object ProfileScreen : NavKey
+data class EditProfileScreen(val user: User) : NavKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
+fun EditProfileScreen(
+    user: User,
     onBack: () -> Unit,
-    onEditProfile: (User) -> Unit,
-    onChangePassword: () -> Unit,
-    onOrderHistory: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: EditProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val nameState = remember { TextFieldState(initialText = user.name) }
+    val phoneState = remember { TextFieldState(initialText = user.phone) }
+
+    val onSubmit: () -> Unit = {
+        val newName = nameState.text.toString()
+        val newPhone = phoneState.text.toString()
+        if (newName == user.name && newPhone == user.phone) {
+            viewModel.emitNoChanges()
+        } else {
+            viewModel.showConfirmDialog()
+        }
+    }
+
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            is ProfileEvent.NavigateBack -> onBack()
-            is ProfileEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
+            is EditProfileEvent.NavigateBack -> onBack()
+            is EditProfileEvent.ShowSnackbar -> SnackbarController.sendEvent(SnackbarEvent(event.message))
         }
+    }
+
+    if (uiState.showConfirmDialog) {
+        AlertDialog(
+            containerColor = Neutral50,
+            onDismissRequest = { viewModel.dismissConfirmDialog() },
+            title = {
+                Text(
+                    text = "Update Profile",
+                    fontFamily = Outfit,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = fontSize3,
+                    color = Neutral900
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to save these changes?",
+                    fontFamily = Outfit,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = fontSize2,
+                    color = Neutral600
+                )
+            },
+            confirmButton = {
+                PrimaryButton(
+                    onclick = {
+                        viewModel.updateProfile(
+                            nameState.text.toString(),
+                            phoneState.text.toString()
+                        )
+                    },
+                    text = "Update",
+                    fontSize = fontSize2
+                )
+            },
+            dismissButton = {
+                Box(
+                    modifier = Modifier
+                        .clickable { viewModel.dismissConfirmDialog() }
+                        .padding(horizontal = spacing2, vertical = spacing1)
+                ) {
+                    Text(
+                        text = "Cancel",
+                        fontFamily = Outfit,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = fontSize2,
+                        color = Neutral600
+                    )
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -89,7 +158,7 @@ fun ProfileScreen(
                 ),
                 title = {
                     Text(
-                        text = "Shopree",
+                        text = if (uiState.isEditMode) "Edit Profile" else "Shopree",
                         fontFamily = Outfit,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = fontSize3,
@@ -102,10 +171,27 @@ fun ProfileScreen(
                         contentDescription = "navigate back",
                         tint = Neutral900,
                         modifier = Modifier
-                            .clickable { onBack() }
+                            .clickable {
+                                if (uiState.isEditMode) viewModel.exitEditMode()
+                                else onBack()
+                            }
                             .size(32.dp)
                             .padding(start = spacing2)
                     )
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            if (uiState.isEditMode) onSubmit()
+                            else viewModel.enterEditMode()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = if (uiState.isEditMode) "Save changes" else "Edit profile",
+                            tint = if (uiState.isEditMode) Neutral900 else Neutral400
+                        )
+                    }
                 }
             )
         }
@@ -139,7 +225,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(spacing3))
 
             Text(
-                text = uiState.user?.name ?: "—",
+                text = user.name,
                 fontFamily = Outfit,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = fontSize5,
@@ -149,7 +235,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(spacing1))
 
             Text(
-                text = uiState.user?.email ?: "—",
+                text = user.email,
                 fontFamily = Outfit,
                 fontWeight = FontWeight.Normal,
                 fontSize = fontSize2,
@@ -166,7 +252,7 @@ fun ProfileScreen(
                     .padding(horizontal = spacing2, vertical = 4.dp)
             ) {
                 Text(
-                    text = uiState.user?.role ?: "BUYER",
+                    text = user.role,
                     fontFamily = Outfit,
                     fontWeight = FontWeight.Medium,
                     fontSize = fontSize1,
@@ -176,44 +262,63 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(spacing6))
 
-            // Personal info card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(radius3))
-                    .background(Neutral100)
-            ) {
-                ProfileInfoRow(label = "Phone", value = uiState.user?.phone ?: "—")
-                HorizontalDivider(color = Neutral200, thickness = 0.5.dp)
-                ProfileInfoRow(label = "Email", value = uiState.user?.email ?: "—")
-            }
+            if (!uiState.isEditMode) {
+                // Read mode: static info card
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(radius3))
+                        .background(Neutral100)
+                ) {
+                    EditProfileInfoRow(label = "Phone", value = user.phone)
+                    HorizontalDivider(color = Neutral200, thickness = 0.5.dp)
+                    EditProfileInfoRow(label = "Email", value = user.email)
+                }
+            } else {
+                // Edit mode: input fields
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Name",
+                        fontFamily = Outfit,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = fontSize2,
+                        color = Neutral600
+                    )
+                    Spacer(Modifier.height(spacing1))
+                    TextInput(
+                        state = nameState,
+                        placeholder = "Your name",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-            Spacer(Modifier.height(spacing5))
+                Spacer(Modifier.height(spacing3))
 
-            // Account section header
-            Text(
-                text = "Account",
-                fontFamily = Outfit,
-                fontWeight = FontWeight.Medium,
-                fontSize = fontSize2,
-                color = Neutral500,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = spacing2)
-            )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Phone",
+                        fontFamily = Outfit,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = fontSize2,
+                        color = Neutral600
+                    )
+                    Spacer(Modifier.height(spacing1))
+                    TextInput(
+                        state = phoneState,
+                        placeholder = "Your phone number",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-            // Account actions card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(radius3))
-                    .background(Neutral100)
-            ) {
-                ProfileActionRow(label = "Edit Profile") { uiState.user?.let { onEditProfile(it) } }
-                HorizontalDivider(color = Neutral200, thickness = 0.5.dp)
-                ProfileActionRow(label = "Change Password") { onChangePassword() }
-                HorizontalDivider(color = Neutral200, thickness = 0.5.dp)
-                ProfileActionRow(label = "Order History") { onOrderHistory() }
+                Spacer(Modifier.height(spacing5))
+
+                PrimaryButton(
+                    onclick = onSubmit,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Update Profile",
+                    fontSize = fontSize3,
+                    loading = uiState.isSaving
+                )
             }
 
             Spacer(Modifier.height(spacing6))
@@ -222,7 +327,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileInfoRow(label: String, value: String) {
+private fun EditProfileInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -243,33 +348,6 @@ private fun ProfileInfoRow(label: String, value: String) {
             fontWeight = FontWeight.Normal,
             fontSize = fontSize2,
             color = Neutral900
-        )
-    }
-}
-
-@Composable
-private fun ProfileActionRow(label: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = spacing3, vertical = spacing3),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontFamily = Outfit,
-            fontWeight = FontWeight.Normal,
-            fontSize = fontSize2,
-            color = Neutral900
-        )
-        Text(
-            text = "›",
-            fontFamily = Outfit,
-            fontWeight = FontWeight.Normal,
-            fontSize = fontSize3,
-            color = Neutral400
         )
     }
 }
