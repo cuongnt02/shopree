@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.slf4j.LoggerFactory
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
@@ -38,7 +41,7 @@ class SecurityConfig(
 
         val isSecurityDisabled = environment.activeProfiles.contains("no-security")
         http {
-
+            cors { configurationSource = corsConfigurationSource() }
             csrf { disable() }
             authorizeHttpRequests {
                 if (isSecurityDisabled) {
@@ -52,8 +55,10 @@ class SecurityConfig(
                     authorize("/api/v1/categories", hasAuthority("BUYER"))
                     authorize("/api/v1/products", hasAuthority("BUYER"))
                     authorize("/api/v1/product/**", hasAuthority("BUYER"))
-                    authorize("/api/v1/orders/**", hasAuthority("BUYER"))
+                    authorize("/api/v1/orders", hasAnyAuthority("BUYER", "VENDOR_USER"))
+                    authorize("/api/v1/orders/**", hasAnyAuthority("BUYER", "VENDOR_USER"))
                     authorize("/api/v1/order/**", hasAuthority("BUYER"))
+                    authorize("/api/v1/vendor/**", hasAuthority("VENDOR_USER"))
                     authorize("/api/v1/users/**", hasAuthority("BUYER"))
                     authorize("/api/v1/auth/**", permitAll)
                     authorize("/v3/api-docs/**", permitAll)
@@ -86,6 +91,23 @@ class SecurityConfig(
 
         return ProviderManager(authenticationProvider)
 
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration()
+        config.allowedOrigins = listOf(
+            "http://localhost:5173",
+            "http://localhost:3000"
+        )
+        config.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+        config.allowedHeaders = listOf("Authorization", "Content-Type", "Accept")
+        config.allowCredentials = true
+        config.maxAge = 3600L
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
     }
 
 //    @Bean

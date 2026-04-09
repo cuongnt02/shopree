@@ -5,7 +5,19 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const raw = localStorage.getItem('vendor_auth');
+    const token = raw ? JSON.parse(raw).accessToken : null
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
 })
+
+api.interceptors.request.use(
+    (res) => res,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('vendor_auth')
+            window.location.href = '/login'
+        }
+        return Promise.reject(error)
+    }
+)
