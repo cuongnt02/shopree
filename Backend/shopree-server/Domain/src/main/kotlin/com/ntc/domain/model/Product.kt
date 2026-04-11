@@ -61,4 +61,34 @@ class Product(
     enum class Status {
         DRAFT, PUBLISHED, DISABLED, PENDING_APPROVAL
     }
+
+    fun copy(
+    vendor: Vendor = this.vendor,
+    title: String = this.title,
+    slug: String = this.slug,
+    description: String? = this.description,
+    category: Category? = this.category,
+    mainImage: String? = this.mainImage,
+    status: Status = this.status,
+    tags: MutableList<String>? = this.tags,
+    pickupAvailable: Boolean = this.pickupAvailable,
+    variants: MutableList<ProductVariant> = this.variants
+    ): Product {
+        val copy = Product(
+            vendor = vendor,
+            title = title,
+            slug = slug,
+            description = description,
+            category = category,
+            mainImage = mainImage,
+            status = status,
+            tags = tags,
+            pickupAvailable = pickupAvailable,
+            variants = variants
+        )
+        copy.id = this.id
+        copy.createdAt = this.createdAt
+        copy.updatedAt = this.updatedAt
+        return copy
+    }
 }

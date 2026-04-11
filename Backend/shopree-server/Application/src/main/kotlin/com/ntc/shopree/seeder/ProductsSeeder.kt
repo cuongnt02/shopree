@@ -6,13 +6,9 @@ import com.ntc.data.ProductVariantRepository
 import com.ntc.data.VendorRepository
 import com.ntc.domain.model.Product
 import com.ntc.domain.model.ProductVariant
-import com.ntc.domain.model.Vendor
-import com.ntc.domain.model.Category
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
-import java.util.Locale
-import kotlin.random.Random
 
 @Component
 @Order(4)
@@ -21,93 +17,146 @@ class ProductsSeeder(
     private val productVariantRepository: ProductVariantRepository,
     private val vendorRepository: VendorRepository,
     private val categoryRepository: CategoryRepository
-): CommandLineRunner {
+) : CommandLineRunner {
+
+    private data class VariantSeed(
+        val title: String,
+        val sku: String,
+        val priceCents: Long,
+        val inventoryCount: Int
+    )
+
+    private data class ProductSeed(
+        val title: String,
+        val slug: String,
+        val vendorSlug: String,
+        val categorySlug: String,
+        val description: String,
+        val imageIndex: Int,
+        val pickupAvailable: Boolean,
+        val variants: List<VariantSeed>
+    )
+
     override fun run(vararg args: String) {
-        val vendors: List<Vendor> = vendorRepository.findAll().toList()
-        val categories: List<Category> = categoryRepository.findAll().toList()
+        val vendors = vendorRepository.findAll().associateBy { it.slug }
+        val categories = categoryRepository.findAll().associateBy { it.slug }
 
-        if (vendors.isEmpty() || categories.isEmpty()) {
-            // Nothing to seed if dependencies are missing
-            return
-        }
+        if (vendors.isEmpty() || categories.isEmpty()) return
 
-        // Clear existing products before seeding
         productRepository.deleteAll()
 
-        val adjectives = listOf(
-            "Sleek", "Compact", "Durable", "Premium", "Eco", "Smart", "Portable", "Lightweight",
-            "Advanced", "Classic", "Modern", "Wireless", "Ergonomic", "Pro", "Ultra"
+        val seeds = listOf(
+            // Vendor 1 — electronics-store
+            ProductSeed("Wireless Noise-Cancelling Headphones", "wireless-noise-cancelling-headphones", "electronics-store", "electronics",
+                "Premium wireless headphones with active noise cancellation and 30-hour battery life.", 1, true,
+                listOf(
+                    VariantSeed("Standard", "wh-standard", 590_000L, 25),
+                    VariantSeed("Pro", "wh-pro", 890_000L, 15)
+                )
+            ),
+            ProductSeed("Adjustable Laptop Stand", "adjustable-laptop-stand", "electronics-store", "laptops",
+                "Ergonomic aluminium laptop stand with 6 adjustable height levels.", 2, true,
+                listOf(VariantSeed("Default", "als-default", 350_000L, 30))
+            ),
+            ProductSeed("Mechanical Keyboard", "mechanical-keyboard", "electronics-store", "electronics",
+                "Tactile mechanical keyboard with RGB backlight and anti-ghosting.", 3, true,
+                listOf(
+                    VariantSeed("TKL (87 keys)", "mk-tkl", 750_000L, 20),
+                    VariantSeed("Full Size (104 keys)", "mk-full", 890_000L, 20)
+                )
+            ),
+            ProductSeed("Portable Charger 20000mAh", "portable-charger-20000mah", "electronics-store", "mobile-phones",
+                "Fast-charging power bank with dual USB-A and USB-C output.", 4, true,
+                listOf(VariantSeed("Default", "pc-20k-default", 450_000L, 50))
+            ),
+            ProductSeed("USB-C Hub 7-in-1", "usb-c-hub-7-in-1", "electronics-store", "electronics",
+                "Compact USB-C hub with HDMI 4K, 3x USB-A, SD card reader, and PD 100W pass-through.", 5, true,
+                listOf(VariantSeed("Default", "hub-7in1-default", 320_000L, 40))
+            ),
+            ProductSeed("HD Webcam 1080p", "hd-webcam-1080p", "electronics-store", "cameras",
+                "Full HD webcam with built-in stereo microphone and auto-focus.", 6, false,
+                listOf(VariantSeed("Default", "wc-1080p-default", 480_000L, 20))
+            ),
+            ProductSeed("LED Desk Lamp with USB Charging", "led-desk-lamp-usb-charging", "electronics-store", "electronics",
+                "Touch-dimming LED lamp with USB charging port and 5 colour temperature modes.", 7, true,
+                listOf(
+                    VariantSeed("White", "lamp-white", 250_000L, 35),
+                    VariantSeed("Black", "lamp-black", 250_000L, 35)
+                )
+            ),
+            ProductSeed("Bluetooth Portable Speaker", "bluetooth-portable-speaker", "electronics-store", "electronics",
+                "360° sound Bluetooth speaker, IPX7 waterproof, 12-hour playback.", 8, true,
+                listOf(VariantSeed("Default", "spk-bt-default", 400_000L, 30))
+            ),
+            ProductSeed("Smart Watch Fitness Tracker", "smart-watch-fitness-tracker", "electronics-store", "mobile-phones",
+                "Heart rate, SpO2, sleep tracking, GPS — compatible with Android and iOS.", 9, true,
+                listOf(
+                    VariantSeed("S/M", "sw-sm", 699_000L, 20),
+                    VariantSeed("L/XL", "sw-lxl", 699_000L, 20)
+                )
+            ),
+            ProductSeed("Magnetic Phone Mount", "magnetic-phone-mount", "electronics-store", "mobile-phones",
+                "Universal dashboard magnetic car phone mount with 360° rotation.", 10, true,
+                listOf(VariantSeed("Default", "pm-mag-default", 150_000L, 80))
+            ),
+            // Vendor 2 — skincare-store
+            ProductSeed("Vitamin C Brightening Serum", "vitamin-c-brightening-serum", "skincare-store", "skincare",
+                "20% Vitamin C serum with hyaluronic acid for radiant, even-toned skin.", 11, false,
+                listOf(
+                    VariantSeed("30ml", "vc-serum-30", 380_000L, 60),
+                    VariantSeed("60ml", "vc-serum-60", 650_000L, 40)
+                )
+            ),
+            ProductSeed("Hydrating Face Cream", "hydrating-face-cream", "skincare-store", "skincare",
+                "Lightweight, non-greasy moisturiser with ceramides and niacinamide.", 12, false,
+                listOf(VariantSeed("Default", "face-cream-default", 290_000L, 60))
+            ),
+            ProductSeed("SPF 50 Daily Sunscreen", "spf-50-daily-sunscreen", "skincare-store", "skincare",
+                "Broad-spectrum UVA/UVB protection, no white cast, reef-safe formula.", 13, false,
+                listOf(VariantSeed("Default", "sunscreen-spf50-default", 220_000L, 75))
+            ),
+            // Vendor 3 — chemists-store
+            ProductSeed("Daily Multivitamin 60 Tablets", "daily-multivitamin-60-tablets", "chemists-store", "beauty-personal-care",
+                "Complete A-Z multivitamin with minerals — one tablet per day.", 14, false,
+                listOf(VariantSeed("Default", "multivit-60-default", 180_000L, 100))
+            ),
+            ProductSeed("Antibacterial Hand Sanitizer", "antibacterial-hand-sanitizer", "chemists-store", "beauty-personal-care",
+                "70% alcohol gel sanitizer, kills 99.9% of germs, aloe vera infused.", 15, false,
+                listOf(
+                    VariantSeed("100ml", "sanitizer-100", 45_000L, 200),
+                    VariantSeed("500ml", "sanitizer-500", 150_000L, 100)
+                )
+            ),
         )
-        val nouns = listOf(
-            "Headphones", "Backpack", "Blender", "Camera", "Laptop Stand", "Yoga Mat", "Coffee Maker",
-            "Water Bottle", "Desk Lamp", "Mouse", "Keyboard", "Sneakers", "Jacket", "Book", "Toys"
-        )
 
-        fun slugify(text: String): String = text
-            .lowercase(Locale.getDefault())
-            .replace("&", " and ")
-            .replace("[^a-z0-9]+".toRegex(), "-")
-            .trim('-')
+        seeds.forEach { seed ->
+            val vendor = vendors[seed.vendorSlug] ?: return@forEach
+            val category = categories[seed.categorySlug] ?: return@forEach
 
-        val images = listOf(
-            "https://picsum.photos/seed/1/600/400",
-            "https://picsum.photos/seed/2/600/400",
-            "https://picsum.photos/seed/3/600/400",
-            "https://picsum.photos/seed/4/600/400",
-            "https://picsum.photos/seed/5/600/400"
-        )
-
-        val products = (1..50).map { idx ->
-            val title = "${adjectives.random()} ${nouns.random()} ${idx}"
-            val slug = slugify(title)
-            val vendor = vendors.random()
-            val category = categories.random()
-            val image = images.random()
-
-            Product(
-                vendor = vendor,
-                title = title,
-                slug = slug,
-                description = "Sample product $idx seeded for development and testing.",
-                category = category,
-                mainImage = image,
-                tags = null, // left null to match current mapping (no @ElementCollection/@Json)
-                pickupAvailable = Random.nextBoolean(),
-                status = Product.Status.PUBLISHED,
+            val product = productRepository.save(
+                Product(
+                    vendor = vendor,
+                    title = seed.title,
+                    slug = seed.slug,
+                    description = seed.description,
+                    category = category,
+                    mainImage = "https://picsum.photos/seed/${seed.imageIndex}/600/400",
+                    pickupAvailable = seed.pickupAvailable,
+                    status = Product.Status.PUBLISHED,
+                )
             )
-        }
 
-        val savedProducts = productRepository.saveAll(products).toList()
-
-        val variants = mutableListOf<ProductVariant>()
-        savedProducts.forEachIndexed { index, product ->
-            if (index < 10) {
-                // Create 3 variants for the first 10 products
-                val variantTitles = listOf("Small", "Medium", "Large")
-                variantTitles.forEach { title ->
-                    variants.add(
-                        ProductVariant(
-                            product = product,
-                            title = title,
-                            sku = "${product.slug}-${title.lowercase()}",
-                            priceCents = Random.nextLong(5_000_00L, 50_000_00L),
-                            inventoryCount = Random.nextInt(10, 100),
-                        )
-                    )
-                }
-            } else {
-                // Create 1 default variant for the remaining products
-                variants.add(
+            seed.variants.forEach { v ->
+                productVariantRepository.save(
                     ProductVariant(
                         product = product,
-                        title = "Default",
-                        sku = "${product.slug}-default",
-                        priceCents = Random.nextLong(5_000_00L, 50_000_00L),
-                        inventoryCount = Random.nextInt(10, 100),
+                        title = v.title,
+                        sku = v.sku,
+                        priceCents = v.priceCents,
+                        inventoryCount = v.inventoryCount,
                     )
                 )
             }
         }
-        productVariantRepository.saveAll(variants)
     }
 }

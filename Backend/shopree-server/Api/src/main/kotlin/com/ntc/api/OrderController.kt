@@ -1,6 +1,7 @@
 package com.ntc.api
 
 import com.ntc.api.payload.error.NotFoundErrorResponse
+import com.ntc.api.payload.request.UpdateOrderStatusRequest
 import com.ntc.domain.model.User
 import com.ntc.service.OrderService
 import com.ntc.service.dto.OrderSummaryResponse
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -60,6 +62,38 @@ class OrderController(
             ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 NotFoundErrorResponse(e.message ?: "Order not found")
             )
+        }
+    }
+
+    @GetMapping("/vendor/orders")
+    fun getVendorOrders(authentication: Authentication): ResponseEntity<List<OrderSummaryResponse>> {
+        val user = authentication.principal as User
+        return ResponseEntity.ok(orderService.getOrdersByVendor(user.id!!))
+    }
+
+    @PatchMapping("/vendor/orders/{id}/status")
+    fun setOrderStatus(
+        @Valid @RequestBody request: UpdateOrderStatusRequest,
+        @PathVariable id: UUID,
+        authentication: Authentication
+    ): ResponseEntity<Any> {
+        val user = authentication.principal as User
+        return try {
+            orderService.updateOrderStatus(user.id!!, id, request.status)
+            ResponseEntity.noContent().build()
+        } catch(e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body("Malformed request ${e.message}")
+        }
+    }
+
+    @GetMapping("/vendor/order/{id}")
+    fun getVendorOrder(authentication: Authentication ,@PathVariable id: UUID): ResponseEntity<Any> {
+        val user = authentication.principal as User
+        return try {
+            val order = orderService.getVendorOrder(user.id!!, id)
+            ResponseEntity.ok(order)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body("Malformed request ${e.message}")
         }
     }
 }

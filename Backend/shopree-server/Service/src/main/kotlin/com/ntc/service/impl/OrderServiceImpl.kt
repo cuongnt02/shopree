@@ -6,6 +6,7 @@ import com.ntc.data.PaymentRepository
 import com.ntc.data.ProductRepository
 import com.ntc.data.ProductVariantRepository
 import com.ntc.data.UserRepository
+import com.ntc.data.VendorRepository
 import com.ntc.domain.model.Order
 import com.ntc.domain.model.OrderItem
 import com.ntc.domain.model.Payment
@@ -29,8 +30,9 @@ class OrderServiceImpl(
     private val productRepository: ProductRepository,
     private val productVariantRepository: ProductVariantRepository,
     private val paymentRepository: PaymentRepository,
-    private val orderRepository: OrderRepository
-    ) : OrderService {
+    private val orderRepository: OrderRepository,
+    private val vendorRepository: VendorRepository,
+) : OrderService {
     @Transactional
     override fun placeOrder(
         userId: UUID,
@@ -93,6 +95,43 @@ class OrderServiceImpl(
     override fun getOrder(userId: UUID, orderId: UUID): OrderResponse {
         val order = orderRepository.findByIdAndUserId(orderId, userId) ?: throw IllegalArgumentException("Order not found.")
         val payment = paymentRepository.findByOrderId(orderId)
+        return order.toOrderResponse(payment)
+    }
+
+    override fun getOrdersByVendor(userId: UUID): List<OrderSummaryResponse> {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("No vendor found for this user")
+        return orderRepository.findAllByVendorId(vendor.id!!).map { it.toOrderSummaryResponse() }
+    }
+
+    @Transactional
+    override fun updateOrderStatus(userId: UUID, orderId: UUID, newStatus: String) {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("No vendor found for this user")
+        val order = orderRepository.findByIdAndVendorId(orderId, vendor.id!!)
+            ?: throw IllegalArgumentException("No order found for this vendor")
+        val status = Order.Status.valueOf(newStatus)
+        val allowedTransitions = mapOf(
+            Order.Status.PENDING_PAYMENT to setOf(Order.Status.PAID, Order.Status.CANCELLED),
+            Order.Status.PAID to setOf(Order.Status.READY_FOR_PICKUP),
+            Order.Status.READY_FOR_PICKUP to setOf(Order.Status.PICKED_UP)
+        )
+        val allowed = allowedTransitions[order.status] ?: emptySet()
+        if (status !in allowed) {
+            throw IllegalArgumentException("Cannot transition order from ${order.status} to $status")
+        }
+        order.status = status
+        orderRepository.save(order)
+    }
+
+    @Transactional
+    override fun getVendorOrder(userId: UUID, orderId: UUID): OrderResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("No vendor found for this user")
+        val order = orderRepository.findByIdAndVendorId(orderId, vendor.id!!)
+            ?: throw IllegalArgumentException("No order found for vendor")
+        val payment = paymentRepository.findByOrderId(order.id!!)
+            ?: throw IllegalArgumentException("No payment info found for this order")
         return order.toOrderResponse(payment)
     }
 

@@ -8,4 +8,5 @@ import java.util.UUID
 @Repository
 interface VendorRepository : CrudRepository<Vendor, UUID> {
     fun getVendorBySlug(slug: String): Vendor?
+    fun findByOwnerUserId(ownerUserId: UUID): Vendor?
 }

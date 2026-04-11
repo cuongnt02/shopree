@@ -16,4 +16,7 @@ interface ProductRepository : CrudRepository<Product, UUID> {
 
     @Query("SELECT p FROM Product p WHERE p.category.slug = :slug")
     fun findByCategorySlug(@Param("slug") slug: String): List<Product>
+    fun findByVendorId(vendorId: UUID): List<Product>
+    @Query("SELECT p FROM Product p WHERE p.id = :id and p.vendor.id = :vendorId")
+    fun findByIdAndVendorId(@Param("id") id: UUID, @Param("vendorId") vendorId: UUID): Product?
 }
