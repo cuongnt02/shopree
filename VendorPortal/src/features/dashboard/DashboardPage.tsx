@@ -1,10 +1,8 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useOrders} from "@/features/orders/useOrders.ts";
+import {formatVnd} from "@/lib/currency.ts";
 
-function formatVnd(cents: number) {
-    return Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(cents)
-}
 
 function StatCard({label, value}: { label: string, value: string }) {
     return (

@@ -8,6 +8,7 @@ import {useState} from "react";
 import {useOrderDetail} from "@/features/orders/useOrderDetail.ts";
 import {Sheet, SheetContent, SheetHeader, SheetTitle} from "@/components/ui/sheet.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {formatVnd} from "@/lib/currency.ts";
 
 const statusVariant: Record<OrderStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     PENDING_PAYMENT: 'outline',
@@ -31,9 +32,6 @@ const nextActions: Partial<Record<OrderStatus, { label: string, status: OrderSta
     ]
 }
 
-function formatVnd(cents: number) {
-    return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(cents)
-}
 
 export function OrdersPage() {
     const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -89,7 +87,7 @@ export function OrdersPage() {
                 </TableBody>
             </Table>
             <Sheet open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-                <SheetContent className="w-[480px] sm:max-w-[480px] overflow-y-auto">
+                <SheetContent className="w-120 sm:max-w-120 overflow-y-auto">
                     {isDetailPending || !detail ? (
                         <div className="space-y-4 mt-6">
                             <Skeleton className="h-6 w-40"/>

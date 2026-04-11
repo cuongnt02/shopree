@@ -4,6 +4,7 @@ import {OrdersPage} from "@/features/orders/OrdersPage.tsx";
 import {ProtectedRoute} from "@/components/ProtectedRoute.tsx";
 import {LoginPage} from "@/features/auth/LoginPage.tsx";
 import {DashboardPage} from "@/features/dashboard/DashboardPage.tsx";
+import {ProductsPage} from "@/features/products/ProductsPage.tsx";
 
 function ProtectedLayout() {
     return (
@@ -22,7 +23,7 @@ export default function App() {
             <Route element={<ProtectedLayout/>}>
                 <Route path="/" element={<DashboardPage/>}/>
                 <Route path="/orders" element={<OrdersPage/>}/>
-                <Route path="/products" element={<div>Products</div>}/>
+                <Route path="/products" element={<ProductsPage />}/>
             </Route>
         </Routes>
 
