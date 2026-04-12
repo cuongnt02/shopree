@@ -53,11 +53,40 @@ class Vendor (
 
     var updatedAt: Instant = Instant.now(),
 ) {
+
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null
 
     enum class Status {
         PENDING, APPROVED, REJECTED, SUSPENDED
+    }
+
+    fun copy(
+    ownerUser: User? = this.ownerUser,
+    vendorName: String = this.vendorName,
+    slug: String = this.slug,
+    description: String? = this.description,
+    status: Status = this.status,
+    location: Point? = this.location,
+    address: Map<String, Any>? = this.address,
+    pickupAvailable: Boolean = this.pickupAvailable,
+    localDeliveryRadiusKm: Int = this.localDeliveryRadiusKm
+    ): Vendor {
+        val copy = Vendor(
+            ownerUser = ownerUser,
+            vendorName = vendorName,
+            slug = slug,
+            description = description,
+            status = status,
+            location = location,
+            address = address,
+            pickupAvailable = pickupAvailable,
+            localDeliveryRadiusKm = localDeliveryRadiusKm,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt
+        )
+        copy.id = this.id
+        return copy
     }
 }

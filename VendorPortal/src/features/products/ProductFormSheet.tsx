@@ -6,11 +6,13 @@ import {useForm, useWatch} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect} from "react";
 import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle} from "@/components/ui/sheet.tsx";
-import {Label} from "@/components/ui/label.tsx";
-import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {ShopreeSelect} from "@/components/shopree/ShopreeSelect.tsx";
 import {ShopreeCheckbox} from "@/components/shopree/ShopreeCheckbox.tsx";
+import {Field, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Textarea} from "@/components/ui/textarea.tsx";
+import {InputGroup, InputGroupAddon, InputGroupInput, InputGroupText} from "@/components/ui/input-group.tsx";
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -66,22 +68,16 @@ export function ProductFormSheet({open, onClose, product}: ProductFormSheetProps
         if (!isEdit) {
             setValue('slug', title.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, ''))
         }
-    }, [title, isEdit, setValue]);
+    }, [title, isEdit, setValue])
 
     const onSubmit = (data: FormValues) => {
         if (isEdit) {
             update.mutate({id: product.id, data}, {
-                onSuccess: () => {
-                    onClose();
-                    reset()
-                }
+                onSuccess: () => { onClose(); reset() }
             })
         } else {
             create.mutate(data, {
-                onSuccess: () => {
-                    onClose();
-                    reset()
-                }
+                onSuccess: () => { onClose(); reset() }
             })
         }
     }
@@ -92,44 +88,51 @@ export function ProductFormSheet({open, onClose, product}: ProductFormSheetProps
                 <SheetHeader className="mb-6">
                     <SheetTitle>{isEdit ? 'Edit Product' : 'New Product'}</SheetTitle>
                 </SheetHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-1">
-                    <div className="space-y-1">
-                        <Label>Title</Label>
-                        <Input {...register('title')} />
-                        {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Slug</Label>
-                        <Input {...register('slug')} />
-                        {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Category Slug</Label>
-                        <Input {...register('categorySlug')} placeholder="e.g electronics"/>
-                    </div>
-                    <div className="space-y-1">
-                        <Label>Price (VND)</Label>
-                        <Input type="number"
-                               {...register('priceCents', {valueAsNumber: true})} />
-                        {errors.priceCents && <p className="text-sm text-destructive">{errors.priceCents.message}</p> }
-                    </div>
-                    <div className="space-y-1">
+                <form onSubmit={handleSubmit(onSubmit)} className="px-1">
+                    <FieldGroup>
+                        <Field data-invalid={!!errors.title}>
+                            <FieldLabel>Title</FieldLabel>
+                            <Input {...register('title')} />
+                            <FieldError errors={[errors.title]}/>
+                        </Field>
+                        <Field data-invalid={!!errors.slug}>
+                            <FieldLabel>Slug</FieldLabel>
+                            <Input {...register('slug')} />
+                            <FieldError errors={[errors.slug]}/>
+                        </Field>
+                        <Field>
+                            <FieldLabel>Description</FieldLabel>
+                            <Textarea {...register('description')} rows={3}/>
+                        </Field>
+                        <Field>
+                            <FieldLabel>Category Slug</FieldLabel>
+                            <Input {...register('categorySlug')} placeholder="e.g. electronics"/>
+                        </Field>
+                        <Field data-invalid={!!errors.priceCents}>
+                            <FieldLabel>Price</FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput type="number"
+                                                 {...register('priceCents', {valueAsNumber: true})}/>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupText>₫</InputGroupText>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <FieldError errors={[errors.priceCents]}/>
+                        </Field>
                         <ShopreeSelect control={control} name="status" label="Status" options={[
-                            { value: 'DRAFT', label: 'Draft' },
-                            { value: 'PUBLISHED', label: 'Published' },
-                            { value: 'DISABLED', label: 'Disabled' },
-                            { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
-                        ]} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <ShopreeCheckbox control={control} name="pickupAvailable" label="Pickup available" />
-                    </div>
-                    <SheetFooter>
-                        <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? 'Saving...' : isEdit ? 'Save' : 'Create'}
-                        </Button>
-                    </SheetFooter>
+                            {value: 'DRAFT', label: 'Draft'},
+                            {value: 'PUBLISHED', label: 'Published'},
+                            {value: 'DISABLED', label: 'Disabled'},
+                            {value: 'PENDING_APPROVAL', label: 'Pending Approval'},
+                        ]}/>
+                        <ShopreeCheckbox control={control} name="pickupAvailable" label="Pickup available"/>
+                        <SheetFooter>
+                            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? 'Saving...' : isEdit ? 'Save' : 'Create'}
+                            </Button>
+                        </SheetFooter>
+                    </FieldGroup>
                 </form>
             </SheetContent>
         </Sheet>
