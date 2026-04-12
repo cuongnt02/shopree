@@ -5,7 +5,7 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem
 } from "@/components/ui/sidebar.tsx";
-import {LayoutDashboard, Package, ShoppingBag} from "lucide-react";
+import {LayoutDashboard, Package, ShoppingBag, Store} from "lucide-react";
 import {NavLink, useLocation} from "react-router";
 
 export function AppSidebar() {
@@ -15,6 +15,7 @@ export function AppSidebar() {
         {title: "Dashboard", url: "/", icon: LayoutDashboard},
         {title: "Orders", url: "/orders", icon: ShoppingBag},
         {title: "Products", url: "/products", icon: Package},
+        {title: "Store Profile", url: '/profile', icon: Store}
     ]
     return (
         <Sidebar>

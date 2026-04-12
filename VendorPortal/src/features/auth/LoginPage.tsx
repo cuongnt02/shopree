@@ -1,12 +1,12 @@
 import {z} from "zod";
 import {useAuth} from "@/features/auth/AuthContext.tsx";
 import {useNavigate} from "react-router";
-import {Controller, useForm} from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useMutation} from "@tanstack/react-query";
 import {login} from "@/features/auth/api.ts";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {Field, FieldError, FieldLabel} from "@/components/ui/field.tsx";
+import {Field, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 
@@ -25,6 +25,7 @@ export function LoginPage() {
         resolver: zodResolver(schema),
         defaultValues: {email: '', password: ''},
     })
+    const {register, handleSubmit, formState: {errors}} = form
 
     const mutation = useMutation({
         mutationFn: login,
@@ -48,38 +49,29 @@ export function LoginPage() {
                     <CardTitle className="text-xl">Vendor Portal</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
-                        <Controller name="email" control={form.control} render={({field, fieldState}) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                                <Input {...field} id={field.name} type="email" placeholder="vendor@example.com"
-                                       aria-invalid={fieldState.invalid}/>
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
+                    <form onSubmit={handleSubmit((v) => mutation.mutate(v))}>
+                        <FieldGroup>
+                            <Field data-invalid={!!errors.email}>
+                                <FieldLabel>Email</FieldLabel>
+                                <Input {...register('email')} type="email" placeholder="vendor@example.com"
+                                       aria-invalid={!!errors.email}/>
+                                <FieldError errors={[errors.email]}/>
                             </Field>
-                        )}/>
-                        <Controller name="password" control={form.control} render={({field, fieldState}) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="password"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            <Field data-invalid={!!errors.password}>
+                                <FieldLabel>Password</FieldLabel>
+                                <Input {...register('password')} type="password" aria-invalid={!!errors.password}/>
+                                <FieldError errors={[errors.password]}/>
                             </Field>
-                        )} />
-                        {form.formState.errors.root && (
-                            <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
-                        )}
-                        <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                            {mutation.isPending ? 'Signing in...' : 'Sign in'}
-                        </Button>
+                            {errors.root && (
+                                <p className="text-sm text-destructive">{errors.root.message}</p>
+                            )}
+                            <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                                {mutation.isPending ? 'Signing in...' : 'Sign in'}
+                            </Button>
+                        </FieldGroup>
                     </form>
                 </CardContent>
             </Card>
         </div>
     )
-
-
 }
