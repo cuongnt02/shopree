@@ -50,4 +50,30 @@ class ProductVariant(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null
+
+    fun copy(
+        product: Product = this.product,
+        title: String? = this.title,
+        sku: String? = this.sku,
+        priceCents: Long = this.priceCents,
+        compareAtCents: Long? = this.compareAtCents,
+        inventoryCount: Int = this.inventoryCount,
+        inventoryPolicy: String = this.inventoryPolicy,
+        metadata: Map<String, Any> = this.metadata,
+    ): ProductVariant {
+        val copy = ProductVariant(
+            product = product,
+            title = title,
+            sku = sku,
+            priceCents = priceCents,
+            compareAtCents = compareAtCents,
+            inventoryCount = inventoryCount,
+            inventoryPolicy = inventoryPolicy,
+            metadata = metadata,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt
+        )
+        copy.id = this.id
+        return copy
+    }
 }

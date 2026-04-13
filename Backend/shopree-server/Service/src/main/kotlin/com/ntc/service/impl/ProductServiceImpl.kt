@@ -9,9 +9,12 @@ import com.ntc.domain.model.ProductVariant
 import com.ntc.service.ProductService
 import com.ntc.service.dto.CreateProductRequest
 import com.ntc.service.dto.ProductResponse
+import com.ntc.service.dto.ProductVariantResponse
 import com.ntc.service.dto.UpdateProductRequest
+import com.ntc.service.dto.VariantRequest
 import com.ntc.service.dto.VendorProductResponse
 import com.ntc.service.dto.toProductResponse
+import com.ntc.service.dto.toProductVariantResponse
 import com.ntc.service.dto.toVendorProductResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -105,5 +108,74 @@ class ProductServiceImpl(
             productVariantRepository.save(variant)
         }
         return updatedProduct.toVendorProductResponse()
+    }
+
+    override fun getProductVariants(
+        userId: UUID,
+        productId: UUID
+    ): List<ProductVariantResponse> {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("Vendor not found for user")
+        productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+        return productVariantRepository.findAllByProductId(productId)
+            .map { it.toProductVariantResponse() }
+    }
+
+    @Transactional
+    override fun addVariant(
+        userId: UUID,
+        productId: UUID,
+        request: VariantRequest
+    ): ProductVariantResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("Vendor not found for user")
+        val product = productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+        val variant = ProductVariant(
+            product = product,
+            title = request.title,
+            sku = request.sku,
+            priceCents = request.priceCents,
+            compareAtCents = request.compareAtCents,
+            inventoryCount = request.inventoryCount,
+        )
+        productVariantRepository.save(variant)
+        return variant.toProductVariantResponse()
+    }
+
+    @Transactional
+    override fun updateVariant(
+        userId: UUID,
+        productId: UUID,
+        variantId: UUID,
+        request: VariantRequest
+    ): ProductVariantResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("Vendor not found for user")
+        productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+        val variant = productVariantRepository.findByIdAndProductId(variantId, productId)
+            ?: throw IllegalArgumentException("Variant not found for product")
+        val updatedVariant = variant.copy(
+            title = request.title,
+            sku = request.sku,
+            priceCents = request.priceCents,
+            compareAtCents = request.compareAtCents,
+            inventoryCount = request.inventoryCount,
+        )
+        productVariantRepository.save(updatedVariant)
+        return updatedVariant.toProductVariantResponse()
+    }
+
+    @Transactional
+    override fun deleteVariant(userId: UUID, productId: UUID, variantId: UUID) {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("Vendor not found for user")
+        productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+        productVariantRepository.findByIdAndProductId(variantId, productId)
+            ?: throw IllegalArgumentException("Variant not found for product")
+        productVariantRepository.deleteById(variantId)
     }
 }

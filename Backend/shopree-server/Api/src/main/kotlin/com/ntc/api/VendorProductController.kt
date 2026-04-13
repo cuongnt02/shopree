@@ -3,14 +3,16 @@ package com.ntc.api
 import com.ntc.domain.model.User
 import com.ntc.service.ProductService
 import com.ntc.service.dto.CreateProductRequest
+import com.ntc.service.dto.ProductVariantResponse
 import com.ntc.service.dto.UpdateProductRequest
+import com.ntc.service.dto.VariantRequest
 import com.ntc.service.dto.VendorProductResponse
 import jakarta.validation.Valid
-import org.apache.coyote.Response
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -40,7 +42,7 @@ class VendorProductController(private val productService: ProductService) {
         return try {
             val response = productService.createProduct(user.id!!, request)
             ResponseEntity.status(HttpStatus.CREATED).body(response)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             ResponseEntity.badRequest().build()
         }
     }
@@ -51,8 +53,49 @@ class VendorProductController(private val productService: ProductService) {
         return try {
             val response = productService.updateProduct(user.id!!, id, request)
             ResponseEntity.ok(response)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             ResponseEntity.badRequest().build()
+        }
+    }
+
+    @GetMapping("/products/{productId}/variants")
+    fun getVariants(authentication: Authentication, @PathVariable productId: UUID): ResponseEntity<List<ProductVariantResponse>> {
+        val user = authentication.principal as User
+        return try {
+            ResponseEntity.ok(productService.getProductVariants(user.id!!, productId))
+        } catch (_: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @PostMapping("/products/{productId}/variants")
+    fun addVariant(authentication: Authentication, @PathVariable productId: UUID, @Valid @RequestBody request: VariantRequest): ResponseEntity<ProductVariantResponse> {
+        val user = authentication.principal as User
+        return try {
+            ResponseEntity.ok(productService.addVariant(user.id!!, productId, request))
+        } catch (_: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @PutMapping("/products/{productId}/variants/{variantId}")
+    fun updateVariant(authentication: Authentication, @PathVariable productId: UUID, @PathVariable variantId: UUID, @Valid @RequestBody request: VariantRequest): ResponseEntity<ProductVariantResponse> {
+        val user = authentication.principal as User
+        return try {
+            ResponseEntity.ok(productService.updateVariant(user.id!!, productId, variantId, request))
+        } catch (_: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("/products/{productId}/variants/{variantId}")
+    fun deleteVariant(authentication: Authentication, @PathVariable productId: UUID, @PathVariable variantId: UUID): ResponseEntity<Void> {
+        val user = authentication.principal as User
+        return try {
+            productService.deleteVariant(user.id!!, productId, variantId)
+            ResponseEntity.noContent().build()
+        } catch (_: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
         }
     }
 }
