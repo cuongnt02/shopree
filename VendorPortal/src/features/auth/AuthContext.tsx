@@ -16,7 +16,13 @@ const STORAGE_KEY = 'vendor_auth'
 function loadTokens(): AuthTokens | null {
     try {
         const raw = localStorage.getItem(STORAGE_KEY)
-        return raw ? (JSON.parse(raw) as AuthTokens) : null
+        if (!raw) return null
+        const tokens = JSON.parse(raw) as AuthTokens
+        if (Date.now() > tokens.expiresAt) {
+            localStorage.removeItem(STORAGE_KEY)
+            return null
+        }
+        return tokens
     } catch {
         return null
     }
@@ -36,7 +42,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     }, [])
 
     return (
-            <AuthContext.Provider value={{ tokens, saveTokens, clearTokens, isAuthenticated: !!tokens}}>
+            <AuthContext.Provider value={{ tokens, saveTokens, clearTokens, isAuthenticated: !!tokens && Date.now() < tokens.expiresAt}}>
                 {children}
             </AuthContext.Provider>
     )

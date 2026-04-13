@@ -20,3 +20,20 @@ export interface ProductFormData {
     pickupAvailable: boolean
     priceCents: number
 }
+
+export interface ProductVariant {
+    id: string
+    title: string | null
+    sku: string | null
+    priceCents: number
+    compareAtCents: number | null
+    inventoryCount: number
+}
+
+export interface VariantFormData {
+    title: string
+    sku: string
+    priceCents: number
+    compareAtCents: number
+    inventoryCount: number
+}

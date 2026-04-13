@@ -1,15 +1,23 @@
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem
 } from "@/components/ui/sidebar.tsx";
-import {LayoutDashboard, Package, ShoppingBag, Store} from "lucide-react";
-import {NavLink, useLocation} from "react-router";
+import {LayoutDashboard, LogOut, Package, ShoppingBag, Store} from "lucide-react";
+import {NavLink, useLocation, useNavigate} from "react-router";
+import {useAuth} from "@/features/auth/AuthContext.tsx";
+import {logout} from "@/features/auth/api.ts";
 
 export function AppSidebar() {
     const location = useLocation()
+    const navigate = useNavigate()
+    const {tokens, clearTokens} = useAuth()
 
     const items = [
         {title: "Dashboard", url: "/", icon: LayoutDashboard},
@@ -17,6 +25,16 @@ export function AppSidebar() {
         {title: "Products", url: "/products", icon: Package},
         {title: "Store Profile", url: '/profile', icon: Store}
     ]
+
+    async function handleLogout() {
+        try {
+            if (tokens?.refreshToken) await logout(tokens.refreshToken)
+        } finally {
+            clearTokens()
+            navigate('/login', {replace: true})
+        }
+    }
+
     return (
         <Sidebar>
             <SidebarContent>
@@ -38,6 +56,16 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={handleLogout}>
+                            <LogOut/>
+                            <span>Logout</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     );
 }
