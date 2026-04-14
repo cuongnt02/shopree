@@ -1,8 +1,9 @@
 import type {OrderDetail, OrderSummary} from "@/types/order.ts";
 import {api} from "@/lib/axios.ts";
 
-export async function fetchOrders(): Promise<OrderSummary[]> {
-    const {data} = await api.get<OrderSummary[]>('/api/v1/vendor/orders')
+export async function fetchOrders(status?: string): Promise<OrderSummary[]> {
+    const params = status ? `?status=${status}` : ''
+    const {data} = await api.get<OrderSummary[]>(`/api/v1/vendor/orders${params}`)
     return data
 }
 

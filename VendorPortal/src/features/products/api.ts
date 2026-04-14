@@ -1,8 +1,10 @@
 import type {ProductFormData, ProductVariant, VariantFormData, VendorProduct} from "@/types/product.ts";
 import {api} from "@/lib/axios.ts";
+import type {Category} from "@/types/category.ts";
 
-export async function fetchVendorProducts(): Promise<VendorProduct[]> {
-    const {data} = await api.get<VendorProduct[]>('/api/v1/vendor/products')
+export async function fetchVendorProducts(status?: string): Promise<VendorProduct[]> {
+    const params = status ? `?status=${status}` : ''
+    const {data} = await api.get<VendorProduct[]>(`/api/v1/vendor/products${params}`)
     return data
 }
 
@@ -43,4 +45,9 @@ export async function updateVariant(productId: string, variantId: string, data: 
 
 export async function deleteVariant(productId: string, variantId: string): Promise<void> {
     await api.delete(`/api/v1/vendor/products/${productId}/variants/${variantId}`)
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+    const {data} = await api.get<Category[]>('/api/v1/categories')
+    return data
 }

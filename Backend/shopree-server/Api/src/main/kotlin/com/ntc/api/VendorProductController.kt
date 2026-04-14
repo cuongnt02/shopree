@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -26,10 +27,10 @@ import java.util.UUID
 @RequestMapping("/api/v1/vendor", produces = [MediaType.APPLICATION_JSON_VALUE])
 class VendorProductController(private val productService: ProductService) {
     @GetMapping("/products")
-    fun getProducts(authentication: Authentication): ResponseEntity<List<VendorProductResponse>> {
+    fun getProducts(@RequestParam(required = false) status: String?, authentication: Authentication): ResponseEntity<List<VendorProductResponse>> {
         val user = authentication.principal as User
         return try {
-            val products = productService.getVendorProducts(user.id!!)
+            val products = productService.getVendorProducts(user.id!!, status)
             ResponseEntity.ok(products)
         } catch (_: IllegalArgumentException) {
             ResponseEntity.notFound().build()

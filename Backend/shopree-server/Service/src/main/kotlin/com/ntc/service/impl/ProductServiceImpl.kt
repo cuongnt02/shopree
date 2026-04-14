@@ -47,11 +47,16 @@ class ProductServiceImpl(
         return productRepository.findByCategorySlug(categorySlug).map { it.toProductResponse() }
     }
 
-    override fun getVendorProducts(userId: UUID): List<VendorProductResponse> {
+    override fun getVendorProducts(userId: UUID, status: String?): List<VendorProductResponse> {
         val vendor = vendorRepository.findByOwnerUserId(userId)
             ?: throw IllegalArgumentException("Vendor not found from user")
-        val products = productRepository.findByVendorId(vendor.id!!)
-        return products.map { product -> product.toVendorProductResponse() }
+        val products = if (status != null) {
+            val statusEnum = Product.Status.valueOf(status)
+            productRepository.findByVendorIdAndStatus(vendor.id!!, statusEnum)
+        } else {
+            productRepository.findByVendorId(vendor.id!!)
+        }
+        return products.map { it.toVendorProductResponse() }
     }
 
     @Transactional

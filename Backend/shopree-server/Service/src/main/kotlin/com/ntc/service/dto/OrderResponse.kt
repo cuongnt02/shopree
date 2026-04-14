@@ -13,8 +13,15 @@ data class OrderResponse(
     val currency: String,
     val placedAt: Instant,
     val items: List<OrderItemResponse>,
-    val payment: PaymentResponse?
-)
+    val payment: PaymentResponse?,
+    val customer: CustomerInfo
+) {
+    data class CustomerInfo(
+        val id: String,
+        val name: String,
+        val email: String
+    )
+}
 
 fun Order.toOrderResponse(payment: Payment?) = OrderResponse(
     id = id,
@@ -24,7 +31,12 @@ fun Order.toOrderResponse(payment: Payment?) = OrderResponse(
     currency = currency,
     placedAt = placedAt,
     items = items.map { it.toOrderItemResponse() },
-    payment = payment?.toPaymentResponse()
+    payment = payment?.toPaymentResponse(),
+    customer = OrderResponse.CustomerInfo(
+        id = this.user.id.toString(),
+        name = this.user.name,
+        email = this.user.email
+    )
 )
 
 

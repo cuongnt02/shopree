@@ -42,5 +42,12 @@ export interface OrderDetail {
     currency: string
     placedAt: string
     items: OrderItem[]
-    payment: OrderPayment | null
+    payment: OrderPayment | null,
+    customer: OrderCustomer
+}
+
+export interface OrderCustomer {
+    id: string
+    name: string
+    email: string
 }

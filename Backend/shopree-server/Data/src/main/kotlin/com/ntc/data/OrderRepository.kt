@@ -15,6 +15,10 @@ interface OrderRepository: CrudRepository<Order, UUID> {
     fun existsByOrderNumber(orderNumber: String): Boolean
     @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i JOIN i.variant v JOIN v.product p WHERE p.vendor.id = :vendorId")
     fun findAllByVendorId(vendorId: UUID): List<Order>
+
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i JOIN i.variant v JOIN v.product p WHERE p.vendor.id = :vendorId AND o.status = :status")
+    fun findAllByVendorIdAndStatus(vendorId: UUID, status: Order.Status): List<Order>
     @Query("SELECT o FROM Order o JOIN o.items i JOIN i.variant v JOIN v.product p WHERE o.id = :orderId AND p.vendor.id = :vendorId")
     fun findByIdAndVendorId(orderId: UUID, vendorId: UUID): Order?
+    fun status(status: Order.Status): MutableList<Order>
 }

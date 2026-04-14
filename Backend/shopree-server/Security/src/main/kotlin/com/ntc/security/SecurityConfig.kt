@@ -52,7 +52,7 @@ class SecurityConfig(
                     logger.warn("============================================================")
                     authorize(anyRequest, permitAll)
                 } else {
-                    authorize("/api/v1/categories", hasAuthority("BUYER"))
+                    authorize("/api/v1/categories", hasAnyAuthority("BUYER", "VENDOR_USER"))
                     authorize("/api/v1/products", hasAuthority("BUYER"))
                     authorize("/api/v1/product/**", hasAuthority("BUYER"))
                     authorize("/api/v1/orders", hasAnyAuthority("BUYER", "VENDOR_USER"))

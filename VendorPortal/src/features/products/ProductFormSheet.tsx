@@ -13,6 +13,7 @@ import {Field, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field.t
 import {Input} from "@/components/ui/input.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {InputGroup, InputGroupAddon, InputGroupInput, InputGroupText} from "@/components/ui/input-group.tsx";
+import {useCategories} from "@/features/products/useCategories.ts";
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -33,6 +34,7 @@ interface ProductFormSheetProps {
 }
 
 export function ProductFormSheet({open, onClose, product}: ProductFormSheetProps) {
+    const {data: categories, isPending: categoriesLoading } = useCategories()
     const isEdit = product !== undefined
     const create = useCreateProduct()
     const update = useUpdateProduct()
@@ -104,10 +106,10 @@ export function ProductFormSheet({open, onClose, product}: ProductFormSheetProps
                             <FieldLabel>Description</FieldLabel>
                             <Textarea {...register('description')} rows={3}/>
                         </Field>
-                        <Field>
-                            <FieldLabel>Category Slug</FieldLabel>
-                            <Input {...register('categorySlug')} placeholder="e.g. electronics"/>
-                        </Field>
+                        <ShopreeSelect control={control} name="categorySlug" label="Category"
+                                       placeholder={categoriesLoading ? 'Loading categories...': 'Select a category'} options={[
+                            ...(categories?.map(c => ({value: c.slug, label: c.name})) ?? [])
+                        ]}/>
                         <Field data-invalid={!!errors.priceCents}>
                             <FieldLabel>Price</FieldLabel>
                             <InputGroup>
