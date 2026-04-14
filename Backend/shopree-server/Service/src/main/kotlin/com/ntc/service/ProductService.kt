@@ -13,7 +13,7 @@ interface ProductService {
     fun getProducts(): List<ProductResponse>
     fun getProductsByName(name: String): List<ProductResponse>
     fun getProductsByCategory(categorySlug: String): List<ProductResponse>
-    fun getVendorProducts(userId: UUID): List<VendorProductResponse>
+    fun getVendorProducts(userId: UUID, status: String?): List<VendorProductResponse>
     fun createProduct(userId: UUID, request: CreateProductRequest): VendorProductResponse
     fun updateProduct(userId: UUID, productId: UUID, request: UpdateProductRequest): VendorProductResponse
     fun getProductVariants(userId: UUID, productId: UUID): List<ProductVariantResponse>

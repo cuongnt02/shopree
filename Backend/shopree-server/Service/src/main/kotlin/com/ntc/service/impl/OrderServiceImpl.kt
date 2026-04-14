@@ -1,6 +1,5 @@
 package com.ntc.service.impl
 
-import com.ntc.data.OrderItemRepository
 import com.ntc.data.OrderRepository
 import com.ntc.data.PaymentRepository
 import com.ntc.data.ProductRepository
@@ -98,10 +97,16 @@ class OrderServiceImpl(
         return order.toOrderResponse(payment)
     }
 
-    override fun getOrdersByVendor(userId: UUID): List<OrderSummaryResponse> {
+    override fun getOrdersByVendor(userId: UUID, status: String?): List<OrderSummaryResponse> {
         val vendor = vendorRepository.findByOwnerUserId(userId)
             ?: throw IllegalArgumentException("No vendor found for this user")
-        return orderRepository.findAllByVendorId(vendor.id!!).map { it.toOrderSummaryResponse() }
+        val orders = if (status != null) {
+            val statusEnum = Order.Status.valueOf(status)
+            orderRepository.findAllByVendorIdAndStatus(vendor.id!!, statusEnum)
+        } else {
+            orderRepository.findAllByVendorId(vendor.id!!)
+        }
+        return orders.map { it.toOrderSummaryResponse() }
     }
 
     @Transactional

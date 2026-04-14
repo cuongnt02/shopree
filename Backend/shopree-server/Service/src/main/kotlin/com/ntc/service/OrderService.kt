@@ -9,7 +9,7 @@ interface OrderService {
     fun placeOrder(userId: UUID, request: PlaceOrderRequest): OrderResponse
     fun getOrders(userId: UUID): List<OrderSummaryResponse>
     fun getOrder(userId: UUID, orderId: UUID): OrderResponse
-    fun getOrdersByVendor(userId: UUID): List<OrderSummaryResponse>
+    fun getOrdersByVendor(userId: UUID, status: String?): List<OrderSummaryResponse>
     fun updateOrderStatus(userId: UUID, orderId: UUID, newStatus: String)
     fun getVendorOrder(userId: UUID, orderId: UUID): OrderResponse
 }
