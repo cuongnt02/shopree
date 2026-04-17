@@ -5,6 +5,6 @@ export function useProductVariants(productId: string) {
     return useQuery({
         queryKey: ['variants', productId],
         queryFn: () => fetchVariants(productId),
-        enabled: productId !== null
+        enabled: productId !== ''
     })
 }

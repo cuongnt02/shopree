@@ -1,23 +1,29 @@
 package com.ntc.service.impl
 
 import com.ntc.data.CategoryRepository
+import com.ntc.data.ProductImageRepository
 import com.ntc.data.ProductRepository
 import com.ntc.data.ProductVariantRepository
 import com.ntc.data.VendorRepository
 import com.ntc.domain.model.Product
+import com.ntc.domain.model.ProductImage
 import com.ntc.domain.model.ProductVariant
+import com.ntc.service.ImageStorageService
 import com.ntc.service.ProductService
 import com.ntc.service.dto.CreateProductRequest
+import com.ntc.service.dto.ProductImageResponse
 import com.ntc.service.dto.ProductResponse
 import com.ntc.service.dto.ProductVariantResponse
 import com.ntc.service.dto.UpdateProductRequest
 import com.ntc.service.dto.VariantRequest
 import com.ntc.service.dto.VendorProductResponse
+import com.ntc.service.dto.toProductImageResponse
 import com.ntc.service.dto.toProductResponse
 import com.ntc.service.dto.toProductVariantResponse
 import com.ntc.service.dto.toVendorProductResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.io.InputStream
 import java.util.UUID
 
 @Service
@@ -26,7 +32,9 @@ class ProductServiceImpl(
     private val productRepository: ProductRepository,
     private val vendorRepository: VendorRepository,
     private val categoryRepository: CategoryRepository,
-    private val productVariantRepository: ProductVariantRepository
+    private val productVariantRepository: ProductVariantRepository,
+    private val imageStorageService: ImageStorageService,
+    private val productImageRepository: ProductImageRepository
 ) : ProductService {
     override fun getProducts(): List<ProductResponse> {
         val products = productRepository.findAll().toList()
@@ -57,6 +65,18 @@ class ProductServiceImpl(
             productRepository.findByVendorId(vendor.id!!)
         }
         return products.map { it.toVendorProductResponse() }
+    }
+
+    override fun getVendorProduct(
+        userId: UUID,
+        productId: UUID
+    ): VendorProductResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId)
+            ?: throw IllegalArgumentException("Vendor not found")
+        val product = productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found")
+        val images = productImageRepository.findByProductIdOrderByPosition(productId)
+        return product.toVendorProductResponse(images)
     }
 
     @Transactional
@@ -182,5 +202,91 @@ class ProductServiceImpl(
         productVariantRepository.findByIdAndProductId(variantId, productId)
             ?: throw IllegalArgumentException("Variant not found for product")
         productVariantRepository.deleteById(variantId)
+    }
+
+    @Transactional
+    override fun uploadProductImage(
+        userId: UUID,
+        productId: UUID,
+        inputStream: InputStream,
+        contentType: String,
+        size: Long,
+        altText: String?
+    ): ProductImageResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId) ?: throw IllegalArgumentException("Vendor not found")
+        val product = productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found")
+
+        val key = "products/${productId}/${UUID.randomUUID()}"
+        val url = imageStorageService.upload(key, inputStream, contentType, size)
+
+        val existingImages = productImageRepository.findByProductIdOrderByPosition(productId)
+        val position = existingImages.size
+        val image = productImageRepository.save(
+            ProductImage(
+                product = product,
+                url = url,
+                altText = altText,
+                position = position,
+            )
+        )
+
+        if (existingImages.isEmpty()) {
+            productRepository.save(product.copy(mainImage = url))
+        }
+
+        return image.toProductImageResponse()
+    }
+
+    @Transactional
+    override fun uploadVariantImage(
+        userId: UUID,
+        productId: UUID,
+        variantId: UUID,
+        inputStream: InputStream,
+        contentType: String,
+        size: Long,
+        altText: String?
+    ): ProductVariantResponse {
+        val vendor = vendorRepository.findByOwnerUserId(userId) ?: throw IllegalArgumentException("Vendor not found")
+        val product = productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found")
+        val variant = productVariantRepository.findByIdAndProductId(variantId, product.id!!) ?: throw IllegalArgumentException("Product variant not found for product")
+        if (variant.image != null) {
+            imageStorageService.delete(variant.image!!)
+        }
+        val key = "products/${productId}/variants/${variantId}/${UUID.randomUUID()}"
+        val url = imageStorageService.upload(key, inputStream, contentType, size)
+
+        variant.image = url;
+        productVariantRepository.save(variant)
+        return variant.toProductVariantResponse()
+    }
+
+    @Transactional
+    override fun deleteProductImage(userId: UUID, productId: UUID, imageId: UUID) {
+        val vendor = vendorRepository.findByOwnerUserId(userId) ?: throw IllegalArgumentException("Vendor not found")
+        val product = productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+        val image = productImageRepository.findById(imageId).orElseThrow { IllegalArgumentException("Image not found") }
+
+        imageStorageService.delete(image.url)
+        productImageRepository.delete(image)
+
+        if (product.mainImage == image.url) {
+            val remaining = productImageRepository.findByProductIdOrderByPosition(productId)
+            productRepository.save(product.copy(mainImage = remaining.firstOrNull()?.url))
+        }
+    }
+
+    override fun getProductImages(
+        userId: UUID,
+        productId: UUID
+    ): List<ProductImageResponse> {
+        val vendor = vendorRepository.findByOwnerUserId(userId) ?: throw IllegalArgumentException("Vendor not found")
+        productRepository.findByIdAndVendorId(productId, vendor.id!!)
+            ?: throw IllegalArgumentException("Product not found for vendor")
+
+        return productImageRepository.findByProductIdOrderByPosition(productId).map { it.toProductImageResponse() }
     }
 }

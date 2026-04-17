@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":Security"))
     implementation(project(":Api"))
     implementation(project(":Data"))
+    implementation(project(":Service"))
 }
 
 kotlin {

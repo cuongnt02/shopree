@@ -1,0 +1,1 @@
+ALTER TABLE shopree.product_variant ADD COLUMN image varchar(1024);

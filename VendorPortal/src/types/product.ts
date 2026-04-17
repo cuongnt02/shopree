@@ -9,6 +9,7 @@ export interface VendorProduct {
     mainImage: string | null
     pickupAvailable: boolean
     startingPriceCents: number | null
+    images: ProductImage[]
 }
 
 export interface ProductFormData {
@@ -28,6 +29,7 @@ export interface ProductVariant {
     priceCents: number
     compareAtCents: number | null
     inventoryCount: number
+    image: string | null
 }
 
 export interface VariantFormData {
@@ -36,4 +38,11 @@ export interface VariantFormData {
     priceCents: number
     compareAtCents: number
     inventoryCount: number
+}
+
+export interface ProductImage {
+    id: string
+    url: string
+    altText: string | null
+    position: number
 }
