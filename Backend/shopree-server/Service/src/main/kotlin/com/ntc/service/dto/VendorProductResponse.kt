@@ -1,6 +1,7 @@
 package com.ntc.service.dto
 
 import com.ntc.domain.model.Product
+import com.ntc.domain.model.ProductImage
 import com.ntc.domain.model.Vendor
 import java.util.UUID
 
@@ -12,10 +13,11 @@ data class VendorProductResponse(
     val category: String?,
     val mainImage: String?,
     val pickupAvailable: Boolean,
-    val startingPriceCents: Long?
+    val startingPriceCents: Long?,
+    val images: List<ProductImageResponse> = emptyList()
 )
 
-fun Product.toVendorProductResponse(): VendorProductResponse {
+fun Product.toVendorProductResponse(images: List<ProductImage> = emptyList()): VendorProductResponse {
     return VendorProductResponse(
         id = id,
         title = title,
@@ -24,6 +26,7 @@ fun Product.toVendorProductResponse(): VendorProductResponse {
         category = category?.name,
         mainImage = mainImage,
         pickupAvailable = pickupAvailable,
-        startingPriceCents = variants.firstOrNull()?.priceCents
+        startingPriceCents = variants.firstOrNull()?.priceCents,
+        images = images.map { it.toProductImageResponse() }
     )
 }

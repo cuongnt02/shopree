@@ -1,6 +1,8 @@
 package com.ntc.shopree
 
+import com.ntc.shopree.configurations.S3Properties
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
     scanBasePackages = ["com.ntc.shopree", "com.ntc.security", "com.ntc.api", "com.ntc.data", "com.ntc.service"]
 )
 @EnableJpaRepositories(basePackages = ["com.ntc.data"])
+@EnableConfigurationProperties(S3Properties::class)
 @EntityScan(basePackages = ["com.ntc.domain.model"])
 class ShopreeApplication
 

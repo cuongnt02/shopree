@@ -45,7 +45,8 @@ class ProductVariant(
 
     var createdAt: Instant = Instant.now(),
 
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
+    var image: String? = null
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -60,6 +61,7 @@ class ProductVariant(
         inventoryCount: Int = this.inventoryCount,
         inventoryPolicy: String = this.inventoryPolicy,
         metadata: Map<String, Any> = this.metadata,
+        image: String? = this.image,
     ): ProductVariant {
         val copy = ProductVariant(
             product = product,
@@ -71,7 +73,8 @@ class ProductVariant(
             inventoryPolicy = inventoryPolicy,
             metadata = metadata,
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
+            image = image,
         )
         copy.id = this.id
         return copy

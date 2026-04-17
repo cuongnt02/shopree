@@ -19,7 +19,8 @@ data class ProductVariantResponse(
     val sku: String?,
     val priceCents: Long,
     val compareAtCents: Long?,
-    val inventoryCount: Int
+    val inventoryCount: Int,
+    val image: String?
 )
 
 fun Product.toProductResponse(): ProductResponse {
@@ -40,7 +41,8 @@ fun ProductVariant.toProductVariantResponse(): ProductVariantResponse {
         sku = this.sku,
         priceCents = this.priceCents,
         compareAtCents = this.compareAtCents,
-        inventoryCount = this.inventoryCount
+        inventoryCount = this.inventoryCount,
+        image = this.image
     )
 }
 

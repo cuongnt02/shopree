@@ -8,7 +8,11 @@ import {useProductVariants} from "@/features/products/useProductVariants.ts";
 import {useDeleteVariant} from "@/features/products/useDeleteVariant.ts";
 import {VariantFormSheet} from "@/features/products/VariantFormSheet.tsx";
 import {formatVnd} from "@/lib/currency.ts";
-import {PencilSimple, Trash} from "@phosphor-icons/react";
+import {Trash, X} from "lucide-react";
+import {PencilSimple} from "@phosphor-icons/react";
+import {useVendorProduct} from "@/features/products/useVendorProduct.ts";
+import {useDeleteProductImage} from "@/features/products/useDeleteProductImage.ts";
+import {useUploadProductImage} from "@/features/products/useUploadProductImage.ts";
 
 const statusVariant: Record<ProductStatus, 'default' | 'secondary' | 'outline'> = {
     PUBLISHED: 'default',
@@ -26,10 +30,14 @@ interface Props {
 
 export function ProductDetailSheet({open, onClose, product, onEditProduct}: Props) {
     const [addOpen, setAddOpen] = useState(false)
-    const [editVariant, setEditVariant] = useState<ProductVariant | null>(null)
+    const [editVariantId, setEditVariantId] = useState<string | null>(null)
 
-    const {data: variants, isPending} = useProductVariants(product?.id ?? null)
+    const {data: detail, isPending: isDetailPending} = useVendorProduct(product?.id ?? null)
+    const deleteImage = useDeleteProductImage(product?.id ?? '')
+    const uploadImage = useUploadProductImage(product?.id ?? '')
+    const {data: variants, isPending} = useProductVariants(product?.id ?? '')
     const deleteVariant = useDeleteVariant(product?.id ?? '')
+    const editVariant = variants?.find(v => v.id === editVariantId) ?? null
 
     if (!product) return null
 
@@ -85,7 +93,7 @@ export function ProductDetailSheet({open, onClose, product, onEditProduct}: Prop
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <Button variant="ghost" size="icon"
-                                                onClick={() => setEditVariant(variant)}>
+                                                onClick={() => setEditVariantId(variant.id)}>
                                             <PencilSimple/>
                                         </Button>
                                         <Button variant="ghost" size="icon"
@@ -98,6 +106,34 @@ export function ProductDetailSheet({open, onClose, product, onEditProduct}: Prop
                                 </div>
                             ))}
                         </div>
+                        <div>
+                            <h3 className="font-medium mb-3">Images</h3>
+                            {isDetailPending
+                                ? <Skeleton className="h-20 w-full mb-3"/>
+                                : <div className="flex flex-wrap gap-2 mb-3">
+                                    {detail?.images?.map(img => (
+                                        <div key={img.id} className="relative group w-20 h-20">
+                                            <img src={img.url} alt={img?.altText ?? ""} className="w-20 h-20 rounded object-cover"/>
+                                            <button onClick={() => deleteImage.mutate(img.id)} className="absolute top-1 right-1 hidden group-hover:flex bg-black/60 text-white rounded p-0.5"><X size={12} /></button>
+                                        </div>
+                                    )) ?? []}
+                                </div>
+                            }
+                            <label className="cursor-pointer">
+                                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                        uploadImage.mutate({file})
+                                        e.target.value = ''
+                                    }
+
+                                }}/>
+                                <Button variant="outline" size="sm" asChild>
+                                    <span>{uploadImage.isPending ? 'Uploading...' : 'Add Image'}</span>
+                                </Button>
+                            </label>
+                        </div>
+
                     </div>
                 </SheetContent>
             </Sheet>
@@ -108,8 +144,8 @@ export function ProductDetailSheet({open, onClose, product, onEditProduct}: Prop
                 productId={product.id}
             />
             <VariantFormSheet
-                open={editVariant !== null}
-                onClose={() => setEditVariant(null)}
+                open={editVariantId !== null}
+                onClose={() => setEditVariantId(null)}
                 productId={product.id}
                 variant={editVariant ?? undefined}
             />

@@ -1,4 +1,4 @@
-import type {ProductFormData, ProductVariant, VariantFormData, VendorProduct} from "@/types/product.ts";
+import type {ProductFormData, ProductImage, ProductVariant, VariantFormData, VendorProduct} from "@/types/product.ts";
 import {api} from "@/lib/axios.ts";
 import type {Category} from "@/types/category.ts";
 
@@ -50,4 +50,28 @@ export async function deleteVariant(productId: string, variantId: string): Promi
 export async function fetchCategories(): Promise<Category[]> {
     const {data} = await api.get<Category[]>('/api/v1/categories')
     return data
+}
+
+export async function uploadVariantImage(productId: string, variantId: string, file: File): Promise<ProductVariant> {
+    const form = new FormData()
+    form.append('file', file)
+    const {data} = await api.post<ProductVariant>(`/api/v1/vendor/products/${productId}/variants/${variantId}/image`, form)
+    return data
+}
+
+export async function fetchVendorProduct(id: string): Promise<VendorProduct> {
+    const {data} = await api.get<VendorProduct>(`/api/v1/vendor/products/${id}`)
+    return data
+}
+
+export async function uploadProductImage(productId: string, file: File, altText?: string): Promise<ProductImage> {
+    const form = new FormData()
+    form.append("file", file)
+    if (altText) form.append("altText", altText)
+    const {data} = await api.post<ProductImage>(`/api/v1/vendor/products/${productId}/images`, form)
+    return data
+}
+
+export async function deleteProductImage(productId: string, imageId: string): Promise<void> {
+    await api.delete(`/api/v1/vendor/products/${productId}/images/${imageId}`)
 }

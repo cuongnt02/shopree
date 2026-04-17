@@ -1,6 +1,7 @@
 import type {ProductVariant} from "@/types/product.ts";
 import {useAddVariant} from "@/features/products/useAddVariant.ts";
 import {useUpdateVariant} from "@/features/products/useUpdateVariant.ts";
+import {useUploadVariantImage} from "@/features/products/useUploadVariantImage.ts";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -10,6 +11,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {Field, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field.tsx";
 import {InputGroup, InputGroupAddon, InputGroupInput, InputGroupText} from "@/components/ui/input-group.tsx";
 import {Input} from "@/components/ui/input.tsx";
+import {Camera} from "lucide-react";
 
 const schema = z.object({
     title: z.string(),
@@ -32,6 +34,7 @@ export function VariantFormSheet({open, onClose, productId, variant}: Props) {
     const isEdit = variant !== undefined
     const add = useAddVariant(productId)
     const update = useUpdateVariant(productId)
+    const uploadImage = useUploadVariantImage(productId)
     const isPending = add.isPending || update.isPending
 
     const {register, handleSubmit, reset, formState: {errors}} = useForm<FormValues>({
@@ -42,14 +45,15 @@ export function VariantFormSheet({open, onClose, productId, variant}: Props) {
     useEffect(() => {
         if (open) {
             reset(isEdit ? {
-                title: variant.title ?? '',
-                sku: variant.sku ?? '',
-                priceCents: variant.priceCents,
-                compareAtCents: variant.compareAtCents ?? 0,
-                inventoryCount: variant.inventoryCount,
+                title: variant?.title ?? '',
+                sku: variant?.sku ?? '',
+                priceCents: variant?.priceCents ?? 0,
+                compareAtCents: variant?.compareAtCents ?? 0,
+                inventoryCount: variant?.inventoryCount ?? 0,
             } : {title: '', sku: '', priceCents: 0, compareAtCents: 0, inventoryCount: 0})
         }
-    }, [open, variant, isEdit, reset])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open])
 
     const onSubmit = (data: FormValues) => {
         if (isEdit) {
@@ -65,6 +69,33 @@ export function VariantFormSheet({open, onClose, productId, variant}: Props) {
                 <SheetHeader className="mb-6">
                     <SheetTitle>{isEdit ? 'Edit Variant' : 'New Variant'}</SheetTitle>
                 </SheetHeader>
+                {isEdit && (
+                    <div className="px-1 mb-6">
+                        <p className="text-sm font-medium mb-3">Image</p>
+                        <div className="flex items-center gap-4">
+                            {variant.image
+                                ? <img src={variant.image} alt={variant.title ?? ''}
+                                       className="w-20 h-20 rounded object-cover"/>
+                                : <div className="w-20 h-20 rounded bg-muted flex items-center justify-center">
+                                    <Camera size={20} className="text-muted-foreground"/>
+                                </div>
+                            }
+                            <label className="cursor-pointer">
+                                <input type="file" accept="image/*" className="hidden"
+                                       onChange={(e) => {
+                                           const file = e.target.files?.[0]
+                                           if (file) {
+                                               uploadImage.mutate({variantId: variant.id, file})
+                                               e.target.value = ''
+                                           }
+                                       }}/>
+                                <Button variant="outline" size="sm" asChild>
+                                    <span>{uploadImage.isPending ? 'Uploading...' : variant.image ? 'Change Image' : 'Upload Image'}</span>
+                                </Button>
+                            </label>
+                        </div>
+                    </div>
+                )}
                 <form onSubmit={handleSubmit(onSubmit)} className="px-1">
                     <FieldGroup>
                         <Field>
