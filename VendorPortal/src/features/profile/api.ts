@@ -14,3 +14,10 @@ export async function updateVendorProfile(form: VendorProfileFormData): Promise<
     })
     return data
 }
+
+export async function changePassword(data: {
+    currentPassword: string
+    newPassword: string
+}): Promise<void> {
+    return await api.post('/api/v1/users/me/password', data)
+}

@@ -59,7 +59,7 @@ class SecurityConfig(
                     authorize("/api/v1/orders/**", hasAnyAuthority("BUYER", "VENDOR_USER"))
                     authorize("/api/v1/order/**", hasAuthority("BUYER"))
                     authorize("/api/v1/vendor/**", hasAuthority("VENDOR_USER"))
-                    authorize("/api/v1/users/**", hasAuthority("BUYER"))
+                    authorize("/api/v1/users/**", hasAnyAuthority("BUYER", "VENDOR_USER"))
                     authorize("/api/v1/auth/**", permitAll)
                     authorize("/v3/api-docs/**", permitAll)
                     authorize("/swagger-ui/**", permitAll)
