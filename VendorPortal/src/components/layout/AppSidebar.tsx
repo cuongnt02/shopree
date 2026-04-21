@@ -9,7 +9,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem
 } from "@/components/ui/sidebar.tsx";
-import {LayoutDashboard, LogOut, Package, ShoppingBag, Store} from "lucide-react";
+import {LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Store} from "lucide-react";
 import {NavLink, useLocation, useNavigate} from "react-router";
 import {useAuth} from "@/features/auth/AuthContext.tsx";
 import {logout} from "@/features/auth/api.ts";
@@ -23,7 +23,8 @@ export function AppSidebar() {
         {title: "Dashboard", url: "/", icon: LayoutDashboard},
         {title: "Orders", url: "/orders", icon: ShoppingBag},
         {title: "Products", url: "/products", icon: Package},
-        {title: "Store Profile", url: '/profile', icon: Store}
+        {title: "Store Profile", url: '/profile', icon: Store},
+        {title: "Settings", url: "/settings", icon: Settings}
     ]
 
     async function handleLogout() {
