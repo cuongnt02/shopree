@@ -4,11 +4,21 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import com.ntc.shopree.core.ui.theme.ColorGrey400
+import com.ntc.shopree.core.ui.theme.ColorGrey700
+import com.ntc.shopree.core.ui.theme.Outfit
+import com.ntc.shopree.core.ui.theme.fontSize3
+import com.ntc.shopree.core.ui.theme.fontSize5
+import com.ntc.shopree.core.ui.theme.spacing7
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -134,7 +144,11 @@ fun ProductSection(
         }
 
         is AsyncState.Success -> {
-            ProductsGrid(products = productsState.data, onProductClick = onProductClick)
+            if (productsState.data.isEmpty()) {
+                ProductsEmptyState()
+            } else {
+                ProductsGrid(products = productsState.data, onProductClick = onProductClick)
+            }
         }
 
         is AsyncState.Error -> {
@@ -176,5 +190,36 @@ fun SearchSection(
         is AsyncState.Error -> {
             Text(text = searchState.message, color = MaterialTheme.colorScheme.error)
         }
+    }
+}
+
+@Composable
+private fun ProductsEmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = spacing7),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(spacing2)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Search,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = ColorGrey400
+        )
+        Text(
+            text = "No products found",
+            fontSize = fontSize5,
+            fontWeight = FontWeight.SemiBold,
+            color = ColorGrey700,
+            fontFamily = Outfit
+        )
+        Text(
+            text = "Try a different search or category",
+            fontSize = fontSize3,
+            color = ColorGrey400,
+            fontFamily = Outfit
+        )
     }
 }

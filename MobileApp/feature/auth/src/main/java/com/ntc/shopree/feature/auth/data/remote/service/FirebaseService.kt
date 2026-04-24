@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseUser
 interface FirebaseService {
     suspend fun login(username: String, password: String): Result<AuthResult>
     suspend fun currentUser(): FirebaseUser?
+    suspend fun createUserWithEmailAndPassword(email: String, password: String)
 
     suspend fun getFirebaseIdToken(): String?
 }

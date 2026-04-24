@@ -28,6 +28,7 @@ object Icons {
         val CheckCircle = CheckCircleOutlined
         val Search = SearchOutlined
         val ArrowBack = ArrowBackOutlined
+        val Phone = PhoneOutlined
 
         val CartAdd = CartAddOutlined
         val Cart = CartOutlined

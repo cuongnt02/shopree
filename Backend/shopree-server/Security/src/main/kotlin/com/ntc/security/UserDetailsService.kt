@@ -10,7 +10,12 @@ import java.util.UUID
 @Service
 class AppUserDetailsService(private val userRepository: UserRepository): UserDetailsService {
     override fun loadUserByUsername(username: String): User {
-        return userRepository.findByEmail(username) ?: throw UsernameNotFoundException("User: $username not found")
+        val user = if (username.startsWith("+") || username.all { it.isDigit() || it == '+' || it == ' ' }) {
+            userRepository.findByPhone(username)
+        } else {
+            userRepository.findByEmail(username)
+        }
+        return user ?: throw UsernameNotFoundException("User: $username not found")
     }
 
     fun loadUserById(id: UUID): User? {

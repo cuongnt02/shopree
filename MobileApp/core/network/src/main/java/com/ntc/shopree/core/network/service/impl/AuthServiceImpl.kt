@@ -5,6 +5,7 @@ import com.ntc.shopree.core.model.dto.RefreshTokenRequest
 import com.ntc.shopree.core.model.dto.RefreshTokenResponse
 import com.ntc.shopree.core.network.dto.LoginRequest
 import com.ntc.shopree.core.network.dto.LoginResponse
+import com.ntc.shopree.core.network.dto.RegisterRequest
 import com.ntc.shopree.core.network.service.AuthService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,17 +21,26 @@ class AuthServiceImpl @Inject constructor(
     private val client: HttpClient,
     @Named("baseUrl") private val baseUrl: String
 ) : AuthService {
-    override suspend fun loginWithEmailAndPassword(email: String, password: String): LoginResponse {
+    override suspend fun loginWithEmailAndPassword(identifier: String, password: String): LoginResponse {
         val response = client.post {
             url("$baseUrl/api/v1/auth/login")
             contentType(ContentType.Application.Json)
-            setBody(
-                LoginRequest(
-                    email = email, password = password
-                )
-            )
+            setBody(LoginRequest(identifier = identifier, password = password))
         }
         return response.body()
+    }
+
+    override suspend fun register(
+        name: String,
+        email: String,
+        phone: String,
+        password: String
+    ): LoginResponse {
+        return client.post {
+            url("$baseUrl/api/v1/auth/register")
+            contentType(ContentType.Application.Json)
+            setBody(RegisterRequest(name, email, phone, password))
+        }.body()
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshTokenResponse {

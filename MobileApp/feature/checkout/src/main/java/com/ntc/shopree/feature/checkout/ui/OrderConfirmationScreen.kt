@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.icons.Icons
+import com.ntc.shopree.core.ui.utils.formatVnd
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -53,7 +54,7 @@ fun OrderConfirmationScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = orderNumber, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.width(4.dp))
-        Text("Total: $totalCents VND", style = MaterialTheme.typography.bodyLarge)
+        Text("Total: ${formatVnd(totalCents)}", style = MaterialTheme.typography.bodyLarge)
         Text("Pay cash when you pick up your order", style = MaterialTheme.typography.bodySmall)
         Spacer(modifier = Modifier.height(32.dp))
         PrimaryButton(onclick = { onBackHome() }, modifier = Modifier.fillMaxWidth()) {

@@ -71,7 +71,7 @@ data object LoginScreen : NavKey
 data object PostLogin : NavKey
 
 @Composable
-fun LoginScreen(onLoggedIn: () -> Unit) {
+fun LoginScreen(onLoggedIn: () -> Unit, onNavigateToRegister: () -> Unit = {}) {
     val loginViewModel: LoginViewModel = hiltViewModel()
     val state by loginViewModel.uiState.collectAsStateWithLifecycle()
     val emailState = rememberTextFieldState()
@@ -156,7 +156,7 @@ fun LoginScreen(onLoggedIn: () -> Unit) {
                 textDecoration = TextDecoration.Underline,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.clickable {
-                    // TODO: handle signup navigation
+                    onNavigateToRegister()
                 },
                 color = ColorGrey500,
                 fontFamily = Outfit

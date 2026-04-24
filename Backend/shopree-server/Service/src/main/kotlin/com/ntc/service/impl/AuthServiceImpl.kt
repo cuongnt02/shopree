@@ -1,5 +1,6 @@
 package com.ntc.service.impl
 
+import com.ntc.data.UserRepository
 import com.ntc.domain.exception.AuthenticationException
 import com.ntc.security.JwtTokenProvider
 import com.ntc.service.AuthService
@@ -10,10 +11,17 @@ import com.ntc.service.dto.RefreshTokenResponse
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class AuthServiceImpl(private val authenticationManager: AuthenticationManager, private val tokenProvider: JwtTokenProvider, private val refreshTokenService: RefreshTokenService):
+class AuthServiceImpl(
+    private val authenticationManager: AuthenticationManager,
+    private val tokenProvider: JwtTokenProvider,
+    private val refreshTokenService: RefreshTokenService,
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
+):
     AuthService {
     override fun login(username: String, password: String): LoginResponse {
         try {
@@ -37,6 +45,14 @@ class AuthServiceImpl(private val authenticationManager: AuthenticationManager, 
             throw AuthenticationException("Authentication failed")
         }
 
+    }
+
+    override fun register(name: String, email: String, phone: String, password: String): LoginResponse {
+        if (userRepository.existsByEmail(email)) throw IllegalArgumentException("Email already in use")
+        if (userRepository.existsByPhone(phone)) throw IllegalArgumentException("Phone already in use")
+        val user = User(name = name, email = email, phone = phone, passwordHash = passwordEncoder.encode(password)!!)
+        userRepository.save(user)
+        return login(email, password)
     }
 
     override fun refreshAccessToken(refreshToken: String): RefreshTokenResponse {

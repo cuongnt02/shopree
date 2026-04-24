@@ -6,6 +6,7 @@ import com.ntc.domain.exception.AuthenticationException
 import com.ntc.service.dto.LoginResponse
 import com.ntc.service.AuthService
 import com.ntc.service.dto.RefreshTokenResponse
+import com.ntc.service.dto.RegisterRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 class AuthController(private val authService: AuthService) {
     @PostMapping("/login") // TODO: Validation on each request body
     fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
-        return ResponseEntity.ok(authService.login(username = loginRequest.email, password = loginRequest.password))
+        return ResponseEntity.ok(authService.login(username = loginRequest.identifier, password = loginRequest.password))
     }
 
     @PostMapping("/refresh")
@@ -36,5 +37,10 @@ class AuthController(private val authService: AuthService) {
     fun logout(@RequestBody request: RefreshTokenRequest): ResponseEntity<Void> {
         authService.logout(request.refreshToken)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/register")
+    fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<LoginResponse> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request.name, request.email, request.phone, request.password))
     }
 }

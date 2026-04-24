@@ -75,6 +75,7 @@ import com.ntc.shopree.core.ui.theme.spacing3
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.ui.utils.formatVnd
 import com.ntc.shopree.feature.cart.ui.CartButton
 import com.ntc.shopree.feature.cart.ui.CartViewModel
 import kotlinx.serialization.Serializable
@@ -255,7 +256,7 @@ fun ProductDescription(
                         fontFamily = Outfit
                     )
                     Text(
-                        text = "$${selectedVariant?.price ?: product.price}",
+                        text = formatVnd(selectedVariant?.price ?: product.price),
                         fontSize = fontSize6,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = Outfit

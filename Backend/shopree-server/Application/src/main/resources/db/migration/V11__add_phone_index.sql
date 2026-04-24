@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_user_phone ON shopree_user (phone) WHERE phone <> '';
