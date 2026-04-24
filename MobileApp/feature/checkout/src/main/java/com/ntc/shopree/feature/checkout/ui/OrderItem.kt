@@ -25,6 +25,7 @@ import com.ntc.shopree.core.ui.theme.fontSize3
 import com.ntc.shopree.core.ui.theme.fontSize5
 import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.theme.spacing2
+import com.ntc.shopree.core.ui.utils.formatVnd
 import com.ntc.shopree.core.ui.R as CoreUiR
 
 @Composable
@@ -54,9 +55,8 @@ fun OrderItem(
             )
             Text(text = "x$quantity", fontFamily = Outfit, fontSize = fontSize3)
         }
-        // TODO: Currency localization ?
         Text(
-            text = "${"%.0f".format(price * quantity)} VND",
+            text = formatVnd(price * quantity),
             fontSize = fontSize5,
             fontFamily = Outfit,
             fontWeight = FontWeight.SemiBold,
@@ -90,9 +90,8 @@ fun OrderItem(
             )
             Text(text = "x$quantity", fontFamily = Outfit, fontSize = fontSize3)
         }
-        // TODO: Currency localization ?
         Text(
-            text = "${"%.0f".format(price * quantity)} VND",
+            text = formatVnd(price * quantity),
             fontSize = fontSize5,
             fontFamily = Outfit,
             fontWeight = FontWeight.SemiBold,

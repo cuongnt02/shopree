@@ -45,6 +45,7 @@ import com.ntc.shopree.core.ui.theme.MobileAppTheme
 import com.ntc.shopree.core.ui.theme.Outfit
 import com.ntc.shopree.core.ui.theme.Red500
 import com.ntc.shopree.core.ui.theme.fontSize1
+import com.ntc.shopree.core.ui.utils.formatVnd
 import com.ntc.shopree.core.ui.theme.fontSize2
 import com.ntc.shopree.core.ui.theme.fontSize3
 import com.ntc.shopree.core.ui.theme.fontSize5
@@ -115,7 +116,7 @@ fun CartItem(
                 }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "$${cartItem.price}",
+                        text = formatVnd(cartItem.price),
                         fontFamily = Outfit,
                         fontSize = fontSize5,
                         fontWeight = FontWeight.SemiBold

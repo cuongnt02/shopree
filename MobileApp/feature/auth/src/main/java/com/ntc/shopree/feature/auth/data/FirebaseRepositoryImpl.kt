@@ -19,6 +19,17 @@ class FirebaseRepositoryImpl @Inject constructor(
     override suspend fun login(email: String, password: String): Result<Unit> {
         return firebaseService.login(email, password).map { }
     }
+
+    override suspend fun register(
+        email: String,
+        password: String
+    ): Result<Unit> = try {
+        firebaseService.createUserWithEmailAndPassword(email, password)
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
 }
 
 

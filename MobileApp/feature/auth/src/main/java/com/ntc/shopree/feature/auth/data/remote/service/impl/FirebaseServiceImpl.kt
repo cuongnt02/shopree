@@ -25,6 +25,13 @@ class FirebaseServiceImpl @Inject constructor(
         return auth.currentUser
     }
 
+    override suspend fun createUserWithEmailAndPassword(
+        email: String,
+        password: String
+    ) {
+        auth.createUserWithEmailAndPassword(email, password).await()
+    }
+
     override suspend fun getFirebaseIdToken(): String? {
         return auth.currentUser?.getIdToken(true)?.await()?.token
     }

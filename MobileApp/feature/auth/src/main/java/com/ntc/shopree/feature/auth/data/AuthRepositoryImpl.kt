@@ -6,16 +6,28 @@ import com.ntc.shopree.core.model.Session
 import com.ntc.shopree.core.network.dto.toSession
 import com.ntc.shopree.core.network.service.AuthService
 import com.ntc.shopree.feature.auth.domain.AuthRepository
+import com.ntc.shopree.feature.auth.domain.FirebaseRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authService: AuthService,
-    private val sessionStore: SessionStore
+    private val sessionStore: SessionStore,
+    private val firebaseRepository: FirebaseRepository
 ) : AuthRepository {
-    override suspend fun getSession(email: String, password: String, firebaseToken: String): Session {
-        return authService.loginWithEmailAndPassword(email, password).toSession()
+    override suspend fun getSession(identifier: String, password: String, firebaseToken: String): Session {
+        return authService.loginWithEmailAndPassword(identifier, password).toSession()
+    }
+
+    override suspend fun register(
+        name: String,
+        email: String,
+        phone: String,
+        password: String
+    ): Session {
+        firebaseRepository.register(email, password).getOrThrow()
+        return authService.register(name, email, phone, password).toSession()
     }
 
     override suspend fun logout() {

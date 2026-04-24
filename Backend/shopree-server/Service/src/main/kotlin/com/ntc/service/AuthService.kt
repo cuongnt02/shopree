@@ -5,6 +5,7 @@ import com.ntc.service.dto.RefreshTokenResponse
 
 interface AuthService {
     fun login(username: String, password: String): LoginResponse
+    fun register(name: String, email: String, phone: String, password: String): LoginResponse
     fun logout(refreshToken: String)
     fun refreshAccessToken(refreshToken: String): RefreshTokenResponse
 }

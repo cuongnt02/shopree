@@ -59,6 +59,7 @@ import com.ntc.shopree.core.ui.theme.spacing3
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.ui.utils.formatVnd
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -229,7 +230,7 @@ fun OrderDetailsScreen(
                                 color = Neutral900
                             )
                             Text(
-                                text = "${"%,d".format(order.totalCents)} ${order.currency}",
+                                text = formatVnd(order.totalCents),
                                 fontFamily = Outfit,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = fontSize2,
@@ -271,7 +272,7 @@ private fun OrderItemRow(item: OrderItemResponse) {
             )
         }
         Text(
-            text = "${"%,d".format(item.totalPriceCents)} VND",
+            text = formatVnd(item.totalPriceCents),
             fontFamily = Outfit,
             fontWeight = FontWeight.Medium,
             fontSize = fontSize2,

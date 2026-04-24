@@ -9,9 +9,16 @@ fun EntryProviderScope<NavKey>.authEntryBuilder(backStack: NavBackStack<NavKey>)
         LoginScreen(onLoggedIn = {
             backStack.clear()
             backStack.add(PostLogin)
+        }, onNavigateToRegister = {
+            backStack.add(RegisterScreen)
         })
     }
-    entry<RegisterScreen> { RegisterScreen() }
+    entry<RegisterScreen> {
+        RegisterScreen(onNavigateBack = { backStack.removeLastOrNull() }, onRegistered = {
+            backStack.clear()
+            backStack.add(PostLogin)
+        })
+    }
 }
 
 

@@ -37,15 +37,20 @@ import com.ntc.shopree.core.ui.components.PrimaryButton
 import com.ntc.shopree.core.ui.components.ShopreeAlertDialog
 import com.ntc.shopree.core.ui.icons.Icons
 import com.ntc.shopree.core.ui.theme.ColorGrey100
+import com.ntc.shopree.core.ui.theme.ColorGrey400
+import com.ntc.shopree.core.ui.theme.ColorGrey700
 import com.ntc.shopree.core.ui.theme.MobileAppTheme
 import com.ntc.shopree.core.ui.theme.Outfit
+import com.ntc.shopree.core.ui.theme.fontSize3
 import com.ntc.shopree.core.ui.theme.fontSize5
 import com.ntc.shopree.core.ui.theme.fontSize6
 import com.ntc.shopree.core.ui.theme.spacing1
 import com.ntc.shopree.core.ui.theme.spacing3
+import com.ntc.shopree.core.ui.theme.spacing7
 import com.ntc.shopree.core.ui.utils.ObserveAsEvents
 import com.ntc.shopree.core.ui.utils.SnackbarController
 import com.ntc.shopree.core.ui.utils.SnackbarEvent
+import com.ntc.shopree.core.ui.utils.formatVnd
 import kotlinx.serialization.Serializable
 import com.ntc.shopree.core.ui.R as CoreUiR
 
@@ -104,6 +109,7 @@ fun CartScreenContent(
     itemPainter: @Composable (CartItem) -> Painter? = { null }
 ) {
     var clearCartConfirm by remember { mutableStateOf(false) }
+    val isCartEmpty = (state.cartState as? AsyncState.Success)?.data?.items?.isEmpty() ?: true
 
     Column {
         CenterAlignedTopAppBar(title = { Text("Your Cart") }, navigationIcon = {
@@ -120,82 +126,119 @@ fun CartScreenContent(
             is AsyncState.Success -> {
                 val cartItems = cartState.data.items
                 val products = cartState.data.products
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(horizontal = spacing1)
-                ) {
-                    LazyColumn() {
-                        items(cartItems.size) { index ->
-                            val item = cartItems[index]
-                            val product = products[item.productSlug]
-                            CartItem(
-                                cartItem = item,
-                                product = product,
-                                painter = itemPainter(item),
-                                onDetailsClick = { onProductClick(it) },
-                                onDecrementCartItem = { onDecrementCartItem(item) },
-                                onIncrementCartItem = { onIncrementCartItem(item) },
-                                onRemoveCartItem = { onRemoveCartItem(item) },
-                                onVariantChange = { variantId ->
-                                    if (product != null) {
-                                        onVariantChange(item, product, variantId)
-                                    }
-                                })
-                            Spacer(modifier = Modifier.height(spacing1))
+                if (cartItems.isEmpty()) {
+                    CartEmptyState()
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(horizontal = spacing1)
+                    ) {
+                        LazyColumn() {
+                            items(cartItems.size) { index ->
+                                val item = cartItems[index]
+                                val product = products[item.productSlug]
+                                CartItem(
+                                    cartItem = item,
+                                    product = product,
+                                    painter = itemPainter(item),
+                                    onDetailsClick = { onProductClick(it) },
+                                    onDecrementCartItem = { onDecrementCartItem(item) },
+                                    onIncrementCartItem = { onIncrementCartItem(item) },
+                                    onRemoveCartItem = { onRemoveCartItem(item) },
+                                    onVariantChange = { variantId ->
+                                        if (product != null) {
+                                            onVariantChange(item, product, variantId)
+                                        }
+                                    })
+                                Spacer(modifier = Modifier.height(spacing1))
+                            }
+                        }
+                        PrimaryButton(onclick = { clearCartConfirm = true }) {
+                            Text(
+                                text = "Clear",
+                                color = ColorGrey100,
+                                fontSize = fontSize5,
+                                fontFamily = Outfit,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
-                    PrimaryButton(onclick = { clearCartConfirm = true }) {
-                        Text(
-                            text = "Clear",
-                            color = ColorGrey100,
-                            fontSize = fontSize5,
-                            fontFamily = Outfit,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                    if (clearCartConfirm) {
+                        ShopreeAlertDialog(
+                            title = "Clear Cart",
+                            text = "Are you sure you want to clear your cart?",
+                            icon = Icons.Outlined.Cart,
+                            onDissmissRequest = { clearCartConfirm = false },
+                            onConfirmation = {
+                                onClearCart()
+                                clearCartConfirm = false
+                            })
                     }
-                }
-                if (clearCartConfirm) {
-                    ShopreeAlertDialog(
-                        title = "Clear Cart",
-                        text = "Are you sure you want to clear your cart?",
-                        icon = Icons.Outlined.Cart,
-                        onDissmissRequest = { clearCartConfirm = false },
-                        onConfirmation = {
-                            onClearCart()
-                            clearCartConfirm = false
-                        })
                 }
             }
 
             is AsyncState.Error -> {}
         }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(spacing3),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                modifier = Modifier.padding(start = spacing3),
-                text = "%.0f$".format(price),
-                fontSize = fontSize6,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Outfit
-            )
-            PrimaryButton(onclick = { onCheckout() }) {
+        if (!isCartEmpty) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(spacing3),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "Checkout",
-                    color = ColorGrey100,
+                    modifier = Modifier.padding(start = spacing3),
+                    text = formatVnd(price),
                     fontSize = fontSize6,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     fontFamily = Outfit
                 )
+                PrimaryButton(onclick = { onCheckout() }) {
+                    Text(
+                        text = "Checkout",
+                        color = ColorGrey100,
+                        fontSize = fontSize6,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = Outfit
+                    )
+                }
             }
         }
     }
 }
 
+
+@Composable
+private fun CartEmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = spacing7),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(spacing3)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Cart,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = ColorGrey400
+        )
+        Text(
+            text = "Your cart is empty",
+            fontSize = fontSize5,
+            fontWeight = FontWeight.SemiBold,
+            color = ColorGrey700,
+            fontFamily = Outfit
+        )
+        Text(
+            text = "Add items to get started",
+            fontSize = fontSize3,
+            color = ColorGrey400,
+            fontFamily = Outfit
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

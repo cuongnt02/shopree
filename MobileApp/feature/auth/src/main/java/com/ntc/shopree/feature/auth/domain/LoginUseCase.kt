@@ -13,24 +13,24 @@ class LoginUseCase @Inject constructor(
     // TODO: Handle nullable session and map to a dedicated auth error state.
     // TODO: Handle gracefully wrong credential logins
     suspend operator fun invoke(
-        email: String,
+        identifier: String,
         password: String,
         rememberMe: Boolean
     ): Result<Session?> {
-        var idToken = firebaseRepository.getTokenId()
+        val isPhone = identifier.startsWith("+") ||
+                identifier.all { it.isDigit() || it == '+' || it == ' ' }
 
-        if (idToken == null) {
-            val result = firebaseRepository.login(email, password)
-            result.onSuccess {
-                idToken = firebaseRepository.getTokenId()
-            }.onFailure {
-                return Result.failure(it)
+        if (!isPhone) {
+            var idToken = firebaseRepository.getTokenId()
+            if (idToken == null) {
+                val result = firebaseRepository.login(identifier, password)
+                result.onFailure { return Result.failure(it) }
             }
         }
 
         return try {
             val session = authRepository.getSession(
-                email = email, password = password, firebaseToken = idToken!!
+                identifier = identifier, password = password, firebaseToken = ""
             )
             // WARN: Not quite right, should be checking if the current session is valid or not somewhere else
             if (session != null) {
