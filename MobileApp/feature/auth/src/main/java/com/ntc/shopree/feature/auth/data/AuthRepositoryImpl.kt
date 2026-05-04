@@ -17,7 +17,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseRepository: FirebaseRepository
 ) : AuthRepository {
     override suspend fun getSession(identifier: String, password: String, firebaseToken: String): Session {
-        return authService.loginWithEmailAndPassword(identifier, password).toSession()
+        return authService.loginWithEmailAndPassword(identifier, password, firebaseToken.ifBlank { null }).toSession()
     }
 
     override suspend fun register(

@@ -27,6 +27,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.google.firebase:firebase-admin:9.8.0")
     implementation(project(":Data"))
     implementation(project(":Domain"))
     //implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")

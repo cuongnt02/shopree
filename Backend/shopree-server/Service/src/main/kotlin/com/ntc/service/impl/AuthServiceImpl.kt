@@ -5,6 +5,7 @@ import com.ntc.domain.exception.AuthenticationException
 import com.ntc.security.JwtTokenProvider
 import com.ntc.service.AuthService
 import com.ntc.domain.model.User
+import com.ntc.security.FirebaseTokenService
 import com.ntc.service.RefreshTokenService
 import com.ntc.service.dto.LoginResponse
 import com.ntc.service.dto.RefreshTokenResponse
@@ -20,10 +21,19 @@ class AuthServiceImpl(
     private val tokenProvider: JwtTokenProvider,
     private val refreshTokenService: RefreshTokenService,
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val firebaseTokenService: FirebaseTokenService
 ):
     AuthService {
-    override fun login(username: String, password: String): LoginResponse {
+    override fun login(username: String, password: String, firebaseToken: String?): LoginResponse {
+        val isPhone = username.startsWith("+") ||
+                username.all { it.isDigit() || it == '+' || it == ' ' }
+
+        if (!isPhone) {
+            if (firebaseToken == null || firebaseTokenService.verifyToken(firebaseToken) == null) {
+                throw AuthenticationException("Firebase token required for email login")
+            }
+        }
         try {
             val auth = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(username, password))
 

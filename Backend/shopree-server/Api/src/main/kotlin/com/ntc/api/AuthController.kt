@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 class AuthController(private val authService: AuthService) {
     @PostMapping("/login") // TODO: Validation on each request body
     fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
-        return ResponseEntity.ok(authService.login(username = loginRequest.identifier, password = loginRequest.password))
+        return ResponseEntity.ok(
+            authService.login(username = loginRequest.identifier, password = loginRequest.password, loginRequest.firebaseToken)
+        )
     }
 
     @PostMapping("/refresh")

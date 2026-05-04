@@ -20,17 +20,20 @@ class LoginUseCase @Inject constructor(
         val isPhone = identifier.startsWith("+") ||
                 identifier.all { it.isDigit() || it == '+' || it == ' ' }
 
+        var firebaseToken = ""
         if (!isPhone) {
             var idToken = firebaseRepository.getTokenId()
             if (idToken == null) {
                 val result = firebaseRepository.login(identifier, password)
                 result.onFailure { return Result.failure(it) }
+                idToken = firebaseRepository.getTokenId()
             }
+            firebaseToken = idToken ?: ""
         }
 
         return try {
             val session = authRepository.getSession(
-                identifier = identifier, password = password, firebaseToken = ""
+                identifier = identifier, password = password, firebaseToken = firebaseToken
             )
             // WARN: Not quite right, should be checking if the current session is valid or not somewhere else
             if (session != null) {

@@ -21,11 +21,11 @@ class AuthServiceImpl @Inject constructor(
     private val client: HttpClient,
     @Named("baseUrl") private val baseUrl: String
 ) : AuthService {
-    override suspend fun loginWithEmailAndPassword(identifier: String, password: String): LoginResponse {
+    override suspend fun loginWithEmailAndPassword(identifier: String, password: String, firebaseToken: String?): LoginResponse {
         val response = client.post {
             url("$baseUrl/api/v1/auth/login")
             contentType(ContentType.Application.Json)
-            setBody(LoginRequest(identifier = identifier, password = password))
+            setBody(LoginRequest(identifier = identifier, password = password, firebaseToken = firebaseToken))
         }
         return response.body()
     }
